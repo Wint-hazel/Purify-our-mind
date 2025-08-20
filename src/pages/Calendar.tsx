@@ -178,93 +178,96 @@ const Calendar = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Calendar with Wellness Design */}
           <div className="lg:col-span-2">
-            <div className="relative">
+            <div className="relative max-w-4xl mx-auto">
               {/* Decorative Scalloped Border */}
-              <div className="absolute inset-0 bg-blue-300 dark:bg-blue-700 rounded-3xl"
-                   style={{
-                     clipPath: `polygon(
-                       0% 8%, 4% 0%, 8% 8%, 12% 0%, 16% 8%, 20% 0%, 24% 8%, 28% 0%, 32% 8%, 36% 0%, 40% 8%, 44% 0%, 48% 8%, 52% 0%, 56% 8%, 60% 0%, 64% 8%, 68% 0%, 72% 8%, 76% 0%, 80% 8%, 84% 0%, 88% 8%, 92% 0%, 96% 8%, 100% 0%,
-                       100% 92%, 96% 100%, 92% 92%, 88% 100%, 84% 92%, 80% 100%, 76% 92%, 72% 100%, 68% 92%, 64% 100%, 60% 92%, 56% 100%, 52% 92%, 48% 100%, 44% 92%, 40% 100%, 36% 92%, 32% 100%, 28% 92%, 24% 100%, 20% 92%, 16% 100%, 12% 92%, 8% 100%, 4% 92%, 0% 100%
-                     )`
-                   }}>
-              </div>
-              
-              <Card className="relative bg-blue-100/80 dark:bg-blue-900/80 backdrop-blur-sm border-0 shadow-2xl m-4 animate-fade-in">
-                <CardHeader className="text-center pb-4">
-                  <div className="flex items-center justify-center gap-6 mb-6">
-                    {/* Wellness Icons */}
-                    <div className="grid grid-cols-4 gap-3 text-blue-600 dark:text-blue-300">
-                      <div className="w-8 h-8 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
-                        <Snowflake className="w-4 h-4" />
-                      </div>
-                      <div className="w-8 h-8 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
-                        <TrendingUp className="w-4 h-4" />
-                      </div>
-                      <div className="w-8 h-8 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
-                        <Settings className="w-4 h-4" />
-                      </div>
-                      <div className="w-8 h-8 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
-                        <Hand className="w-4 h-4" />
-                      </div>
-                      <div className="w-8 h-8 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
-                        <Heart className="w-4 h-4" />
-                      </div>
-                      <div className="w-8 h-8 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
-                        <Leaf className="w-4 h-4" />
-                      </div>
-                      <div className="w-8 h-8 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
-                        <Brain className="w-4 h-4" />
-                      </div>
-                      <div className="w-8 h-8 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
-                        <Sun className="w-4 h-4" />
-                      </div>
-                    </div>
-
-                    {/* Meditation Figure */}
-                    <div className="mx-8">
-                      <div className="w-24 h-24 bg-blue-600 dark:bg-blue-400 rounded-full relative">
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          {/* Meditation silhouette using CSS shapes */}
-                          <div className="relative">
-                            {/* Head */}
-                            <div className="w-6 h-6 bg-blue-100 dark:bg-blue-900 rounded-full mx-auto mb-1"></div>
-                            {/* Body */}
-                            <div className="w-4 h-8 bg-blue-100 dark:bg-blue-900 rounded-t-full mx-auto"></div>
-                            {/* Arms */}
-                            <div className="absolute top-6 -left-2 w-2 h-4 bg-blue-100 dark:bg-blue-900 rounded-full transform rotate-45"></div>
-                            <div className="absolute top-6 -right-2 w-2 h-4 bg-blue-100 dark:bg-blue-900 rounded-full transform -rotate-45"></div>
-                            {/* Legs in lotus position */}
-                            <div className="absolute top-12 -left-1 w-3 h-2 bg-blue-100 dark:bg-blue-900 rounded-full"></div>
-                            <div className="absolute top-12 -right-1 w-3 h-2 bg-blue-100 dark:bg-blue-900 rounded-full"></div>
-                          </div>
+              <div 
+                className="bg-gradient-to-br from-blue-400 to-blue-600 p-8 animate-fade-in"
+                style={{
+                  clipPath: `polygon(
+                    0% 6%, 3% 0%, 6% 6%, 9% 0%, 12% 6%, 15% 0%, 18% 6%, 21% 0%, 24% 6%, 27% 0%, 30% 6%, 33% 0%, 36% 6%, 39% 0%, 42% 6%, 45% 0%, 48% 6%, 51% 0%, 54% 6%, 57% 0%, 60% 6%, 63% 0%, 66% 6%, 69% 0%, 72% 6%, 75% 0%, 78% 6%, 81% 0%, 84% 6%, 87% 0%, 90% 6%, 93% 0%, 96% 6%, 99% 0%, 100% 6%,
+                    100% 94%, 99% 100%, 96% 94%, 93% 100%, 90% 94%, 87% 100%, 84% 94%, 81% 100%, 78% 94%, 75% 100%, 72% 94%, 69% 100%, 66% 94%, 63% 100%, 60% 94%, 57% 100%, 54% 94%, 51% 100%, 48% 94%, 45% 100%, 42% 94%, 39% 100%, 36% 94%, 33% 100%, 30% 94%, 27% 100%, 24% 94%, 21% 100%, 18% 94%, 15% 100%, 12% 94%, 9% 100%, 6% 94%, 3% 100%, 0% 94%
+                  )`
+                }}
+              >
+                <div className="bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg p-8 relative">
+                  {/* Top Section with Icons, Meditation Figure, and Month */}
+                  <div className="flex items-start justify-between mb-8">
+                    {/* Left: Wellness Icons arranged in circular pattern */}
+                    <div className="flex flex-col items-center">
+                      <div className="grid grid-cols-3 gap-3 mb-4">
+                        {/* Top row */}
+                        <div className="w-12 h-12 rounded-full border-2 border-blue-600 bg-blue-50 flex items-center justify-center">
+                          <Snowflake className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <div className="w-12 h-12 rounded-full border-2 border-blue-600 bg-blue-50 flex items-center justify-center">
+                          <TrendingUp className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <div className="w-12 h-12 rounded-full border-2 border-blue-600 bg-blue-50 flex items-center justify-center">
+                          <Settings className="w-6 h-6 text-blue-600" />
+                        </div>
+                        
+                        {/* Middle row */}
+                        <div className="w-12 h-12 rounded-full border-2 border-blue-600 bg-blue-50 flex items-center justify-center">
+                          <BookOpen className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <div className="w-12 h-12 rounded-full border-2 border-blue-600 bg-blue-50 flex items-center justify-center">
+                          <Settings className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <div className="w-12 h-12 rounded-full border-2 border-blue-600 bg-blue-50 flex items-center justify-center">
+                          <Hand className="w-6 h-6 text-blue-600" />
+                        </div>
+                        
+                        {/* Bottom row */}
+                        <div className="w-12 h-12 rounded-full border-2 border-blue-600 bg-blue-50 flex items-center justify-center">
+                          <Heart className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <div className="w-12 h-12 rounded-full border-2 border-blue-600 bg-blue-50 flex items-center justify-center">
+                          <Brain className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <div className="w-12 h-12 rounded-full border-2 border-blue-600 bg-blue-50 flex items-center justify-center">
+                          <Heart className="w-6 h-6 text-blue-600" />
                         </div>
                       </div>
+                      
+                      {/* Meditation Figure */}
+                      <div className="w-20 h-24 relative">
+                        <svg width="80" height="96" viewBox="0 0 80 96" className="text-blue-700">
+                          {/* Meditation pose silhouette */}
+                          <path
+                            d="M40 8 C45 8, 48 12, 48 18 C48 24, 45 28, 40 28 C35 28, 32 24, 32 18 C32 12, 35 8, 40 8 Z
+                               M40 28 L40 48 M32 38 L25 32 M48 38 L55 32 
+                               M40 48 L32 60 L28 68 L24 72 M40 48 L48 60 L52 68 L56 72
+                               M28 72 C26 74, 26 76, 28 78 C30 76, 30 74, 28 72
+                               M56 72 C58 74, 58 76, 56 78 C54 76, 54 74, 56 72"
+                            fill="currentColor"
+                            stroke="none"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                    
+                    {/* Center: Month and Year */}
+                    <div className="text-center flex-1">
+                      <h2 className="text-5xl font-bold text-blue-900 mb-2">October</h2>
+                      <h3 className="text-4xl font-bold text-blue-900">2025</h3>
+                    </div>
+                    
+                    {/* Right: Decorative Leaf */}
+                    <div className="flex items-center">
+                      <Leaf className="w-16 h-16 text-blue-600 transform rotate-12" />
                     </div>
                   </div>
-
-                  <CardTitle className="text-3xl font-bold text-blue-900 dark:text-blue-100 mb-2">
-                    {currentMonth}
-                  </CardTitle>
-                  <div className="flex items-center justify-center gap-2">
-                    <Button 
-                      onClick={() => navigate(`/daily-plan${selectedDate ? '?date=' + selectedDate.toISOString().split('T')[0] : ''}`)} 
-                      variant="outline" 
-                      size="sm"
-                      className="flex items-center gap-2 bg-blue-50 dark:bg-blue-800 border-blue-300 dark:border-blue-600 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-700"
-                    >
-                      <BookOpen className="w-4 h-4" />
-                      Open Daily Plan
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent className="px-8 pb-8">
-                  <div className="grid grid-cols-7 gap-2 mb-6">
+                  
+                  {/* Day Headers */}
+                  <div className="grid grid-cols-7 gap-2 mb-4">
                     {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, index) => (
-                      <div key={day + index} className="text-center text-lg font-bold text-blue-800 dark:text-blue-200 p-3">
+                      <div key={day + index} className="text-center text-2xl font-bold text-blue-900 p-3">
                         {day}
                       </div>
                     ))}
                   </div>
+                  
+                  {/* Calendar Grid */}
                   <div className="grid grid-cols-7 gap-3">
                     {calendarDays.map((day, index) => {
                       if (!day) return <div key={index} className="aspect-square"></div>;
@@ -279,19 +282,19 @@ const Calendar = () => {
                         <div key={index} className="aspect-square relative">
                           <div 
                             className={`
-                              w-full h-full flex items-center justify-center text-lg font-semibold rounded-xl cursor-pointer transition-all duration-300 relative
+                              w-full h-full flex items-center justify-center text-2xl font-bold cursor-pointer transition-all duration-300 relative
                               ${isToday 
-                                ? 'bg-blue-600 text-white shadow-lg transform scale-105' 
+                                ? 'bg-blue-600 text-white shadow-lg transform scale-105 rounded-lg' 
                                 : isSelected
-                                  ? 'bg-blue-400 text-white shadow-md border-2 border-blue-700'
-                                  : 'bg-white/70 dark:bg-blue-800/70 text-blue-900 dark:text-blue-100 hover:bg-white dark:hover:bg-blue-700 hover:shadow-md hover:scale-105'
+                                  ? 'bg-blue-400 text-white shadow-md border-2 border-blue-700 rounded-lg'
+                                  : 'text-blue-900 hover:bg-blue-300/50 hover:scale-105 rounded-lg'
                               }
                             `}
                             onClick={() => handleDateClick(day)}
                           >
                             {day}
                             {hasEntries && (
-                              <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center shadow-lg">
+                              <div className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 text-white rounded-full flex items-center justify-center shadow-lg">
                                 <span className="text-xs font-bold">
                                   {entriesForDay.length}
                                 </span>
@@ -303,19 +306,18 @@ const Calendar = () => {
                     })}
                   </div>
                   
-                  {/* Legend */}
-                  <div className="mt-6 flex items-center justify-center gap-6 text-sm text-blue-700 dark:text-blue-300">
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 bg-blue-500 rounded-full shadow"></div>
-                      <span>Has diary entries</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 bg-blue-400 border-2 border-blue-700 rounded-xl"></div>
-                      <span>Selected date</span>
-                    </div>
+                  {/* Action Button */}
+                  <div className="mt-8 text-center">
+                    <Button 
+                      onClick={() => navigate(`/daily-plan${selectedDate ? '?date=' + selectedDate.toISOString().split('T')[0] : ''}`)} 
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-semibold shadow-lg"
+                    >
+                      <BookOpen className="w-5 h-5 mr-2" />
+                      Open Daily Plan
+                    </Button>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </div>
           </div>
 
