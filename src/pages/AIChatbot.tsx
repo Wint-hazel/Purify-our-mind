@@ -28,34 +28,114 @@ const AIChatbot = () => {
   const getAIResponse = (userMessage: string): string => {
     const message = userMessage.toLowerCase();
     
-    // Stress & Anxiety responses
-    if (message.includes('anxious') || message.includes('anxiety') || message.includes('exam')) {
-      return "It's natural to feel nervous before exams. Let's try a 2-minute breathing exercise together. Inhale slowly… now exhale. Would you like more tips to calm your mind?";
+    // Overthinking responses
+    if (message.includes('thinking about') || message.includes('mistakes') || message.includes('overthinking') || message.includes("can't stop thinking")) {
+      return "It's normal to replay events in your mind. Let's try focusing on the present moment. Can we do a 3-step grounding exercise together?";
     }
     
-    // Loneliness & Sadness responses
-    if (message.includes('lonely') || message.includes('unmotivated') || message.includes('sad')) {
-      return "I'm here for you. Sometimes talking about how you feel can help. Would you like me to suggest a simple activity to lift your mood today?";
+    // Feeling Overwhelmed responses
+    if (message.includes('too many tasks') || message.includes('crushed') || message.includes('overwhelmed')) {
+      return "Let's break them down into small steps. Which task can you start with right now?";
+    }
+    
+    // Lack of Motivation responses
+    if (message.includes("don't feel like") || message.includes('unmotivated') || message.includes('no motivation')) {
+      return "Even resting counts as productivity. How about starting with one tiny task to ease into your day?";
+    }
+    
+    // Low Self-Esteem responses
+    if (message.includes('not good enough') || message.includes('low self-esteem') || message.includes('worthless')) {
+      return "You are unique and valuable. Let's list 3 things you like about yourself today.";
+    }
+    
+    // Feeling Lonely responses
+    if (message.includes('lonely') || message.includes('so alone') || message.includes('feel alone')) {
+      return "You're not alone right now—I'm here to talk. Want to share what's on your mind?";
+    }
+    
+    // Anger Management responses
+    if (message.includes('angry') || message.includes('mad at') || message.includes('furious')) {
+      return "It's okay to feel angry. Let's take a moment to breathe deeply and calm down before responding.";
+    }
+    
+    // Grief & Loss responses
+    if (message.includes('miss') || message.includes('loved one') || message.includes('grief') || message.includes('loss')) {
+      return "It's natural to feel this way. Would you like to try a gentle reflection exercise to honor their memory?";
+    }
+    
+    // Procrastination responses
+    if (message.includes('putting off') || message.includes('procrastinating') || message.includes('keep delaying')) {
+      return "Starting small helps. Can we set a 5-minute timer to begin one task?";
+    }
+    
+    // Fear & Anxiety responses
+    if (message.includes('scared') || message.includes('anxious') || message.includes('anxiety') || message.includes('fear')) {
+      return "Fear is part of change. Let's focus on what you can control today.";
+    }
+    
+    // Feeling Empty / Numb responses
+    if (message.includes("don't feel anything") || message.includes('empty') || message.includes('numb')) {
+      return "That can feel unsettling. Let's try a simple sensory exercise: notice what you can see, hear, and touch right now.";
+    }
+    
+    // Relationship Issues responses
+    if (message.includes('argued') || message.includes('fight') || message.includes('relationship') || message.includes('partner')) {
+      return "Conflicts happen. Can we explore how you feel and think about a calm approach to resolve it?";
+    }
+    
+    // Body Image / Self-Acceptance responses
+    if (message.includes('hate how i look') || message.includes('body image') || message.includes('appearance')) {
+      return "Your worth isn't defined by appearance. Let's list 3 things your body does for you that you appreciate.";
+    }
+    
+    // Exam / Work Pressure responses
+    if (message.includes('deadlines') || message.includes('work pressure') || message.includes('exam stress')) {
+      return "Breaking your work into small chunks can reduce stress. Want me to help you plan a schedule?";
+    }
+    
+    // Feeling Stuck / Life Purpose responses
+    if (message.includes("don't know what i want") || message.includes('stuck') || message.includes('life purpose')) {
+      return "Exploring interests step by step helps. Let's think about 1 activity that excites you.";
+    }
+    
+    // Sleep Problems responses
+    if (message.includes('sleep') || message.includes("can't sleep") || message.includes('insomnia')) {
+      return "Let's do a 5-minute relaxation technique or a guided breathing exercise to help you drift off.";
+    }
+    
+    // Impulsive Emotions responses
+    if (message.includes('mood swings') || message.includes("can't control") || message.includes('impulsive')) {
+      return "It's okay; emotions are temporary. Let's try labeling your feelings and see if we can calm them together.";
+    }
+    
+    // Overworking / Burnout responses
+    if (message.includes('exhausted') || message.includes('burnout') || message.includes('overworking')) {
+      return "Your health matters. Taking a short break or a walk can recharge your energy. Shall we try it?";
+    }
+    
+    // Social Anxiety responses
+    if (message.includes('nervous talking') || message.includes('social anxiety') || message.includes('talking to people')) {
+      return "Many feel this way. Let's practice a small social interaction step you can try today.";
+    }
+    
+    // Feeling Guilty responses
+    if (message.includes('guilty') || message.includes('guilt') || message.includes('feel bad about')) {
+      return "Acknowledging it is a step forward. Can we think of a constructive way to make amends or forgive yourself?";
+    }
+    
+    // Positive Mindset & Gratitude responses
+    if (message.includes('negative about everything') || message.includes('pessimistic') || message.includes('bad thoughts')) {
+      return "Let's try a gratitude exercise: name 3 small things today that made you feel good, even slightly.";
+    }
+    
+    // Stress responses (general)
+    if (message.includes('stress') || message.includes('stressed')) {
+      return "I understand you're feeling stressed. Stress is very common, and there are ways to manage it. Would you like to try a quick breathing exercise, or would you prefer some practical stress-management tips?";
     }
     
     // Daily Check-in responses
     if (message.includes('how are you feeling') || message.includes('feeling today') || message.includes('check in')) {
       return "Hi! How are you feeling today on a scale of 1-10? I can suggest an activity to improve your mood based on your answer.";
-    }
-    
-    // Sleep & Relaxation responses
-    if (message.includes('sleep') || message.includes("can't sleep") || message.includes('insomnia')) {
-      return "A calming bedtime routine can help. Try reading a book, listening to soft music, or practicing 5 minutes of deep breathing before bed. Want me to guide you through it?";
-    }
-    
-    // Motivation & Goals responses
-    if (message.includes('lazy') || message.includes('unproductive') || message.includes('motivation')) {
-      return "That's okay! Even small steps count. Let's break your tasks into tiny, achievable goals. What's one thing you can do right now?";
-    }
-    
-    // Stress responses
-    if (message.includes('stress') || message.includes('overwhelmed')) {
-      return "I understand you're feeling stressed. Stress is very common, and there are ways to manage it. Would you like to try a quick breathing exercise, or would you prefer some practical stress-management tips?";
     }
     
     // Default supportive response
