@@ -50,6 +50,48 @@ export type Database = {
         }
         Relationships: []
       }
+      diary_media: {
+        Row: {
+          caption: string | null
+          created_at: string
+          diary_entry_id: string | null
+          file_name: string
+          file_path: string
+          file_size: number
+          id: string
+          mime_type: string
+          updated_at: string
+          upload_date: string
+          user_id: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          diary_entry_id?: string | null
+          file_name: string
+          file_path: string
+          file_size: number
+          id?: string
+          mime_type: string
+          updated_at?: string
+          upload_date?: string
+          user_id: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          diary_entry_id?: string | null
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          id?: string
+          mime_type?: string
+          updated_at?: string
+          upload_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

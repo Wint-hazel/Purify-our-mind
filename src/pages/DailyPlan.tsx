@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Search, Plus, BookOpen, Filter, Heart, Sparkles } from 'lucide-react';
+import { Calendar, Search, Plus, BookOpen, Filter, Heart, Sparkles, Upload, Image as ImageIcon, X, Camera } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -19,6 +19,20 @@ interface DiaryEntry {
   mood_rating: number | null;
   mood_tags: string[] | null;
   entry_date: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface DiaryMedia {
+  id: string;
+  user_id: string;
+  diary_entry_id: string | null;
+  file_path: string;
+  file_name: string;
+  caption: string | null;
+  file_size: number;
+  mime_type: string;
+  upload_date: string;
   created_at: string;
   updated_at: string;
 }
@@ -49,10 +63,14 @@ const DailyPlan = () => {
   const today = new Date().toISOString().split('T')[0];
   const isPastDate = selectedDate && selectedDate < today;
   const [entries, setEntries] = useState<DiaryEntry[]>([]);
+  const [media, setMedia] = useState<DiaryMedia[]>([]);
   const [showNewEntry, setShowNewEntry] = useState(false);
+  const [showMediaUpload, setShowMediaUpload] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMoodFilter, setSelectedMoodFilter] = useState<number | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [dailyPhotoCount, setDailyPhotoCount] = useState(0);
 
   // New entry form state
   const [newTitle, setNewTitle] = useState('');
@@ -65,8 +83,10 @@ const DailyPlan = () => {
   useEffect(() => {
     if (user) {
       fetchEntries();
+      fetchMedia();
+      fetchDailyPhotoCount();
     }
-  }, [user]);
+  }, [user, selectedDate]);
 
   useEffect(() => {
     if (selectedDate) {
@@ -94,6 +114,185 @@ const DailyPlan = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchMedia = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('diary_media')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('upload_date', selectedDate || today)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setMedia(data || []);
+    } catch (error) {
+      console.error('Error fetching media:', error);
+    }
+  };
+
+  const fetchDailyPhotoCount = async () => {
+    if (!user) return;
+    
+    try {
+      const { count, error } = await supabase
+        .from('diary_media')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('upload_date', selectedDate || today);
+
+      if (error) throw error;
+      setDailyPhotoCount(count || 0);
+    } catch (error) {
+      console.error('Error fetching photo count:', error);
+      setDailyPhotoCount(0);
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files || event.target.files.length === 0) return;
+    
+    const file = event.target.files[0];
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Error",
+        description: "Please upload an image file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Error",
+        description: "File size must be less than 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check daily limit
+    if (dailyPhotoCount >= 20) {
+      toast({
+        title: "Daily Limit Reached",
+        description: "You can only upload 20 photos per day",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploading(true);
+    
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${user?.id}/${fileName}`;
+
+      // Upload file to storage
+      const { error: uploadError } = await supabase.storage
+        .from('diary-media')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Save media record to database
+      const { error: dbError } = await supabase
+        .from('diary_media')
+        .insert({
+          user_id: user?.id,
+          file_path: filePath,
+          file_name: file.name,
+          file_size: file.size,
+          mime_type: file.type,
+          upload_date: selectedDate || today,
+        });
+
+      if (dbError) throw dbError;
+
+      toast({
+        title: "Success",
+        description: "Photo uploaded successfully",
+      });
+
+      // Refresh media and count
+      fetchMedia();
+      fetchDailyPhotoCount();
+      setShowMediaUpload(false);
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload photo",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const updateMediaCaption = async (mediaId: string, caption: string) => {
+    try {
+      const { error } = await supabase
+        .from('diary_media')
+        .update({ caption })
+        .eq('id', mediaId);
+
+      if (error) throw error;
+      
+      fetchMedia(); // Refresh media list
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update caption",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const deleteMedia = async (mediaId: string, filePath: string) => {
+    try {
+      // Delete from storage
+      const { error: storageError } = await supabase.storage
+        .from('diary-media')
+        .remove([filePath]);
+
+      if (storageError) throw storageError;
+
+      // Delete from database
+      const { error: dbError } = await supabase
+        .from('diary_media')
+        .delete()
+        .eq('id', mediaId);
+
+      if (dbError) throw dbError;
+
+      toast({
+        title: "Success",
+        description: "Photo deleted successfully",
+      });
+
+      fetchMedia();
+      fetchDailyPhotoCount();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete photo",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const getImageUrl = (filePath: string) => {
+    const { data } = supabase.storage
+      .from('diary-media')
+      .getPublicUrl(filePath);
+    return data.publicUrl;
   };
 
   const handleSaveEntry = async () => {
@@ -247,11 +446,23 @@ const DailyPlan = () => {
               ))}
             </select>
             
+          <div className="flex gap-2">
             {!isPastDate && (
-              <Button onClick={() => setShowNewEntry(!showNewEntry)} className="flex items-center gap-2">
-                <Plus className="w-4 h-4" />
-                New Entry
-              </Button>
+              <>
+                <Button onClick={() => setShowNewEntry(!showNewEntry)} className="flex items-center gap-2">
+                  <Plus className="w-4 h-4" />
+                  New Entry
+                </Button>
+                <Button 
+                  onClick={() => setShowMediaUpload(!showMediaUpload)} 
+                  variant="outline" 
+                  className="flex items-center gap-2"
+                  disabled={dailyPhotoCount >= 20}
+                >
+                  <Camera className="w-4 h-4" />
+                  Add Photo ({dailyPhotoCount}/20)
+                </Button>
+              </>
             )}
             {isPastDate && (
               <Badge variant="secondary" className="flex items-center gap-2 px-3 py-2">
@@ -259,7 +470,122 @@ const DailyPlan = () => {
               </Badge>
             )}
           </div>
+          </div>
         </div>
+
+        {/* Media Upload Form */}
+        {showMediaUpload && !isPastDate && (
+          <Card className="mb-8 border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/5">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Camera className="w-5 h-5 text-primary" />
+                Add Photo Memory
+              </CardTitle>
+              <CardDescription>
+                Share a visual moment from your day ({dailyPhotoCount}/20 photos today)
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  disabled={uploading}
+                  className="hidden"
+                  id="photo-upload"
+                />
+                <label 
+                  htmlFor="photo-upload" 
+                  className={`cursor-pointer flex flex-col items-center gap-3 ${uploading ? 'opacity-50' : ''}`}
+                >
+                  <Upload className="w-12 h-12 text-muted-foreground" />
+                  <div>
+                    <p className="text-lg font-medium text-foreground">
+                      {uploading ? 'Uploading...' : 'Click to upload a photo'}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      PNG, JPG, GIF up to 5MB
+                    </p>
+                  </div>
+                </label>
+              </div>
+              
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowMediaUpload(false)}
+                  disabled={uploading}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Media Gallery */}
+        {media.length > 0 && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ImageIcon className="w-5 h-5 text-primary" />
+                Photo Memories
+                {selectedDate && (
+                  <Badge variant="outline" className="ml-2">
+                    {new Date(selectedDate).toLocaleDateString()}
+                  </Badge>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {media.map((item) => (
+                  <div key={item.id} className="relative group">
+                    <div className="aspect-square rounded-lg overflow-hidden bg-muted">
+                      <img
+                        src={getImageUrl(item.file_path)}
+                        alt={item.caption || item.file_name}
+                        className="w-full h-full object-cover"
+                      />
+                      
+                      {!isPastDate && (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => deleteMedia(item.id, item.file_path)}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+                    
+                    <div className="mt-2">
+                      {!isPastDate ? (
+                        <Input
+                          placeholder="Add a caption..."
+                          defaultValue={item.caption || ''}
+                          onBlur={(e) => updateMediaCaption(item.id, e.target.value)}
+                          className="text-sm"
+                        />
+                      ) : (
+                        item.caption && (
+                          <p className="text-sm text-muted-foreground italic">
+                            {item.caption}
+                          </p>
+                        )
+                      )}
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {new Date(item.created_at).toLocaleTimeString()}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* New Entry Form */}
         {showNewEntry && !isPastDate && (
