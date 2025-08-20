@@ -27,7 +27,7 @@ const Navigation = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 text-xl font-semibold text-primary">
             <Heart className="w-6 h-6 text-primary" />
-            <span>MindPure</span>
+            <span>Purify Our Mind</span>
           </Link>
 
           {/* Desktop Navigation */}

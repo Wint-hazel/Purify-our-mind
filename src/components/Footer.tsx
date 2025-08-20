@@ -32,7 +32,7 @@ const Footer = () => {
           <div className="md:col-span-1">
             <Link to="/" className="flex items-center space-x-2 text-xl font-semibold text-primary mb-4">
               <Heart className="w-6 h-6" />
-              <span>MindPure</span>
+              <span>Purify Our Mind</span>
             </Link>
             <p className="text-sm text-muted-foreground mb-4">
               Purifying minds, one day at a time. Your journey to mental wellness starts here.
