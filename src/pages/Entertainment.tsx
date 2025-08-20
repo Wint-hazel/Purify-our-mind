@@ -145,22 +145,22 @@ export default function Entertainment() {
                 ) : (
                   filteredBooks.map((book) => (
                     <Card key={book.id} className="hover-scale overflow-hidden">
-                      <div className="aspect-[2/3] relative">
+                      <div className="aspect-[3/4] relative">
                         <img
                           src={book.cover_url}
                           alt={book.name}
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-lg line-clamp-2">{book.name}</CardTitle>
-                        <CardDescription className="text-sm font-medium">{book.author}</CardDescription>
+                      <CardHeader className="pb-1">
+                        <CardTitle className="text-base line-clamp-2">{book.name}</CardTitle>
+                        <CardDescription className="text-xs font-medium">{book.author}</CardDescription>
                       </CardHeader>
-                      <CardContent className="space-y-3">
-                        <p className="text-sm text-muted-foreground line-clamp-3">{book.about}</p>
-                        <div className="bg-primary/10 p-3 rounded-lg">
-                          <p className="text-sm font-medium text-primary mb-1">Why Read:</p>
-                          <p className="text-sm text-muted-foreground">{book.why_read}</p>
+                      <CardContent className="space-y-2">
+                        <p className="text-xs text-muted-foreground line-clamp-2">{book.about}</p>
+                        <div className="bg-primary/10 p-2 rounded-lg">
+                          <p className="text-xs font-medium text-primary mb-1">Why Read:</p>
+                          <p className="text-xs text-muted-foreground line-clamp-2">{book.why_read}</p>
                         </div>
                       </CardContent>
                     </Card>
