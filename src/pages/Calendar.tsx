@@ -185,7 +185,7 @@ const Calendar = () => {
                 <div className="flex items-center gap-2">
                   <CalendarIcon className="w-6 h-6 text-primary" />
                   <Button 
-                    onClick={() => navigate('/daily-plan')} 
+                    onClick={() => navigate(`/daily-plan${selectedDate ? '?date=' + selectedDate.toISOString().split('T')[0] : ''}`)} 
                     variant="outline" 
                     size="sm"
                     className="flex items-center gap-2"
@@ -272,7 +272,7 @@ const Calendar = () => {
                     <div className="text-center py-4">
                       <p className="text-muted-foreground mb-3">No diary entries for this date</p>
                       <Button 
-                        onClick={() => navigate('/daily-plan')} 
+                        onClick={() => navigate(`/daily-plan?date=${selectedDate.toISOString().split('T')[0]}`)} 
                         size="sm" 
                         className="flex items-center gap-2"
                       >
@@ -314,7 +314,7 @@ const Calendar = () => {
                               </div>
                             )}
                             <Button 
-                              onClick={() => navigate('/daily-plan')} 
+                              onClick={() => navigate(`/daily-plan?date=${selectedDate.toISOString().split('T')[0]}`)} 
                               variant="ghost" 
                               size="sm" 
                               className="text-xs flex items-center gap-1"
@@ -326,13 +326,13 @@ const Calendar = () => {
                         );
                       })}
                       <Button 
-                        onClick={() => navigate('/daily-plan')} 
+                        onClick={() => navigate(`/daily-plan?date=${selectedDate.toISOString().split('T')[0]}`)} 
                         variant="outline" 
                         size="sm" 
                         className="w-full flex items-center gap-2"
                       >
                         <BookOpen className="w-4 h-4" />
-                        View All Entries
+                        View Entries for This Date
                       </Button>
                     </>
                   )}

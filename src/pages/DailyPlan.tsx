@@ -8,6 +8,7 @@ import { Calendar, Search, Plus, BookOpen, Filter, Heart, Sparkles } from 'lucid
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useSearchParams } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 
@@ -43,6 +44,8 @@ const commonMoodTags = [
 const DailyPlan = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  const selectedDate = searchParams.get('date');
   const [entries, setEntries] = useState<DiaryEntry[]>([]);
   const [showNewEntry, setShowNewEntry] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -62,6 +65,13 @@ const DailyPlan = () => {
       fetchEntries();
     }
   }, [user]);
+
+  useEffect(() => {
+    if (selectedDate) {
+      setSearchQuery('');
+      setSelectedMoodFilter(null);
+    }
+  }, [selectedDate]);
 
   const fetchEntries = async () => {
     try {
@@ -104,6 +114,7 @@ const DailyPlan = () => {
           content: newContent.trim(),
           mood_rating: newMoodRating,
           mood_tags: newMoodTags.length > 0 ? newMoodTags : null,
+          entry_date: selectedDate || new Date().toISOString().split('T')[0],
         });
 
       if (error) throw error;
@@ -161,7 +172,9 @@ const DailyPlan = () => {
     
     const matchesMood = !selectedMoodFilter || entry.mood_rating === selectedMoodFilter;
     
-    return matchesSearch && matchesMood;
+    const matchesDate = !selectedDate || entry.entry_date === selectedDate;
+    
+    return matchesSearch && matchesMood && matchesDate;
   });
 
   if (loading) {
@@ -186,9 +199,21 @@ const DailyPlan = () => {
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4 flex items-center justify-center gap-3">
             <BookOpen className="w-12 h-12 text-primary" />
             Daily Plan
+            {selectedDate && (
+              <Badge variant="outline" className="ml-2 text-sm">
+                {new Date(selectedDate).toLocaleDateString('en-US', { 
+                  month: 'short', 
+                  day: 'numeric',
+                  year: 'numeric'
+                })}
+              </Badge>
+            )}
           </h1>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            🔒 Your thoughts and emotions deserve a safe home where you can always return to them
+            {selectedDate 
+              ? `📝 Viewing entries for ${new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}`
+              : '🔒 Your thoughts and emotions deserve a safe home where you can always return to them'
+            }
           </p>
         </div>
 
