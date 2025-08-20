@@ -6,6 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
+import Navigation from '@/components/Navigation';
+import Footer from '@/components/Footer';
 
 interface BookData {
   id: string;
@@ -81,203 +83,209 @@ export default function Entertainment() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-foreground mb-4">
-            Entertainment for Mental Wellness
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            Discover carefully curated books, music, and movies designed to support your mental health journey. 
-            Each recommendation is chosen for its positive impact on emotional well-being and personal growth.
-          </p>
-        </div>
+    <div className="min-h-screen bg-background">
+      <Navigation />
+      
+      <div className="bg-gradient-subtle">
+        <div className="container mx-auto px-4 py-8">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-foreground mb-4">
+              Entertainment for Mental Wellness
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              Discover carefully curated books, music, and movies designed to support your mental health journey. 
+              Each recommendation is chosen for its positive impact on emotional well-being and personal growth.
+            </p>
+          </div>
 
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8">
-            <TabsTrigger value="books" className="flex items-center gap-2">
-              <Book className="w-4 h-4" />
-              Books
-            </TabsTrigger>
-            <TabsTrigger value="music" className="flex items-center gap-2">
-              <Music className="w-4 h-4" />
-              Music
-            </TabsTrigger>
-            <TabsTrigger value="movies" className="flex items-center gap-2">
-              <Film className="w-4 h-4" />
-              Movies
-            </TabsTrigger>
-          </TabsList>
+          {/* Tabs */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-3 mb-8">
+              <TabsTrigger value="books" className="flex items-center gap-2">
+                <Book className="w-4 h-4" />
+                Books
+              </TabsTrigger>
+              <TabsTrigger value="music" className="flex items-center gap-2">
+                <Music className="w-4 h-4" />
+                Music
+              </TabsTrigger>
+              <TabsTrigger value="movies" className="flex items-center gap-2">
+                <Film className="w-4 h-4" />
+                Movies
+              </TabsTrigger>
+            </TabsList>
 
-          {/* Books Section */}
-          <TabsContent value="books" className="space-y-6">
-            <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-              <h2 className="text-2xl font-semibold text-foreground">Mental Health Books</h2>
-              <div className="relative w-full sm:w-80">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                <Input
-                  placeholder="Search by title or author..."
-                  value={bookSearch}
-                  onChange={(e) => setBookSearch(e.target.value)}
-                  className="pl-10"
-                />
+            {/* Books Section */}
+            <TabsContent value="books" className="space-y-6">
+              <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+                <h2 className="text-2xl font-semibold text-foreground">Mental Health Books</h2>
+                <div className="relative w-full sm:w-80">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                  <Input
+                    placeholder="Search by title or author..."
+                    value={bookSearch}
+                    onChange={(e) => setBookSearch(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {loading ? (
-                Array.from({ length: 8 }).map((_, i) => (
-                  <Card key={i} className="overflow-hidden">
-                    <div className="aspect-[2/3] bg-muted animate-pulse" />
-                    <CardHeader>
-                      <div className="h-5 bg-muted animate-pulse rounded mb-2" />
-                      <div className="h-4 bg-muted animate-pulse rounded w-3/4" />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {loading ? (
+                  Array.from({ length: 8 }).map((_, i) => (
+                    <Card key={i} className="overflow-hidden">
+                      <div className="aspect-[2/3] bg-muted animate-pulse" />
+                      <CardHeader>
+                        <div className="h-5 bg-muted animate-pulse rounded mb-2" />
+                        <div className="h-4 bg-muted animate-pulse rounded w-3/4" />
+                      </CardHeader>
+                    </Card>
+                  ))
+                ) : (
+                  filteredBooks.map((book) => (
+                    <Card key={book.id} className="hover-scale overflow-hidden">
+                      <div className="aspect-[2/3] relative">
+                        <img
+                          src={book.cover_url}
+                          alt={book.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg line-clamp-2">{book.name}</CardTitle>
+                        <CardDescription className="text-sm font-medium">{book.author}</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <p className="text-sm text-muted-foreground line-clamp-3">{book.about}</p>
+                        <div className="bg-primary/10 p-3 rounded-lg">
+                          <p className="text-sm font-medium text-primary mb-1">Why Read:</p>
+                          <p className="text-sm text-muted-foreground">{book.why_read}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </div>
+            </TabsContent>
+
+            {/* Music Section */}
+            <TabsContent value="music" className="space-y-6">
+              <h2 className="text-2xl font-semibold text-foreground">Therapeutic Music</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {music.map((song) => (
+                  <Card key={song.id} className="hover-scale overflow-hidden">
+                    <div className="aspect-square relative">
+                      <img
+                        src={song.albumArt}
+                        alt={song.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <Button
+                        onClick={() => handlePlayVideo(song.id)}
+                        className="absolute inset-0 bg-black/50 hover:bg-black/60 text-white opacity-0 hover:opacity-100 transition-opacity"
+                        variant="ghost"
+                        size="lg"
+                      >
+                        {playingVideo === song.id ? (
+                          <Pause className="w-8 h-8" />
+                        ) : (
+                          <Play className="w-8 h-8" />
+                        )}
+                      </Button>
+                    </div>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg line-clamp-1">{song.title}</CardTitle>
+                      <CardDescription className="text-sm font-medium">{song.artist}</CardDescription>
                     </CardHeader>
+                    <CardContent className="space-y-3">
+                      {playingVideo === song.id && (
+                        <div className="aspect-video">
+                          <iframe
+                            width="100%"
+                            height="100%"
+                            src={`https://www.youtube.com/embed/${song.youtubeId}?autoplay=1`}
+                            title={song.title}
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="rounded-lg"
+                          />
+                        </div>
+                      )}
+                      <div className="bg-primary/10 p-3 rounded-lg">
+                        <p className="text-sm font-medium text-primary mb-1">Why Listen:</p>
+                        <p className="text-sm text-muted-foreground">{song.whyListen}</p>
+                      </div>
+                    </CardContent>
                   </Card>
-                ))
-              ) : (
-                filteredBooks.map((book) => (
-                  <Card key={book.id} className="hover-scale overflow-hidden">
+                ))}
+              </div>
+            </TabsContent>
+
+            {/* Movies Section */}
+            <TabsContent value="movies" className="space-y-6">
+              <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+                <h2 className="text-2xl font-semibold text-foreground">Uplifting Movies</h2>
+                <Select value={movieGenre} onValueChange={setMovieGenre}>
+                  <SelectTrigger className="w-full sm:w-48">
+                    <SelectValue placeholder="Filter by genre" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="All">All Genres</SelectItem>
+                    <SelectItem value="Drama">Drama</SelectItem>
+                    <SelectItem value="Animation">Animation</SelectItem>
+                    <SelectItem value="Documentary">Documentary</SelectItem>
+                    <SelectItem value="Comedy">Comedy</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredMovies.map((movie) => (
+                  <Card key={movie.id} className="hover-scale overflow-hidden">
                     <div className="aspect-[2/3] relative">
                       <img
-                        src={book.cover_url}
-                        alt={book.name}
+                        src={movie.poster}
+                        alt={movie.title}
                         className="w-full h-full object-cover"
                       />
                     </div>
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-lg line-clamp-2">{book.name}</CardTitle>
-                      <CardDescription className="text-sm font-medium">{book.author}</CardDescription>
+                      <CardTitle className="text-lg line-clamp-2">{movie.title}</CardTitle>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <span className="bg-primary/20 px-2 py-1 rounded text-xs font-medium">
+                          {movie.genre}
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                          <span>{movie.rating}</span>
+                        </div>
+                      </div>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      <p className="text-sm text-muted-foreground line-clamp-3">{book.about}</p>
+                      <p className="text-sm text-muted-foreground line-clamp-3">{movie.description}</p>
                       <div className="bg-primary/10 p-3 rounded-lg">
-                        <p className="text-sm font-medium text-primary mb-1">Why Read:</p>
-                        <p className="text-sm text-muted-foreground">{book.why_read}</p>
+                        <p className="text-sm font-medium text-primary mb-1">Why Watch:</p>
+                        <p className="text-sm text-muted-foreground">{movie.whyWatch}</p>
                       </div>
+                      <Button variant="outline" size="sm" className="w-full" asChild>
+                        <a href={movie.imdbUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                          <ExternalLink className="w-3 h-3" />
+                          View on IMDB
+                        </a>
+                      </Button>
                     </CardContent>
                   </Card>
-                ))
-              )}
-            </div>
-          </TabsContent>
-
-          {/* Music Section */}
-          <TabsContent value="music" className="space-y-6">
-            <h2 className="text-2xl font-semibold text-foreground">Therapeutic Music</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {music.map((song) => (
-                <Card key={song.id} className="hover-scale overflow-hidden">
-                  <div className="aspect-square relative">
-                    <img
-                      src={song.albumArt}
-                      alt={song.title}
-                      className="w-full h-full object-cover"
-                    />
-                    <Button
-                      onClick={() => handlePlayVideo(song.id)}
-                      className="absolute inset-0 bg-black/50 hover:bg-black/60 text-white opacity-0 hover:opacity-100 transition-opacity"
-                      variant="ghost"
-                      size="lg"
-                    >
-                      {playingVideo === song.id ? (
-                        <Pause className="w-8 h-8" />
-                      ) : (
-                        <Play className="w-8 h-8" />
-                      )}
-                    </Button>
-                  </div>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg line-clamp-1">{song.title}</CardTitle>
-                    <CardDescription className="text-sm font-medium">{song.artist}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {playingVideo === song.id && (
-                      <div className="aspect-video">
-                        <iframe
-                          width="100%"
-                          height="100%"
-                          src={`https://www.youtube.com/embed/${song.youtubeId}?autoplay=1`}
-                          title={song.title}
-                          frameBorder="0"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                          className="rounded-lg"
-                        />
-                      </div>
-                    )}
-                    <div className="bg-primary/10 p-3 rounded-lg">
-                      <p className="text-sm font-medium text-primary mb-1">Why Listen:</p>
-                      <p className="text-sm text-muted-foreground">{song.whyListen}</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          {/* Movies Section */}
-          <TabsContent value="movies" className="space-y-6">
-            <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-              <h2 className="text-2xl font-semibold text-foreground">Uplifting Movies</h2>
-              <Select value={movieGenre} onValueChange={setMovieGenre}>
-                <SelectTrigger className="w-full sm:w-48">
-                  <SelectValue placeholder="Filter by genre" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="All">All Genres</SelectItem>
-                  <SelectItem value="Drama">Drama</SelectItem>
-                  <SelectItem value="Animation">Animation</SelectItem>
-                  <SelectItem value="Documentary">Documentary</SelectItem>
-                  <SelectItem value="Comedy">Comedy</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredMovies.map((movie) => (
-                <Card key={movie.id} className="hover-scale overflow-hidden">
-                  <div className="aspect-[2/3] relative">
-                    <img
-                      src={movie.poster}
-                      alt={movie.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg line-clamp-2">{movie.title}</CardTitle>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <span className="bg-primary/20 px-2 py-1 rounded text-xs font-medium">
-                        {movie.genre}
-                      </span>
-                      <div className="flex items-center gap-1">
-                        <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                        <span>{movie.rating}</span>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <p className="text-sm text-muted-foreground line-clamp-3">{movie.description}</p>
-                    <div className="bg-primary/10 p-3 rounded-lg">
-                      <p className="text-sm font-medium text-primary mb-1">Why Watch:</p>
-                      <p className="text-sm text-muted-foreground">{movie.whyWatch}</p>
-                    </div>
-                    <Button variant="outline" size="sm" className="w-full" asChild>
-                      <a href={movie.imdbUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
-                        <ExternalLink className="w-3 h-3" />
-                        View on IMDB
-                      </a>
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
+                ))}
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
+      
+      <Footer />
     </div>
   );
 }
