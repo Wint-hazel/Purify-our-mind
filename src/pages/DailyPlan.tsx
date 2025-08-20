@@ -12,6 +12,86 @@ import { useSearchParams } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 
+// Media Item Component
+const MediaItem = ({ item, isPastDate, onUpdateCaption, onDelete }: {
+  item: DiaryMedia;
+  isPastDate: boolean;
+  onUpdateCaption: (id: string, caption: string) => void;
+  onDelete: (id: string, filePath: string) => void;
+}) => {
+  const [imageUrl, setImageUrl] = useState<string>('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadImage = async () => {
+      try {
+        const { data, error } = await supabase.storage
+          .from('diary-media')
+          .createSignedUrl(item.file_path, 3600);
+
+        if (error) throw error;
+        setImageUrl(data.signedUrl);
+      } catch (error) {
+        console.error('Error loading image:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadImage();
+  }, [item.file_path]);
+
+  return (
+    <div className="relative group">
+      <div className="aspect-square rounded-lg overflow-hidden bg-muted">
+        {loading ? (
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="animate-pulse bg-muted-foreground/20 w-full h-full"></div>
+          </div>
+        ) : (
+          <img
+            src={imageUrl}
+            alt={item.caption || item.file_name}
+            className="w-full h-full object-cover"
+            onError={() => console.error('Failed to load image')}
+          />
+        )}
+        
+        {!isPastDate && !loading && (
+          <Button
+            variant="destructive"
+            size="sm"
+            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={() => onDelete(item.id, item.file_path)}
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        )}
+      </div>
+      
+      <div className="mt-2">
+        {!isPastDate ? (
+          <Input
+            placeholder="Add a caption..."
+            defaultValue={item.caption || ''}
+            onBlur={(e) => onUpdateCaption(item.id, e.target.value)}
+            className="text-sm"
+          />
+        ) : (
+          item.caption && (
+            <p className="text-sm text-muted-foreground italic">
+              {item.caption}
+            </p>
+          )
+        )}
+        <p className="text-xs text-muted-foreground mt-1">
+          {new Date(item.created_at).toLocaleTimeString()}
+        </p>
+      </div>
+    </div>
+  );
+};
+
 interface DiaryEntry {
   id: string;
   title: string | null;
@@ -288,11 +368,22 @@ const DailyPlan = () => {
     }
   };
 
-  const getImageUrl = (filePath: string) => {
-    const { data } = supabase.storage
-      .from('diary-media')
-      .getPublicUrl(filePath);
-    return data.publicUrl;
+  const getImageUrl = async (filePath: string) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('diary-media')
+        .createSignedUrl(filePath, 3600); // 1 hour expiry
+
+      if (error) {
+        console.error('Error creating signed URL:', error);
+        return '';
+      }
+      
+      return data.signedUrl;
+    } catch (error) {
+      console.error('Error getting image URL:', error);
+      return '';
+    }
   };
 
   const handleSaveEntry = async () => {
@@ -541,46 +632,13 @@ const DailyPlan = () => {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {media.map((item) => (
-                  <div key={item.id} className="relative group">
-                    <div className="aspect-square rounded-lg overflow-hidden bg-muted">
-                      <img
-                        src={getImageUrl(item.file_path)}
-                        alt={item.caption || item.file_name}
-                        className="w-full h-full object-cover"
-                      />
-                      
-                      {!isPastDate && (
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => deleteMedia(item.id, item.file_path)}
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </div>
-                    
-                    <div className="mt-2">
-                      {!isPastDate ? (
-                        <Input
-                          placeholder="Add a caption..."
-                          defaultValue={item.caption || ''}
-                          onBlur={(e) => updateMediaCaption(item.id, e.target.value)}
-                          className="text-sm"
-                        />
-                      ) : (
-                        item.caption && (
-                          <p className="text-sm text-muted-foreground italic">
-                            {item.caption}
-                          </p>
-                        )
-                      )}
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {new Date(item.created_at).toLocaleTimeString()}
-                      </p>
-                    </div>
-                  </div>
+                  <MediaItem 
+                    key={item.id} 
+                    item={item} 
+                    isPastDate={isPastDate}
+                    onUpdateCaption={updateMediaCaption}
+                    onDelete={deleteMedia}
+                  />
                 ))}
               </div>
             </CardContent>
