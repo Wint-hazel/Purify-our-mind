@@ -151,7 +151,17 @@ export default function Entertainment() {
                           alt={book.name}
                           className="w-full h-full object-cover"
                           onError={(e) => {
-                            e.currentTarget.src = 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&h=400&fit=crop&crop=center';
+                            console.log(`Image failed to load: ${book.cover_url}`);
+                            // Try with the full domain first
+                            if (!e.currentTarget.src.includes('://')) {
+                              e.currentTarget.src = `${window.location.origin}${book.cover_url}`;
+                            } else {
+                              // Fallback to a default book cover
+                              e.currentTarget.src = 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&h=400&fit=crop&crop=center';
+                            }
+                          }}
+                          onLoad={() => {
+                            console.log(`Image loaded successfully: ${book.cover_url}`);
                           }}
                         />
                       </div>
