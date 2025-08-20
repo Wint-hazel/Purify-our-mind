@@ -87,6 +87,11 @@ const AIChatbot = () => {
       return sleepResponses[Math.floor(Math.random() * sleepResponses.length)];
     }
 
+    // Stress management
+    if (message.includes('manage stress') || message.includes('stress management') || message.includes('how to handle stress')) {
+      return "Great stress management techniques include deep breathing exercises, meditation, journaling your thoughts, taking short breaks throughout the day, regular exercise, and maintaining a healthy routine. 🌿 Pick one or two that resonate with you and practice them consistently.";
+    }
+
     // Stress-related responses
     if (message.includes('stress') || message.includes('overwhelmed') || message.includes('pressure') || message.includes('exam')) {
       const stressResponses = [
