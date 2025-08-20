@@ -46,6 +46,8 @@ const DailyPlan = () => {
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const selectedDate = searchParams.get('date');
+  const today = new Date().toISOString().split('T')[0];
+  const isPastDate = selectedDate && selectedDate < today;
   const [entries, setEntries] = useState<DiaryEntry[]>([]);
   const [showNewEntry, setShowNewEntry] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -211,7 +213,9 @@ const DailyPlan = () => {
           </h1>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
             {selectedDate 
-              ? `📝 Viewing entries for ${new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}`
+              ? isPastDate
+                ? `👁️ Read-only view for ${new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}`
+                : `📝 Viewing entries for ${new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}`
               : '🔒 Your thoughts and emotions deserve a safe home where you can always return to them'
             }
           </p>
@@ -243,15 +247,22 @@ const DailyPlan = () => {
               ))}
             </select>
             
-            <Button onClick={() => setShowNewEntry(!showNewEntry)} className="flex items-center gap-2">
-              <Plus className="w-4 h-4" />
-              New Entry
-            </Button>
+            {!isPastDate && (
+              <Button onClick={() => setShowNewEntry(!showNewEntry)} className="flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                New Entry
+              </Button>
+            )}
+            {isPastDate && (
+              <Badge variant="secondary" className="flex items-center gap-2 px-3 py-2">
+                👁️ Read-only view
+              </Badge>
+            )}
           </div>
         </div>
 
         {/* New Entry Form */}
-        {showNewEntry && (
+        {showNewEntry && !isPastDate && (
           <Card className="mb-8 border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/5">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -350,11 +361,13 @@ const DailyPlan = () => {
                 </h3>
                 <p className="text-muted-foreground mb-4">
                   {entries.length === 0 
-                    ? 'Your first diary entry is just a click away. Begin documenting your thoughts and emotions.'
+                    ? isPastDate
+                      ? 'No diary entries found for this date.'
+                      : 'Your first diary entry is just a click away. Begin documenting your thoughts and emotions.'
                     : 'Try adjusting your search or mood filter to find other entries.'
                   }
                 </p>
-                {entries.length === 0 && (
+                {entries.length === 0 && !isPastDate && (
                   <Button onClick={() => setShowNewEntry(true)}>
                     Write Your First Entry
                   </Button>
