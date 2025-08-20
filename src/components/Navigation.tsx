@@ -16,7 +16,6 @@ const Navigation = () => {
     { href: '/daily-plans', label: 'Daily Plans' },
     { href: '/diary', label: 'Digital Diary' },
     { href: '/calendar', label: 'Calendar' },
-    { href: '/daily-routine', label: 'Daily Routine' },
     { href: '/ai-chatbot', label: 'AI Chat' },
   ];
 

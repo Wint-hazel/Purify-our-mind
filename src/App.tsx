@@ -9,7 +9,6 @@ import Index from "./pages/Index";
 import Services from "./pages/Services";
 import DailyPlans from "./pages/DailyPlans";
 import Calendar from "./pages/Calendar";
-import DailyRoutinePlan from "./pages/DailyRoutinePlan";
 import AIChatbot from "./pages/AIChatbot";
 import Contact from "./pages/Contact";
 import Profile from "./pages/Profile";
@@ -60,11 +59,6 @@ const App = () => (
             <Route path="/calendar" element={
               <ProtectedRoute>
                 <Calendar />
-              </ProtectedRoute>
-            } />
-            <Route path="/daily-routine" element={
-              <ProtectedRoute>
-                <DailyRoutinePlan />
               </ProtectedRoute>
             } />
             <Route path="/ai-chatbot" element={
