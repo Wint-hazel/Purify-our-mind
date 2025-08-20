@@ -5,7 +5,7 @@ import Footer from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar as CalendarIcon, Clock, Bell, Plus, BookOpen, Eye } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Bell, Plus, BookOpen, Eye, Snowflake, TrendingUp, Settings, Hand, Heart, Leaf, Brain, Sun } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -161,98 +161,162 @@ const Calendar = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 dark:from-blue-950 dark:via-blue-900 dark:to-blue-800">
       <Navigation />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Hero Section */}
         <div className="text-center mb-16 animate-fade-in">
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+          <h1 className="text-4xl md:text-5xl font-bold text-blue-900 dark:text-blue-100 mb-6">
             Wellness Calendar
           </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-xl text-blue-700 dark:text-blue-300 max-w-3xl mx-auto">
             Track your mental health journey with scheduled activities, reminders, and diary entries
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Calendar */}
+          {/* Calendar with Wellness Design */}
           <div className="lg:col-span-2">
-            <Card className="bg-gradient-card shadow-card animate-fade-in">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-2xl font-bold text-foreground">{currentMonth}</CardTitle>
-                <div className="flex items-center gap-2">
-                  <CalendarIcon className="w-6 h-6 text-primary" />
-                  <Button 
-                    onClick={() => navigate(`/daily-plan${selectedDate ? '?date=' + selectedDate.toISOString().split('T')[0] : ''}`)} 
-                    variant="outline" 
-                    size="sm"
-                    className="flex items-center gap-2"
-                  >
-                    <BookOpen className="w-4 h-4" />
-                    Open Daily Plan
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-7 gap-1 mb-4">
-                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                    <div key={day} className="text-center text-sm font-medium text-muted-foreground p-2">
-                      {day}
+            <div className="relative">
+              {/* Decorative Scalloped Border */}
+              <div className="absolute inset-0 bg-blue-300 dark:bg-blue-700 rounded-3xl"
+                   style={{
+                     clipPath: `polygon(
+                       0% 8%, 4% 0%, 8% 8%, 12% 0%, 16% 8%, 20% 0%, 24% 8%, 28% 0%, 32% 8%, 36% 0%, 40% 8%, 44% 0%, 48% 8%, 52% 0%, 56% 8%, 60% 0%, 64% 8%, 68% 0%, 72% 8%, 76% 0%, 80% 8%, 84% 0%, 88% 8%, 92% 0%, 96% 8%, 100% 0%,
+                       100% 92%, 96% 100%, 92% 92%, 88% 100%, 84% 92%, 80% 100%, 76% 92%, 72% 100%, 68% 92%, 64% 100%, 60% 92%, 56% 100%, 52% 92%, 48% 100%, 44% 92%, 40% 100%, 36% 92%, 32% 100%, 28% 92%, 24% 100%, 20% 92%, 16% 100%, 12% 92%, 8% 100%, 4% 92%, 0% 100%
+                     )`
+                   }}>
+              </div>
+              
+              <Card className="relative bg-blue-100/80 dark:bg-blue-900/80 backdrop-blur-sm border-0 shadow-2xl m-4 animate-fade-in">
+                <CardHeader className="text-center pb-4">
+                  <div className="flex items-center justify-center gap-6 mb-6">
+                    {/* Wellness Icons */}
+                    <div className="grid grid-cols-4 gap-3 text-blue-600 dark:text-blue-300">
+                      <div className="w-8 h-8 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
+                        <Snowflake className="w-4 h-4" />
+                      </div>
+                      <div className="w-8 h-8 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
+                        <TrendingUp className="w-4 h-4" />
+                      </div>
+                      <div className="w-8 h-8 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
+                        <Settings className="w-4 h-4" />
+                      </div>
+                      <div className="w-8 h-8 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
+                        <Hand className="w-4 h-4" />
+                      </div>
+                      <div className="w-8 h-8 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
+                        <Heart className="w-4 h-4" />
+                      </div>
+                      <div className="w-8 h-8 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
+                        <Leaf className="w-4 h-4" />
+                      </div>
+                      <div className="w-8 h-8 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
+                        <Brain className="w-4 h-4" />
+                      </div>
+                      <div className="w-8 h-8 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
+                        <Sun className="w-4 h-4" />
+                      </div>
                     </div>
-                  ))}
-                </div>
-                <div className="grid grid-cols-7 gap-1">
-                  {calendarDays.map((day, index) => {
-                    if (!day) return <div key={index} className="aspect-square"></div>;
-                    
-                    const dayDate = new Date(today.getFullYear(), today.getMonth(), day);
-                    const entriesForDay = getDiaryEntriesForDate(dayDate);
-                    const hasEntries = entriesForDay.length > 0;
-                    const isToday = day === today.getDate();
-                    const isSelected = selectedDate && selectedDate.getDate() === day;
 
-                    return (
-                      <div key={index} className="aspect-square relative">
-                        <div 
-                          className={`
-                            w-full h-full flex items-center justify-center text-sm rounded-lg cursor-pointer transition-smooth relative
-                            ${isToday 
-                              ? 'bg-primary text-primary-foreground font-semibold' 
-                              : isSelected
-                                ? 'bg-accent text-accent-foreground font-medium border-2 border-primary'
-                                : 'hover:bg-accent text-foreground'
-                            }
-                          `}
-                          onClick={() => handleDateClick(day)}
-                        >
-                          {day}
-                          {hasEntries && (
-                            <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full flex items-center justify-center">
-                              <span className="text-xs text-primary-foreground font-bold">
-                                {entriesForDay.length}
-                              </span>
-                            </div>
-                          )}
+                    {/* Meditation Figure */}
+                    <div className="mx-8">
+                      <div className="w-24 h-24 bg-blue-600 dark:bg-blue-400 rounded-full relative">
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          {/* Meditation silhouette using CSS shapes */}
+                          <div className="relative">
+                            {/* Head */}
+                            <div className="w-6 h-6 bg-blue-100 dark:bg-blue-900 rounded-full mx-auto mb-1"></div>
+                            {/* Body */}
+                            <div className="w-4 h-8 bg-blue-100 dark:bg-blue-900 rounded-t-full mx-auto"></div>
+                            {/* Arms */}
+                            <div className="absolute top-6 -left-2 w-2 h-4 bg-blue-100 dark:bg-blue-900 rounded-full transform rotate-45"></div>
+                            <div className="absolute top-6 -right-2 w-2 h-4 bg-blue-100 dark:bg-blue-900 rounded-full transform -rotate-45"></div>
+                            {/* Legs in lotus position */}
+                            <div className="absolute top-12 -left-1 w-3 h-2 bg-blue-100 dark:bg-blue-900 rounded-full"></div>
+                            <div className="absolute top-12 -right-1 w-3 h-2 bg-blue-100 dark:bg-blue-900 rounded-full"></div>
+                          </div>
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-                
-                {/* Legend */}
-                <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-primary rounded-full"></div>
-                    <span>Has diary entries</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-accent border border-border rounded"></div>
-                    <span>Selected date</span>
+
+                  <CardTitle className="text-3xl font-bold text-blue-900 dark:text-blue-100 mb-2">
+                    {currentMonth}
+                  </CardTitle>
+                  <div className="flex items-center justify-center gap-2">
+                    <Button 
+                      onClick={() => navigate(`/daily-plan${selectedDate ? '?date=' + selectedDate.toISOString().split('T')[0] : ''}`)} 
+                      variant="outline" 
+                      size="sm"
+                      className="flex items-center gap-2 bg-blue-50 dark:bg-blue-800 border-blue-300 dark:border-blue-600 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-700"
+                    >
+                      <BookOpen className="w-4 h-4" />
+                      Open Daily Plan
+                    </Button>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardHeader>
+                <CardContent className="px-8 pb-8">
+                  <div className="grid grid-cols-7 gap-2 mb-6">
+                    {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, index) => (
+                      <div key={day + index} className="text-center text-lg font-bold text-blue-800 dark:text-blue-200 p-3">
+                        {day}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-7 gap-3">
+                    {calendarDays.map((day, index) => {
+                      if (!day) return <div key={index} className="aspect-square"></div>;
+                      
+                      const dayDate = new Date(today.getFullYear(), today.getMonth(), day);
+                      const entriesForDay = getDiaryEntriesForDate(dayDate);
+                      const hasEntries = entriesForDay.length > 0;
+                      const isToday = day === today.getDate();
+                      const isSelected = selectedDate && selectedDate.getDate() === day;
+
+                      return (
+                        <div key={index} className="aspect-square relative">
+                          <div 
+                            className={`
+                              w-full h-full flex items-center justify-center text-lg font-semibold rounded-xl cursor-pointer transition-all duration-300 relative
+                              ${isToday 
+                                ? 'bg-blue-600 text-white shadow-lg transform scale-105' 
+                                : isSelected
+                                  ? 'bg-blue-400 text-white shadow-md border-2 border-blue-700'
+                                  : 'bg-white/70 dark:bg-blue-800/70 text-blue-900 dark:text-blue-100 hover:bg-white dark:hover:bg-blue-700 hover:shadow-md hover:scale-105'
+                              }
+                            `}
+                            onClick={() => handleDateClick(day)}
+                          >
+                            {day}
+                            {hasEntries && (
+                              <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center shadow-lg">
+                                <span className="text-xs font-bold">
+                                  {entriesForDay.length}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  
+                  {/* Legend */}
+                  <div className="mt-6 flex items-center justify-center gap-6 text-sm text-blue-700 dark:text-blue-300">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-blue-500 rounded-full shadow"></div>
+                      <span>Has diary entries</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-blue-400 border-2 border-blue-700 rounded-xl"></div>
+                      <span>Selected date</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
 
           {/* Sidebar */}
