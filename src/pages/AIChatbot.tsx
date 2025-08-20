@@ -181,153 +181,172 @@ const AIChatbot = () => {
   };
 
   // Voice chat functions
-  const connectVoiceChat = () => {
+  const connectVoiceChat = async () => {
     try {
+      console.log('Attempting to connect to voice chat...');
+      
       const ws = new WebSocket('wss://jqdjfmnmiyfczrgtyisp.supabase.co/functions/v1/realtime-chat');
       
       ws.onopen = () => {
+        console.log('WebSocket connected successfully');
         setIsConnected(true);
         toast({
           title: "Connected",
-          description: "Voice chat is ready!"
+          description: "Voice chat is ready! Click 'Start Recording' to begin."
         });
       };
 
       ws.onmessage = async (event) => {
-        const data = JSON.parse(event.data);
-        console.log('Received:', data.type);
-        
-        switch (data.type) {
-          case 'session.created':
-            console.log('Session created');
-            break;
-            
-          case 'session.updated':
-            console.log('Session updated');
-            break;
-
-          case 'response.audio.delta':
-            if (data.delta) {
-              try {
-                const binaryString = atob(data.delta);
-                const bytes = new Uint8Array(binaryString.length);
-                for (let i = 0; i < binaryString.length; i++) {
-                  bytes[i] = binaryString.charCodeAt(i);
-                }
-                
-                if (!audioContextRef.current) {
-                  audioContextRef.current = new AudioContext();
-                }
-                
-                await playAudioData(audioContextRef.current, bytes);
-                setIsSpeaking(true);
-              } catch (error) {
-                console.error('Error playing audio:', error);
-              }
-            }
-            break;
-
-          case 'response.audio.done':
-            setIsSpeaking(false);
-            break;
-
-          case 'response.audio_transcript.delta':
-            if (data.delta) {
-              setCurrentTranscript(prev => prev + data.delta);
-            }
-            break;
-
-          case 'response.audio_transcript.done':
-            if (currentTranscript) {
-              addMessage(currentTranscript, 'assistant', 'voice');
-              setCurrentTranscript('');
-            }
-            break;
-
-          case 'conversation.item.input_audio_transcription.completed':
-            if (data.transcript) {
-              // Add crisis word detection
-              const crisisWords = ['suicide', 'hurt myself', 'end my life', 'kill myself', 'want to die'];
-              const userMessage = data.transcript.toLowerCase();
-              const hasCrisisWords = crisisWords.some(word => userMessage.includes(word));
+        try {
+          const data = JSON.parse(event.data);
+          console.log('Received WebSocket message:', data.type);
+          
+          switch (data.type) {
+            case 'session.created':
+              console.log('OpenAI session created successfully');
+              break;
               
-              if (hasCrisisWords) {
-                // Immediately send crisis response
-                const crisisResponse = "If you feel like harming yourself, please reach out immediately to a trusted person or call your local crisis hotline. You are not alone. Crisis Hotline: 988";
-                addMessage(data.transcript, 'user', 'voice');
-                addMessage(crisisResponse, 'assistant', 'voice');
-                
-                // Send crisis intervention via WebSocket
-                if (wsRef.current?.readyState === WebSocket.OPEN) {
-                  wsRef.current.send(JSON.stringify({
-                    type: 'conversation.item.create',
-                    item: {
-                      type: 'message',
-                      role: 'assistant',
-                      content: [{ type: 'input_text', text: crisisResponse }]
-                    }
-                  }));
-                  wsRef.current.send(JSON.stringify({ type: 'response.create' }));
+            case 'session.updated':
+              console.log('OpenAI session updated successfully');
+              break;
+
+            case 'response.audio.delta':
+              if (data.delta) {
+                try {
+                  const binaryString = atob(data.delta);
+                  const bytes = new Uint8Array(binaryString.length);
+                  for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                  }
+                  
+                  if (!audioContextRef.current) {
+                    audioContextRef.current = new AudioContext();
+                  }
+                  
+                  await playAudioData(audioContextRef.current, bytes);
+                  setIsSpeaking(true);
+                } catch (audioError) {
+                  console.error('Error playing audio:', audioError);
                 }
-              } else {
-                addMessage(data.transcript, 'user', 'voice');
               }
-            }
-            break;
+              break;
 
-          case 'input_audio_buffer.speech_started':
-            console.log('User started speaking');
-            break;
+            case 'response.audio.done':
+              console.log('AI finished speaking');
+              setIsSpeaking(false);
+              break;
 
-          case 'input_audio_buffer.speech_stopped':
-            console.log('User stopped speaking - AI should respond');
-            break;
+            case 'response.audio_transcript.delta':
+              if (data.delta) {
+                setCurrentTranscript(prev => prev + data.delta);
+              }
+              break;
 
-          case 'response.created':
-            console.log('AI response created');
-            setIsLoading(true);
-            break;
+            case 'response.audio_transcript.done':
+              if (currentTranscript) {
+                addMessage(currentTranscript, 'assistant', 'voice');
+                setCurrentTranscript('');
+              }
+              break;
 
-          case 'response.done':
-            console.log('AI response completed');
-            setIsLoading(false);
-            break;
+            case 'conversation.item.input_audio_transcription.completed':
+              if (data.transcript) {
+                // Add crisis word detection
+                const crisisWords = ['suicide', 'hurt myself', 'end my life', 'kill myself', 'want to die'];
+                const userMessage = data.transcript.toLowerCase();
+                const hasCrisisWords = crisisWords.some(word => userMessage.includes(word));
+                
+                if (hasCrisisWords) {
+                  // Immediately send crisis response
+                  const crisisResponse = "If you feel like harming yourself, please reach out immediately to a trusted person or call your local crisis hotline. You are not alone. Crisis Hotline: 988";
+                  addMessage(data.transcript, 'user', 'voice');
+                  addMessage(crisisResponse, 'assistant', 'voice');
+                  
+                  // Send crisis intervention via WebSocket
+                  if (wsRef.current?.readyState === WebSocket.OPEN) {
+                    wsRef.current.send(JSON.stringify({
+                      type: 'conversation.item.create',
+                      item: {
+                        type: 'message',
+                        role: 'assistant',
+                        content: [{ type: 'input_text', text: crisisResponse }]
+                      }
+                    }));
+                    wsRef.current.send(JSON.stringify({ type: 'response.create' }));
+                  }
+                } else {
+                  addMessage(data.transcript, 'user', 'voice');
+                }
+              }
+              break;
 
-          case 'error':
-            console.error('Voice chat error:', data.error);
-            toast({
-              title: "Voice Chat Error",
-              description: data.error,
-              variant: "destructive"
-            });
-            break;
+            case 'input_audio_buffer.speech_started':
+              console.log('User started speaking');
+              break;
+
+            case 'input_audio_buffer.speech_stopped':
+              console.log('User stopped speaking - AI should respond');
+              break;
+
+            case 'response.created':
+              console.log('AI response created');
+              setIsLoading(true);
+              break;
+
+            case 'response.done':
+              console.log('AI response completed');
+              setIsLoading(false);
+              break;
+
+            case 'error':
+              console.error('Voice chat error:', data.error);
+              toast({
+                title: "Voice Chat Error",
+                description: data.error || 'Unknown error occurred',
+                variant: "destructive"
+              });
+              break;
+
+            default:
+              console.log('Unhandled message type:', data.type, data);
+          }
+        } catch (parseError) {
+          console.error('Error parsing WebSocket message:', parseError, event.data);
         }
       };
 
-      ws.onclose = () => {
+      ws.onclose = (event) => {
+        console.log('WebSocket closed:', event.code, event.reason);
         setIsConnected(false);
         setIsRecording(false);
         setIsSpeaking(false);
-        toast({
-          title: "Disconnected",
-          description: "Voice chat connection closed"
-        });
+        
+        if (event.code !== 1000) { // Not a normal closure
+          toast({
+            title: "Connection Lost",
+            description: "Voice chat connection was lost. You can try reconnecting.",
+            variant: "destructive"
+          });
+        }
       };
 
       ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
+        console.error('WebSocket error details:', error);
         toast({
-          title: "Connection Error",
-          description: "Failed to connect to voice chat",
+          title: "Connection Error", 
+          description: "Failed to connect to voice chat. Please check your internet connection and try again.",
           variant: "destructive"
         });
+        setIsConnected(false);
       };
 
       wsRef.current = ws;
+      
     } catch (error) {
+      console.error('Error setting up voice chat:', error);
       toast({
-        title: "Connection Error",
-        description: "Failed to connect to voice chat",
+        title: "Setup Error",
+        description: "Failed to initialize voice chat connection.",
         variant: "destructive"
       });
     }
