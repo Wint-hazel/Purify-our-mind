@@ -67,7 +67,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in chat-with-ai function:', error);
     return new Response(JSON.stringify({ 
-      error: 'Sorry, I'm having trouble connecting right now. Please try again in a moment.' 
+      error: 'Sorry, I am having trouble connecting right now. Please try again in a moment.' 
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

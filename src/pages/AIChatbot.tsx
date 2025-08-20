@@ -54,7 +54,7 @@ const AIChatbot = () => {
       });
       
       // Fallback response
-      return "I apologize, but I'm having some technical difficulties right now. 💙 Please try sending your message again in a moment. In the meantime, remember that you're doing great by reaching out for support.";
+      return "I apologize, but I am having some technical difficulties right now. 💙 Please try sending your message again in a moment. In the meantime, remember that you are doing great by reaching out for support.";
     }
   };
 
