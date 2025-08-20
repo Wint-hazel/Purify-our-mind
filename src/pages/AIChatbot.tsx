@@ -21,12 +21,16 @@ const AIChatbot = () => {
   const { toast } = useToast();
 
   const quickQuestions = [
-    "I'm feeling anxious about exams",
-    "I feel lonely and unmotivated",
-    "How are you feeling today?",
-    "I can't sleep at night",
-    "I feel lazy and unproductive",
-    "Help me with stress"
+    "What is mental health?",
+    "How can I manage stress?",
+    "I feel anxious all the time",
+    "How can I improve my mood?",
+    "I have trouble sleeping",
+    "How can I boost my self-esteem?",
+    "I feel lonely",
+    "How can I stop overthinking?",
+    "What are signs of depression?",
+    "Can exercise help my mental health?"
   ];
 
   const getAIResponse = async (userMessage: string): Promise<string> => {
@@ -145,6 +149,11 @@ const AIChatbot = () => {
         "Remember that rest is not laziness - it's necessary for your wellbeing. 🌸 If you're feeling unmotivated, ask yourself: What do I need right now? Sometimes the most productive thing is to take a break."
       ];
       return motivationResponses[Math.floor(Math.random() * motivationResponses.length)];
+    }
+
+    // Mood improvement
+    if (message.includes('improve my mood') || message.includes('improve mood') || message.includes('feel better') || message.includes('lift my spirits')) {
+      return "Great ways to improve your mood include engaging in enjoyable activities like walking, listening to music, connecting with friends, or practicing gratitude. 🌻 Even small acts of kindness toward yourself or others can boost your mood. What activities usually bring you joy?";
     }
 
     // General mood/feelings responses
