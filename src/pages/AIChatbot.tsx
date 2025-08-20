@@ -51,9 +51,111 @@ const AIChatbot = () => {
   
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunks = useRef<Blob[]>([]);
+  const mediaRecorderRef = useRef<any>(null);
   const wsRef = useRef<WebSocket | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const audioQueueRef = useRef<AudioBuffer[]>([]);
+  const isPlayingRef = useRef(false);
+
+  // Audio utility functions
+  const playAudioChunk = async (audioData: Uint8Array) => {
+    try {
+      if (!audioContextRef.current) {
+        audioContextRef.current = new AudioContext();
+      }
+
+      // Convert PCM16 data to WAV format
+      const wavData = createWavFromPCM(audioData);
+      const audioBuffer = await audioContextRef.current.decodeAudioData(wavData.buffer);
+      
+      audioQueueRef.current.push(audioBuffer);
+      
+      if (!isPlayingRef.current) {
+        playNextAudioChunk();
+      }
+    } catch (error) {
+      console.error('Error playing audio chunk:', error);
+    }
+  };
+
+  const playNextAudioChunk = () => {
+    if (audioQueueRef.current.length === 0) {
+      isPlayingRef.current = false;
+      return;
+    }
+
+    isPlayingRef.current = true;
+    const audioBuffer = audioQueueRef.current.shift()!;
+    
+    if (audioContextRef.current) {
+      const source = audioContextRef.current.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(audioContextRef.current.destination);
+      
+      source.onended = () => {
+        playNextAudioChunk();
+      };
+      
+      source.start(0);
+    }
+  };
+
+  const createWavFromPCM = (pcmData: Uint8Array): Uint8Array => {
+    const sampleRate = 24000;
+    const numChannels = 1;
+    const bitsPerSample = 16;
+    
+    // Create WAV header
+    const wavHeader = new ArrayBuffer(44);
+    const view = new DataView(wavHeader);
+    
+    // RIFF chunk
+    view.setUint32(0, 0x52494646, false); // "RIFF"
+    view.setUint32(4, 36 + pcmData.length, true); // File length
+    view.setUint32(8, 0x57415645, false); // "WAVE"
+    
+    // Format chunk
+    view.setUint32(12, 0x666d7420, false); // "fmt "
+    view.setUint32(16, 16, true); // Format chunk length
+    view.setUint16(20, 1, true); // PCM format
+    view.setUint16(22, numChannels, true); // Channels
+    view.setUint32(24, sampleRate, true); // Sample rate
+    view.setUint32(28, sampleRate * numChannels * bitsPerSample / 8, true); // Byte rate
+    view.setUint16(32, numChannels * bitsPerSample / 8, true); // Block align
+    view.setUint16(34, bitsPerSample, true); // Bits per sample
+    
+    // Data chunk
+    view.setUint32(36, 0x64617461, false); // "data"
+    view.setUint32(40, pcmData.length, true); // Data length
+    
+    // Combine header and data
+    const wavArray = new Uint8Array(wavHeader.byteLength + pcmData.length);
+    wavArray.set(new Uint8Array(wavHeader), 0);
+    wavArray.set(pcmData, wavHeader.byteLength);
+    
+    return wavArray;
+  };
+
+  const encodeAudioForAPI = (float32Array: Float32Array): string => {
+    // Convert Float32Array to Int16Array (PCM16)
+    const int16Array = new Int16Array(float32Array.length);
+    for (let i = 0; i < float32Array.length; i++) {
+      const s = Math.max(-1, Math.min(1, float32Array[i]));
+      int16Array[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+    }
+    
+    // Convert to base64
+    const uint8Array = new Uint8Array(int16Array.buffer);
+    let binary = '';
+    const chunkSize = 0x8000;
+    
+    for (let i = 0; i < uint8Array.length; i += chunkSize) {
+      const chunk = uint8Array.subarray(i, Math.min(i + chunkSize, uint8Array.length));
+      binary += String.fromCharCode.apply(null, Array.from(chunk));
+    }
+    
+    return btoa(binary);
+  };
 
   const mentalHealthResponses = {
     greeting: [
@@ -178,7 +280,7 @@ const AIChatbot = () => {
 
   const connectVoiceChat = () => {
     try {
-      const ws = new WebSocket('wss://pbsqjumhlxbnhmzmemgk.supabase.co/functions/v1/realtime-chat');
+      const ws = new WebSocket('wss://jqdjfmnmiyfczrgtyisp.supabase.co/functions/v1/realtime-chat');
       
       ws.onopen = () => {
         setIsConnected(true);
@@ -188,11 +290,64 @@ const AIChatbot = () => {
         });
       };
 
-      ws.onmessage = (event) => {
+      ws.onmessage = async (event) => {
         const data = JSON.parse(event.data);
-        // Handle voice chat messages
-        if (data.type === 'transcript') {
-          addMessage(data.content, data.sender === 'user' ? 'user' : 'assistant', 'voice');
+        console.log('Received:', data.type);
+        
+        switch (data.type) {
+          case 'session.created':
+            console.log('Session created');
+            break;
+            
+          case 'session.updated':
+            console.log('Session updated');
+            break;
+
+          case 'response.audio.delta':
+            if (data.delta) {
+              // Play audio chunk
+              try {
+                const binaryString = atob(data.delta);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                  bytes[i] = binaryString.charCodeAt(i);
+                }
+                await playAudioChunk(bytes);
+                setIsSpeaking(true);
+              } catch (error) {
+                console.error('Error playing audio:', error);
+              }
+            }
+            break;
+
+          case 'response.audio.done':
+            setIsSpeaking(false);
+            break;
+
+          case 'response.audio_transcript.delta':
+            // Handle AI transcript
+            break;
+
+          case 'response.audio_transcript.done':
+            if (data.transcript) {
+              addMessage(data.transcript, 'assistant', 'voice');
+            }
+            break;
+
+          case 'conversation.item.input_audio_transcription.completed':
+            if (data.transcript) {
+              addMessage(data.transcript, 'user', 'voice');
+            }
+            break;
+
+          case 'error':
+            console.error('Voice chat error:', data.error);
+            toast({
+              title: "Voice Chat Error",
+              description: data.error,
+              variant: "destructive"
+            });
+            break;
         }
       };
 
@@ -200,6 +355,19 @@ const AIChatbot = () => {
         setIsConnected(false);
         setIsRecording(false);
         setIsSpeaking(false);
+        toast({
+          title: "Disconnected",
+          description: "Voice chat connection closed"
+        });
+      };
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        toast({
+          title: "Connection Error",
+          description: "Failed to connect to voice chat",
+          variant: "destructive"
+        });
       };
 
       wsRef.current = ws;
@@ -213,24 +381,66 @@ const AIChatbot = () => {
   };
 
   const startRecording = async () => {
+    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+      toast({
+        title: "Not Connected",
+        description: "Please connect to voice chat first",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      
-      mediaRecorder.ondataavailable = (event) => {
-        audioChunks.current.push(event.data);
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          sampleRate: 24000,
+          channelCount: 1,
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      });
+
+      if (!audioContextRef.current) {
+        audioContextRef.current = new AudioContext({ sampleRate: 24000 });
+      }
+
+      const source = audioContextRef.current.createMediaStreamSource(stream);
+      const processor = audioContextRef.current.createScriptProcessor(4096, 1, 1);
+
+      processor.onaudioprocess = (e) => {
+        if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+          const inputData = e.inputBuffer.getChannelData(0);
+          const encodedAudio = encodeAudioForAPI(inputData);
+          
+          wsRef.current.send(JSON.stringify({
+            type: 'input_audio_buffer.append',
+            audio: encodedAudio
+          }));
+        }
       };
 
-      mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunks.current, { type: 'audio/wav' });
-        audioChunks.current = [];
-        // Process audio here
-        processVoiceInput(audioBlob);
-      };
+      source.connect(processor);
+      processor.connect(audioContextRef.current.destination);
 
-      mediaRecorder.start();
-      mediaRecorderRef.current = mediaRecorder;
+      // Store references for cleanup
+      mediaRecorderRef.current = { 
+        stream, 
+        source, 
+        processor,
+        stop: () => {
+          source.disconnect();
+          processor.disconnect();
+          stream.getTracks().forEach(track => track.stop());
+        }
+      } as any;
+
       setIsRecording(true);
+      
+      toast({
+        title: "Recording Started",
+        description: "Speak naturally - I'm listening!"
+      });
     } catch (error) {
       toast({
         title: "Microphone Error",
@@ -241,22 +451,11 @@ const AIChatbot = () => {
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current) {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.stop) {
       mediaRecorderRef.current.stop();
-      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
-      setIsRecording(false);
+      mediaRecorderRef.current = null;
     }
-  };
-
-  const processVoiceInput = async (audioBlob: Blob) => {
-    // Convert audio to text and process
-    addMessage("Voice message received", 'user', 'voice');
-    
-    // Simulate AI response
-    setTimeout(() => {
-      const response = getAIResponse("voice input");
-      addMessage(response, 'assistant', 'voice');
-    }, 1000);
+    setIsRecording(false);
   };
 
   const scrollToBottom = () => {
@@ -266,6 +465,21 @@ const AIChatbot = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    // Cleanup on unmount
+    return () => {
+      if (mediaRecorderRef.current && mediaRecorderRef.current.stop) {
+        mediaRecorderRef.current.stop();
+      }
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
+    };
+  }, []);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
