@@ -13,7 +13,7 @@ const Navigation = () => {
   const navLinks = [
     { href: '/', label: 'Home' },
     { href: '/services', label: 'Services' },
-    { href: '/diary', label: 'Digital Diary' },
+    { href: '/daily-plan', label: 'Daily Plan' },
     { href: '/calendar', label: 'Calendar' },
     { href: '/ai-chatbot', label: 'AI Chat' },
   ];

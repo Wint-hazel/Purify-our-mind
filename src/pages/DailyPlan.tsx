@@ -40,7 +40,7 @@ const commonMoodTags = [
   'Lonely', 'Confident', 'Tired', 'Energetic', 'Hopeful', 'Worried', 'Peaceful', 'Frustrated'
 ];
 
-const DigitalDiary = () => {
+const DailyPlan = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [entries, setEntries] = useState<DiaryEntry[]>([]);
@@ -185,7 +185,7 @@ const DigitalDiary = () => {
         <div className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4 flex items-center justify-center gap-3">
             <BookOpen className="w-12 h-12 text-primary" />
-            Digital Diary
+            Daily Plan
           </h1>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
             🔒 Your thoughts and emotions deserve a safe home where you can always return to them
@@ -388,4 +388,4 @@ const DigitalDiary = () => {
   );
 };
 
-export default DigitalDiary;
+export default DailyPlan;

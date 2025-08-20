@@ -185,13 +185,13 @@ const Calendar = () => {
                 <div className="flex items-center gap-2">
                   <CalendarIcon className="w-6 h-6 text-primary" />
                   <Button 
-                    onClick={() => navigate('/diary')} 
+                    onClick={() => navigate('/daily-plan')} 
                     variant="outline" 
                     size="sm"
                     className="flex items-center gap-2"
                   >
                     <BookOpen className="w-4 h-4" />
-                    Open Diary
+                    Open Daily Plan
                   </Button>
                 </div>
               </CardHeader>
@@ -272,7 +272,7 @@ const Calendar = () => {
                     <div className="text-center py-4">
                       <p className="text-muted-foreground mb-3">No diary entries for this date</p>
                       <Button 
-                        onClick={() => navigate('/diary')} 
+                        onClick={() => navigate('/daily-plan')} 
                         size="sm" 
                         className="flex items-center gap-2"
                       >
@@ -314,7 +314,7 @@ const Calendar = () => {
                               </div>
                             )}
                             <Button 
-                              onClick={() => navigate('/diary')} 
+                              onClick={() => navigate('/daily-plan')} 
                               variant="ghost" 
                               size="sm" 
                               className="text-xs flex items-center gap-1"
@@ -326,7 +326,7 @@ const Calendar = () => {
                         );
                       })}
                       <Button 
-                        onClick={() => navigate('/diary')} 
+                        onClick={() => navigate('/daily-plan')} 
                         variant="outline" 
                         size="sm" 
                         className="w-full flex items-center gap-2"
