@@ -250,6 +250,24 @@ const AIChatbot = () => {
             }
             break;
 
+          case 'input_audio_buffer.speech_started':
+            console.log('User started speaking');
+            break;
+
+          case 'input_audio_buffer.speech_stopped':
+            console.log('User stopped speaking - AI should respond');
+            break;
+
+          case 'response.created':
+            console.log('AI response created');
+            setIsLoading(true);
+            break;
+
+          case 'response.done':
+            console.log('AI response completed');
+            setIsLoading(false);
+            break;
+
           case 'error':
             console.error('Voice chat error:', data.error);
             toast({
@@ -557,6 +575,18 @@ const AIChatbot = () => {
                       </div>
                     ) : (
                       <div className="space-y-6">
+                        <div className="bg-blue-50 p-4 rounded-lg mb-4">
+                          <p className="text-sm text-blue-700 font-medium mb-2">
+                            💡 How Voice Chat Works:
+                          </p>
+                          <ul className="text-sm text-blue-600 space-y-1">
+                            <li>• Click "Start Recording" and speak naturally</li>
+                            <li>• AI will automatically respond when you pause speaking</li>
+                            <li>• No need to click stop - just speak and pause</li>
+                            <li>• Your conversation appears as text below</li>
+                          </ul>
+                        </div>
+                        
                         <div className="flex items-center justify-center gap-6">
                           <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${
                             isConnected ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
@@ -569,7 +599,7 @@ const AIChatbot = () => {
                             isRecording ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'
                           }`}>
                             {isRecording ? <Mic className="w-4 h-4" /> : <MicOff className="w-4 h-4" />}
-                            {isRecording ? 'Recording...' : 'Ready'}
+                            {isRecording ? 'Listening...' : 'Ready'}
                           </div>
 
                           <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${
@@ -587,10 +617,15 @@ const AIChatbot = () => {
                               Start Recording
                             </Button>
                           ) : (
-                            <Button onClick={stopVoiceRecording} variant="outline" size="lg">
-                              <MicOff className="w-4 h-4 mr-2" />
-                              Stop Recording
-                            </Button>
+                            <div className="space-y-2">
+                              <p className="text-sm text-muted-foreground">
+                                🎤 Speak now... I'll respond when you pause
+                              </p>
+                              <Button onClick={stopVoiceRecording} variant="outline" size="lg">
+                                <MicOff className="w-4 h-4 mr-2" />
+                                Stop Recording
+                              </Button>
+                            </div>
                           )}
                           
                           <Button onClick={disconnectVoiceChat} variant="secondary" size="sm">
