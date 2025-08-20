@@ -32,22 +32,47 @@ const AIChatbot = () => {
   const getAIResponse = async (userMessage: string): Promise<string> => {
     const message = userMessage.toLowerCase().trim();
     
+    // Mental health definition
+    if (message.includes('what is mental health') || message.includes('define mental health')) {
+      return "Mental health is the state of your emotional, psychological, and social well-being. 🧠 It affects how you think, feel, and act in daily life. Just like physical health, mental health is essential for living a fulfilling life.";
+    }
+
+    // Panic attacks
+    if (message.includes('panic attack') || message.includes('panic')) {
+      return "During a panic attack, focus on slow breathing - inhale for 4, hold for 4, exhale for 6. 🌬️ Try grounding exercises: name 5 things you see, 4 you can touch, 3 you can hear. Remember, it will pass. If panic attacks are frequent, please consider professional guidance.";
+    }
+
+    // Racing thoughts/overthinking
+    if (message.includes('racing thoughts') || message.includes('overthinking') || message.includes('can\'t stop thinking')) {
+      return "Racing thoughts can be exhausting. 🌊 Try writing them down to get them out of your head, practice mindfulness meditation, or set aside 10 minutes of 'worry time' each day. Focus on your breathing when thoughts spiral - it anchors you to the present moment.";
+    }
+    
     // Anxiety-related responses
     if (message.includes('anxious') || message.includes('anxiety') || message.includes('worried') || message.includes('nervous')) {
       const anxietyResponses = [
-        "I understand that anxiety can feel overwhelming. 💙 Try the 4-7-8 breathing technique: breathe in for 4 counts, hold for 7, exhale for 8. This can help calm your nervous system.",
-        "Anxiety is your body's natural response to stress, and it's okay to feel this way. 🌸 One helpful technique is grounding: name 5 things you can see, 4 you can touch, 3 you can hear, 2 you can smell, and 1 you can taste.",
-        "When anxiety strikes, remember that this feeling is temporary. 🌟 Try progressive muscle relaxation: tense and then relax each muscle group, starting from your toes and working up to your head."
+        "I feel anxious all the time can be overwhelming. 💙 Practice grounding exercises like the 5-4-3-2-1 technique, try deep breathing, and mindfulness. If anxiety persists, consider speaking with a mental health professional.",
+        "Anxiety is your body's natural response to stress, and it's okay to feel this way. 🌸 Try the 4-7-8 breathing technique: breathe in for 4 counts, hold for 7, exhale for 8. This can help calm your nervous system.",
+        "When anxiety strikes, remember that this feeling is temporary. 🌟 Practice grounding: name 5 things you can see, 4 you can touch, 3 you can hear, 2 you can smell, and 1 you can taste."
       ];
       return anxietyResponses[Math.floor(Math.random() * anxietyResponses.length)];
     }
 
+    // Signs of depression
+    if (message.includes('signs of depression') || message.includes('depression symptoms')) {
+      return "Signs of depression include persistent sadness, loss of interest in activities, sleep or appetite changes, fatigue, difficulty concentrating, and feelings of hopelessness. 🌧️ If you're experiencing several of these symptoms for more than two weeks, please consider talking to a mental health professional.";
+    }
+
+    // Hopelessness
+    if (message.includes('hopeless') || message.includes('no point') || message.includes('give up')) {
+      return "Feeling hopeless can be incredibly painful, but please know that these feelings can change. 🌅 Talk to a trusted friend or mental health professional immediately. You can also try small grounding activities or self-care to regain some control. You matter, and there is help available.";
+    }
+
     // Depression/sadness responses
-    if (message.includes('sad') || message.includes('depressed') || message.includes('down') || message.includes('lonely') || message.includes('empty')) {
+    if (message.includes('sad') || message.includes('depressed') || message.includes('down') || message.includes('lonely') || message.includes('empty') || message.includes('no reason')) {
       const sadnessResponses = [
-        "I hear that you're going through a difficult time, and I want you to know that your feelings are valid. 💝 Sometimes, taking small steps like going for a short walk or listening to music can help lift your mood slightly.",
-        "Loneliness can be really painful. 🤗 Remember that you're not alone in feeling this way. Consider reaching out to a friend, family member, or mental health professional. Even small connections can make a difference.",
-        "It's brave of you to share how you're feeling. 🌱 When we're feeling low, self-care becomes even more important. Try to do one small thing for yourself today, even if it's just drinking a glass of water or taking a warm shower."
+        "Occasional sadness is normal, but persistent sadness may indicate depression. 💙 Talking to someone you trust or a professional can help. Remember, your feelings are valid.",
+        "Loneliness can be really painful. 🤗 Reach out to friends or family, join a club or support group, or talk to a counselor. Even small connections help.",
+        "It's brave of you to share how you're feeling. 🌱 Engage in enjoyable activities like walking, listening to music, connecting with friends, or practicing gratitude to help improve your mood."
       ];
       return sadnessResponses[Math.floor(Math.random() * sadnessResponses.length)];
     }
@@ -72,10 +97,45 @@ const AIChatbot = () => {
       return stressResponses[Math.floor(Math.random() * stressResponses.length)];
     }
 
+    // Self-esteem and confidence
+    if (message.includes('self-esteem') || message.includes('confidence') || message.includes('self-worth') || message.includes('boost')) {
+      return "Building self-esteem takes time and practice. 🌟 Celebrate small achievements, practice self-compassion, set achievable goals, and avoid comparing yourself to others. Remember, you are worthy just as you are.";
+    }
+
+    // Anger management
+    if (message.includes('angry') || message.includes('anger') || message.includes('frustrated') || message.includes('mad')) {
+      return "Anger is a normal emotion, and it's okay to feel this way. 🔥 When anger arises, take deep breaths, step away from the situation if possible, count to ten, and express your feelings calmly when you're ready. Physical exercise can also help release anger.";
+    }
+
+    // Relationship stress
+    if (message.includes('relationship') || message.includes('partner') || message.includes('friend') || message.includes('family stress')) {
+      return "Relationship stress can be challenging. 💕 Try communicating openly and honestly, set healthy boundaries, practice empathy, and take breaks when needed. If stress continues, couples or family counseling can provide valuable support.";
+    }
+
+    // Exercise and mental health
+    if (message.includes('exercise') || message.includes('workout') || message.includes('physical activity')) {
+      return "Exercise is fantastic for mental health! 💪 Regular physical activity releases endorphins (feel-good hormones), reduces stress, improves mood, and boosts energy and self-confidence. Even a 10-minute walk can make a difference.";
+    }
+
+    // Mindfulness practices
+    if (message.includes('mindfulness') || message.includes('meditation') || message.includes('present moment')) {
+      return "Mindfulness is a powerful tool for mental wellbeing. 🧘‍♀️ Try focusing on your breathing, paying attention to the present moment, observing thoughts without judgment, or using guided meditation apps. Even 5 minutes daily can help reduce stress and improve focus.";
+    }
+
+    // Diet and mental health
+    if (message.includes('diet') || message.includes('food') || message.includes('eating') || message.includes('nutrition')) {
+      return "Nutrition plays a significant role in mental health! 🥗 Eating a balanced diet with fruits, vegetables, whole grains, and omega-3-rich foods (like fish and nuts) can improve mood, energy, and brain health. Stay hydrated and limit processed foods when possible.";
+    }
+
+    // Supporting friends
+    if (message.includes('help friend') || message.includes('support friend') || message.includes('friend mental health')) {
+      return "It's wonderful that you want to support your friend. 🤝 Listen without judgment, offer encouragement, avoid giving unsolicited advice, and gently suggest professional help if needed. Remember to take care of your own mental health too.";
+    }
+
     // Motivation/productivity responses
     if (message.includes('lazy') || message.includes('unmotivated') || message.includes('productive') || message.includes('energy')) {
       const motivationResponses = [
-        "Low motivation is often a sign that you need rest or that you're being too hard on yourself. 🌱 Start with just one small task today. Progress isn't always about being productive - sometimes it's about being kind to yourself.",
+        "I feel unmotivated can be tough. 🌱 Start with small tasks, create a routine, reward yourself for effort, and remember that progress matters more than perfection. Sometimes rest is exactly what you need.",
         "Motivation often comes after starting, not before. ✨ Try the '2-minute rule': if something takes less than 2 minutes, do it now. This can help build momentum for bigger tasks.",
         "Remember that rest is not laziness - it's necessary for your wellbeing. 🌸 If you're feeling unmotivated, ask yourself: What do I need right now? Sometimes the most productive thing is to take a break."
       ];
