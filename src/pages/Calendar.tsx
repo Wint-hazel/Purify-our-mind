@@ -116,9 +116,8 @@ const Calendar = () => {
 
   const handleDateClick = (day: number) => {
     const clickedDate = new Date(today.getFullYear(), today.getMonth(), day);
-    setSelectedDate(clickedDate);
-    const entriesForDate = getDiaryEntriesForDate(clickedDate);
-    setSelectedDateEntries(entriesForDate);
+    const dateString = clickedDate.toISOString().split('T')[0];
+    navigate(`/daily-plan?date=${dateString}`);
   };
 
   const getMoodOption = (rating: number | null) => {
