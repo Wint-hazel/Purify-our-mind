@@ -13,7 +13,7 @@ import DailyRoutinePlan from "./pages/DailyRoutinePlan";
 import AIChatbot from "./pages/AIChatbot";
 import Contact from "./pages/Contact";
 import Profile from "./pages/Profile";
-import Diary from "./pages/Diary";
+import DigitalDiary from "./pages/DigitalDiary";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -84,7 +84,7 @@ const App = () => (
             } />
             <Route path="/diary" element={
               <ProtectedRoute>
-                <Diary />
+                <DigitalDiary />
               </ProtectedRoute>
             } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
