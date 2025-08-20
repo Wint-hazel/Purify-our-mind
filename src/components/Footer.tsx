@@ -31,8 +31,9 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="md:col-span-1">
-            <Link to="/" className="flex items-center mb-4">
-              <img src={logo} alt="Purify Our Mind" className="h-12 w-auto" />
+            <Link to="/" className="flex items-center space-x-3 mb-4">
+              <img src={logo} alt="Purify Our Mind" className="h-12 w-12 rounded-full object-cover" />
+              <span className="text-xl font-semibold text-primary">Purify Our Mind</span>
             </Link>
             <p className="text-sm text-muted-foreground mb-4">
               Purifying minds, one day at a time. Your journey to mental wellness starts here.

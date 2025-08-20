@@ -26,8 +26,9 @@ const Navigation = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center">
-            <img src={logo} alt="Purify Our Mind" className="h-12 w-auto" />
+          <Link to="/" className="flex items-center space-x-3">
+            <img src={logo} alt="Purify Our Mind" className="h-12 w-12 rounded-full object-cover" />
+            <span className="text-xl font-semibold text-primary">Purify Our Mind</span>
           </Link>
 
           {/* Desktop Navigation */}
