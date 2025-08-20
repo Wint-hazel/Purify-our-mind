@@ -7,7 +7,6 @@ import { AuthProvider, useAuth } from "./hooks/useAuth";
 import Auth from "./pages/Auth";
 import Index from "./pages/Index";
 import Services from "./pages/Services";
-import DailyPlans from "./pages/DailyPlans";
 import Calendar from "./pages/Calendar";
 import AIChatbot from "./pages/AIChatbot";
 import Contact from "./pages/Contact";
@@ -49,11 +48,6 @@ const App = () => (
             <Route path="/services" element={
               <ProtectedRoute>
                 <Services />
-              </ProtectedRoute>
-            } />
-            <Route path="/daily-plans" element={
-              <ProtectedRoute>
-                <DailyPlans />
               </ProtectedRoute>
             } />
             <Route path="/calendar" element={
