@@ -12,6 +12,7 @@ import Contact from "./pages/Contact";
 import Profile from "./pages/Profile";
 import DailyPlan from "./pages/DailyPlan";
 import HealthRecommendations from "./pages/HealthRecommendations";
+import Entertainment from "./pages/Entertainment";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -73,6 +74,11 @@ const App = () => (
             <Route path="/health-recommendations" element={
               <ProtectedRoute>
                 <HealthRecommendations />
+              </ProtectedRoute>
+            } />
+            <Route path="/entertainment" element={
+              <ProtectedRoute>
+                <Entertainment />
               </ProtectedRoute>
             } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

@@ -16,6 +16,7 @@ const Navigation = () => {
     { href: '/calendar', label: 'Calendar' },
     { href: '/ai-chatbot', label: 'AI Chat' },
     { href: '/health-recommendations', label: 'Health Guide' },
+    { href: '/entertainment', label: 'Entertainment' },
   ];
 
   const isActive = (href: string) => {
