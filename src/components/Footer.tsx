@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { Heart, Phone, Mail, AlertTriangle } from 'lucide-react';
+import { Phone, Mail, AlertTriangle } from 'lucide-react';
+import logo from '@/assets/logo.png';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -30,9 +31,8 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="md:col-span-1">
-            <Link to="/" className="flex items-center space-x-2 text-xl font-semibold text-primary mb-4">
-              <Heart className="w-6 h-6" />
-              <span>Purify Our Mind</span>
+            <Link to="/" className="flex items-center mb-4">
+              <img src={logo} alt="Purify Our Mind" className="h-12 w-auto" />
             </Link>
             <p className="text-sm text-muted-foreground mb-4">
               Purifying minds, one day at a time. Your journey to mental wellness starts here.
