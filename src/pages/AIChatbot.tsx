@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { AudioRecorder, encodeAudioForAPI, playAudioData } from '@/utils/RealtimeAudio';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Message {
   id: string;
@@ -67,7 +68,8 @@ const AIChatbot = () => {
   };
 
   const setupWebSocket = () => {
-    const ws = new WebSocket(`wss://jqdjfmnmiyfczrgtyisp.functions.supabase.co/functions/v1/realtime-chat`);
+    // Use the Supabase functions URL with the current project
+    const ws = new WebSocket(`wss://pbsqjumhlxbnhmzmemgk.supabase.co/functions/v1/realtime-chat`);
     
     ws.onopen = () => {
       console.log('Connected to AI');
@@ -190,27 +192,44 @@ const AIChatbot = () => {
 
   const sendTextMessage = async (messageText?: string) => {
     const textToSend = messageText || inputMessage.trim();
-    if (!textToSend || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
+    if (!textToSend) return;
 
     // Add user message
     addMessage('user', textToSend, 'text');
     setInputMessage('');
     setIsLoading(true);
 
-    // Send text message to AI
     try {
-      wsRef.current.send(JSON.stringify({
-        type: 'conversation.item.create',
-        item: {
-          type: 'message',
-          role: 'user',
-          content: [{ type: 'input_text', text: textToSend }]
+      // Try WebSocket first if connected
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        wsRef.current.send(JSON.stringify({
+          type: 'conversation.item.create',
+          item: {
+            type: 'message',
+            role: 'user',
+            content: [{ type: 'input_text', text: textToSend }]
+          }
+        }));
+        
+        wsRef.current.send(JSON.stringify({ type: 'response.create' }));
+      } else {
+        // Fallback to direct API call using Supabase function
+        const { data, error } = await supabase.functions.invoke('chat-with-ai', {
+          body: { message: textToSend }
+        });
+
+        if (error) {
+          throw new Error(error.message || 'Failed to get response');
         }
-      }));
-      
-      wsRef.current.send(JSON.stringify({ type: 'response.create' }));
+
+        if (data && data.response) {
+          addMessage('assistant', data.response, 'text');
+        }
+        setIsLoading(false);
+      }
     } catch (error) {
       console.error('Error sending message:', error);
+      addMessage('assistant', "I'm sorry, I'm having trouble connecting right now. Please try again in a moment.", 'text');
       setIsLoading(false);
     }
   };
@@ -442,11 +461,11 @@ const AIChatbot = () => {
                         onKeyPress={handleKeyPress}
                         placeholder="Share your thoughts... I'm here to listen 💙"
                         className="flex-1"
-                        disabled={isLoading || !isConnected}
+                        disabled={isLoading}
                       />
                       <Button 
                         onClick={() => sendTextMessage()}
-                        disabled={!inputMessage.trim() || isLoading || !isConnected}
+                        disabled={!inputMessage.trim() || isLoading}
                         size="icon"
                       >
                         <Send className="w-4 h-4" />
@@ -465,7 +484,7 @@ const AIChatbot = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => sendTextMessage(question)}
-                        disabled={isLoading || !isConnected}
+                        disabled={isLoading}
                         className="text-left justify-start h-auto p-3 whitespace-normal"
                       >
                         {question}
