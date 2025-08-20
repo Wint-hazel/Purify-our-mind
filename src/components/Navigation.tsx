@@ -12,7 +12,6 @@ const Navigation = () => {
 
   const navLinks = [
     { href: '/', label: 'Home' },
-    { href: '/services', label: 'Services' },
     { href: '/daily-plan', label: 'Daily Plan' },
     { href: '/calendar', label: 'Calendar' },
     { href: '/ai-chatbot', label: 'AI Chat' },

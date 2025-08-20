@@ -6,7 +6,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./hooks/useAuth";
 import Auth from "./pages/Auth";
 import Index from "./pages/Index";
-import Services from "./pages/Services";
 import Calendar from "./pages/Calendar";
 import AIChatbot from "./pages/AIChatbot";
 import Contact from "./pages/Contact";
@@ -44,11 +43,6 @@ const App = () => (
             <Route path="/" element={
               <ProtectedRoute>
                 <Index />
-              </ProtectedRoute>
-            } />
-            <Route path="/services" element={
-              <ProtectedRoute>
-                <Services />
               </ProtectedRoute>
             } />
             <Route path="/calendar" element={
