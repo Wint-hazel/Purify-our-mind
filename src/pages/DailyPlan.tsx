@@ -4,7 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Search, Plus, BookOpen, Filter, Heart, Sparkles, Upload, Image as ImageIcon, X, Camera } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Calendar, Search, Plus, BookOpen, Filter, Heart, Sparkles, Upload, Image as ImageIcon, X, Camera, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -13,11 +14,12 @@ import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 
 // Media Item Component
-const MediaItem = ({ item, isPastDate, onUpdateCaption, onDelete }: {
+const MediaItem = ({ item, isPastDate, onUpdateCaption, onDelete, onView }: {
   item: DiaryMedia;
   isPastDate: boolean;
   onUpdateCaption: (id: string, caption: string) => void;
   onDelete: (id: string, filePath: string) => void;
+  onView: (item: DiaryMedia) => void;
 }) => {
   const [imageUrl, setImageUrl] = useState<string>('');
   const [loading, setLoading] = useState(true);
@@ -43,7 +45,7 @@ const MediaItem = ({ item, isPastDate, onUpdateCaption, onDelete }: {
 
   return (
     <div className="relative group">
-      <div className="aspect-square rounded-lg overflow-hidden bg-muted">
+      <div className="aspect-square rounded-lg overflow-hidden bg-muted h-32 w-32">
         {loading ? (
           <div className="w-full h-full flex items-center justify-center">
             <div className="animate-pulse bg-muted-foreground/20 w-full h-full"></div>
@@ -52,34 +54,45 @@ const MediaItem = ({ item, isPastDate, onUpdateCaption, onDelete }: {
           <img
             src={imageUrl}
             alt={item.caption || item.file_name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover cursor-pointer"
             onError={() => console.error('Failed to load image')}
+            onClick={() => onView(item)}
           />
         )}
         
-        {!isPastDate && !loading && (
+        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
           <Button
-            variant="destructive"
+            variant="secondary"
             size="sm"
-            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={() => onDelete(item.id, item.file_path)}
+            onClick={() => onView(item)}
+            className="flex items-center gap-1"
           >
-            <X className="w-4 h-4" />
+            <Eye className="w-3 h-3" />
+            View
           </Button>
-        )}
+          {!isPastDate && (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => onDelete(item.id, item.file_path)}
+            >
+              <X className="w-3 h-3" />
+            </Button>
+          )}
+        </div>
       </div>
       
-      <div className="mt-2">
+      <div className="mt-2 w-32">
         {!isPastDate ? (
           <Input
-            placeholder="Add a caption..."
+            placeholder="Add caption..."
             defaultValue={item.caption || ''}
             onBlur={(e) => onUpdateCaption(item.id, e.target.value)}
-            className="text-sm"
+            className="text-xs h-8"
           />
         ) : (
           item.caption && (
-            <p className="text-sm text-muted-foreground italic">
+            <p className="text-xs text-muted-foreground italic line-clamp-2">
               {item.caption}
             </p>
           )
@@ -89,6 +102,113 @@ const MediaItem = ({ item, isPastDate, onUpdateCaption, onDelete }: {
         </p>
       </div>
     </div>
+  );
+};
+
+// Image Slideshow Modal
+const ImageSlideshow = ({ 
+  media, 
+  currentIndex, 
+  isOpen, 
+  onClose, 
+  onNext, 
+  onPrevious 
+}: {
+  media: DiaryMedia[];
+  currentIndex: number;
+  isOpen: boolean;
+  onClose: () => void;
+  onNext: () => void;
+  onPrevious: () => void;
+}) => {
+  const [currentImageUrl, setCurrentImageUrl] = useState<string>('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (isOpen && media[currentIndex]) {
+      const loadImage = async () => {
+        setLoading(true);
+        try {
+          const { data, error } = await supabase.storage
+            .from('diary-media')
+            .createSignedUrl(media[currentIndex].file_path, 3600);
+
+          if (error) throw error;
+          setCurrentImageUrl(data.signedUrl);
+        } catch (error) {
+          console.error('Error loading image:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      loadImage();
+    }
+  }, [isOpen, currentIndex, media]);
+
+  if (!isOpen || !media[currentIndex]) return null;
+
+  const currentItem = media[currentIndex];
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl w-full max-h-[90vh] p-0">
+        <DialogHeader className="p-4 pb-2">
+          <DialogTitle className="text-center">
+            {currentItem.caption || currentItem.file_name} ({currentIndex + 1} of {media.length})
+          </DialogTitle>
+        </DialogHeader>
+        
+        <div className="relative flex items-center justify-center min-h-[400px] max-h-[70vh]">
+          {loading ? (
+            <div className="animate-pulse bg-muted w-full h-96 flex items-center justify-center">
+              Loading...
+            </div>
+          ) : (
+            <img
+              src={currentImageUrl}
+              alt={currentItem.caption || currentItem.file_name}
+              className="max-w-full max-h-full object-contain"
+            />
+          )}
+
+          {media.length > 1 && (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                className="absolute left-2 top-1/2 -translate-y-1/2"
+                onClick={onPrevious}
+                disabled={loading}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                className="absolute right-2 top-1/2 -translate-y-1/2"
+                onClick={onNext}
+                disabled={loading}
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </>
+          )}
+        </div>
+
+        <div className="p-4 pt-2">
+          {currentItem.caption && (
+            <p className="text-center text-muted-foreground mb-2">
+              {currentItem.caption}
+            </p>
+          )}
+          <p className="text-center text-xs text-muted-foreground">
+            Uploaded: {new Date(currentItem.created_at).toLocaleString()}
+          </p>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
@@ -151,6 +271,10 @@ const DailyPlan = () => {
   const [selectedMoodFilter, setSelectedMoodFilter] = useState<number | null>(null);
   const [uploading, setUploading] = useState(false);
   const [dailyPhotoCount, setDailyPhotoCount] = useState(0);
+  const [slideshow, setSlideshow] = useState({
+    isOpen: false,
+    currentIndex: 0,
+  });
 
   // New entry form state
   const [newTitle, setNewTitle] = useState('');
@@ -368,22 +492,33 @@ const DailyPlan = () => {
     }
   };
 
-  const getImageUrl = async (filePath: string) => {
-    try {
-      const { data, error } = await supabase.storage
-        .from('diary-media')
-        .createSignedUrl(filePath, 3600); // 1 hour expiry
+  const openSlideshow = (item: DiaryMedia) => {
+    const index = media.findIndex(m => m.id === item.id);
+    setSlideshow({
+      isOpen: true,
+      currentIndex: index,
+    });
+  };
 
-      if (error) {
-        console.error('Error creating signed URL:', error);
-        return '';
-      }
-      
-      return data.signedUrl;
-    } catch (error) {
-      console.error('Error getting image URL:', error);
-      return '';
-    }
+  const closeSlideshow = () => {
+    setSlideshow({
+      isOpen: false,
+      currentIndex: 0,
+    });
+  };
+
+  const nextImage = () => {
+    setSlideshow(prev => ({
+      ...prev,
+      currentIndex: (prev.currentIndex + 1) % media.length,
+    }));
+  };
+
+  const previousImage = () => {
+    setSlideshow(prev => ({
+      ...prev,
+      currentIndex: prev.currentIndex === 0 ? media.length - 1 : prev.currentIndex - 1,
+    }));
   };
 
   const handleSaveEntry = async () => {
@@ -630,7 +765,7 @@ const DailyPlan = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="flex flex-wrap gap-4">
                 {media.map((item) => (
                   <MediaItem 
                     key={item.id} 
@@ -638,6 +773,7 @@ const DailyPlan = () => {
                     isPastDate={isPastDate}
                     onUpdateCaption={updateMediaCaption}
                     onDelete={deleteMedia}
+                    onView={openSlideshow}
                   />
                 ))}
               </div>
@@ -803,6 +939,16 @@ const DailyPlan = () => {
             })
           )}
         </div>
+
+        {/* Image Slideshow Modal */}
+        <ImageSlideshow
+          media={media}
+          currentIndex={slideshow.currentIndex}
+          isOpen={slideshow.isOpen}
+          onClose={closeSlideshow}
+          onNext={nextImage}
+          onPrevious={previousImage}
+        />
       </main>
       
       <Footer />
