@@ -36,9 +36,101 @@ const AIChatbot = () => {
   const getAIResponse = async (userMessage: string): Promise<string> => {
     const message = userMessage.toLowerCase().trim();
     
-    // Mental health definition
-    if (message.includes('what is mental health') || message.includes('define mental health')) {
-      return "Mental health is the state of your emotional, psychological, and social well-being. 🧠 It affects how you think, feel, and act in daily life. Just like physical health, mental health is essential for living a fulfilling life.";
+    // Specific scenario-based responses
+    
+    // Overthinking about future
+    if (message.includes('worry about tomorrow') || message.includes('worrying about what might happen') || message.includes('overthinking about future')) {
+      return "It's natural to think ahead, but dwelling on 'what ifs' can increase anxiety. 🌅 Let's focus on what you can do today. Can we make a short plan together? What's one small thing you can accomplish right now?";
+    }
+
+    // Loneliness in crowds
+    if (message.includes('lonely even when') || message.includes('lonely in a crowd') || message.includes('feel lonely around people')) {
+      return "That paradoxical loneliness can feel really isolating. 💙 You're not alone in feeling this way. Let's explore one small way to connect meaningfully today - maybe start with one genuine conversation or reach out to someone you trust.";
+    }
+
+    // Exercise motivation
+    if (message.includes("don't feel like exercising") || message.includes('unmotivated for exercise') || message.includes("don't want to exercise")) {
+      return "That's completely normal! 🚶‍♀️ Remember, even a 5-minute walk counts as movement. Shall we start with a tiny step together? Sometimes just putting on workout clothes is enough to build momentum.";
+    }
+
+    // Self-criticism and failure
+    if (message.includes('always feel like failing') || message.includes('feel like a failure') || message.includes('self-criticism')) {
+      return "Self-criticism can be so harsh. 🌱 It's okay to make mistakes - that's how we learn and grow. Let's try this: write down 3 things you did well today, no matter how small. Your worth isn't defined by your mistakes.";
+    }
+
+    // Social anxiety about events
+    if (message.includes('nervous about') && (message.includes('party') || message.includes('social') || message.includes('event'))) {
+      return "Social anxiety before events is very common! 🎉 Many people feel that way. Let's try a calming technique: take 3 deep breaths and remind yourself of your good qualities. You belong there just as much as anyone else.";
+    }
+
+    // Fear of failure
+    if (message.includes('scared i\'ll fail') || message.includes('fear of failure') || message.includes('afraid i\'ll fail')) {
+      return "Fear of failure can be paralyzing, but it shows you care about doing well. 📚 Feeling nervous is normal before important events. Let's review what you've prepared and take a deep breath. You're more ready than you think.";
+    }
+
+    // Concentration issues
+    if (message.includes('can\'t focus') || message.includes('difficulty concentrating') || message.includes('trouble concentrating')) {
+      return "Focus can be tricky when we're stressed or overwhelmed. 🧘‍♀️ Let's try a 2-minute mindfulness exercise to reset your mind: close your eyes, breathe slowly, and notice 5 things you can hear around you.";
+    }
+
+    // Feeling overwhelmed by responsibilities  
+    if (message.includes('too many things to do') || message.includes('can\'t keep up') || message.includes('overwhelmed by responsibilities')) {
+      return "Feeling overwhelmed is a sign you're taking on a lot! 📝 Let's make this manageable: create a short priority list and tackle just one thing at a time. Which task feels most urgent or easiest to complete first?";
+    }
+
+    // Appearance insecurity
+    if (message.includes('hate looking in mirror') || message.includes('insecure about appearance') || message.includes('don\'t like how i look')) {
+      return "Your value extends far beyond appearance. 💫 You are so much more than what you see in the mirror. Let's shift focus: can you list 3 qualities you like about yourself today? Your kindness, humor, creativity, or strength?";
+    }
+
+    // Shyness with new people
+    if (message.includes('shy to talk') || message.includes('nervous about talking') || message.includes('scared to meet new people')) {
+      return "It's completely okay to feel shy - many people do! 🤝 Let's practice together: try starting with a simple 'Hi, how are you?' or asking about something you both can see. Most people appreciate friendly gestures.";
+    }
+
+    // Mental exhaustion
+    if (message.includes('mentally drained') || message.includes('mentally exhausted') || message.includes('mental fatigue')) {
+      return "Mental exhaustion is real and valid. 🧠 Your mind needs rest just like your body does. Let's try a short guided relaxation: close your eyes, breathe deeply, and imagine a peaceful place where you feel completely safe.";
+    }
+
+    // Guilt about past actions
+    if (message.includes('regret what i did') || message.includes('guilty about') || message.includes('feel bad about what i did')) {
+      return "Acknowledging regret shows your conscience and growth. 🌱 That's actually a good first step. Can we think of one way to make amends if possible, or practice self-forgiveness? Everyone makes mistakes - it's part of being human.";
+    }
+
+    // Anger about uncontrollable situations
+    if (message.includes('frustrated about things i can\'t change') || message.includes('angry at things i can\'t control')) {
+      return "That frustration is so understandable! 🌊 It's normal to feel upset about things beyond our control. Let's focus on what you can influence today and practice letting the rest go, even if just for now. What's one small thing within your control?";
+    }
+
+    // Feeling stuck in life
+    if (message.includes('don\'t know what to do with my life') || message.includes('feeling stuck') || message.includes('lost in life')) {
+      return "Feeling stuck is more common than you think, especially during transitions. 🛤️ Let's start small: what's one activity or interest that brought you joy recently? Sometimes exploring small interests can lead to bigger discoveries about ourselves.";
+    }
+
+    // Fear of judgment
+    if (message.includes('scared people will judge') || message.includes('fear of judgment') || message.includes('worried what others think')) {
+      return "Fear of judgment affects most people! 💪 Here's a gentle reminder: others' opinions don't define your worth. Most people are too focused on their own lives to judge yours as harshly as you think. You deserve to live authentically.";
+    }
+
+    // Feeling unappreciated at work
+    if (message.includes('nobody values my effort') || message.includes('unappreciated at work') || message.includes('feel unrecognized')) {
+      return "Feeling unappreciated can be really discouraging. 👏 Let's acknowledge what you've accomplished today and celebrate even small wins. Your efforts matter, even when they're not immediately recognized by others.";
+    }
+
+    // Hopelessness about change
+    if (message.includes('things will never get better') || message.includes('hopeless about change') || message.includes('nothing will improve')) {
+      return "When we're in pain, it can feel like it will last forever. 🌱 But change often happens gradually. Let's identify one small step you can take today toward feeling better - maybe it's reaching out to someone, taking a short walk, or doing one kind thing for yourself.";
+    }
+
+    // Public speaking anxiety
+    if (message.includes('terrified of giving presentation') || message.includes('nervous about public speaking') || message.includes('scared to present')) {
+      return "Public speaking anxiety is incredibly common! 🎯 Let's prepare together: practice a short breathing exercise (4 counts in, 6 counts out) and repeat this affirmation: 'I have valuable things to share, and I'm prepared.' You've got this!";
+    }
+
+    // Decision-making difficulty
+    if (message.includes('can\'t decide what to do') || message.includes('trouble making decisions') || message.includes('unsure about deciding')) {
+      return "Decision-making can feel overwhelming when we're anxious or have many options. 📊 Let's make this easier: what are your top 2 options? We can list the pros and cons of each together, or consider what your future self would thank you for choosing.";
     }
 
     // Panic attacks
