@@ -12,6 +12,7 @@ import AIChatbot from "./pages/AIChatbot";
 import Contact from "./pages/Contact";
 import Profile from "./pages/Profile";
 import DailyPlan from "./pages/DailyPlan";
+import HealthRecommendations from "./pages/HealthRecommendations";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -73,6 +74,11 @@ const App = () => (
             <Route path="/daily-plan" element={
               <ProtectedRoute>
                 <DailyPlan />
+              </ProtectedRoute>
+            } />
+            <Route path="/health-recommendations" element={
+              <ProtectedRoute>
+                <HealthRecommendations />
               </ProtectedRoute>
             } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

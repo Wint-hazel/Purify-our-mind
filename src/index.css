@@ -63,6 +63,12 @@ Theme: Calming blues with gradients and accessibility focus.
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-gentle: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
+    /* Pastel gradients for Health Recommendations */
+    --gradient-pastel-blue: linear-gradient(135deg, hsl(210, 100%, 97%) 0%, hsl(220, 100%, 95%) 100%);
+    --gradient-pastel-purple: linear-gradient(135deg, hsl(280, 100%, 97%) 0%, hsl(260, 100%, 95%) 100%);
+    --gradient-pastel-green: linear-gradient(135deg, hsl(140, 100%, 97%) 0%, hsl(120, 100%, 95%) 100%);
+    --gradient-warm-caring: linear-gradient(135deg, hsl(210, 100%, 97%) 0%, hsl(280, 100%, 97%) 50%, hsl(140, 100%, 97%) 100%);
+
     --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
