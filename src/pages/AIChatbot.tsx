@@ -35,7 +35,6 @@ const AIChatbot = () => {
   const { toast } = useToast();
 
   const quickQuestions = [
-    "What is mental health?",
     "How can I manage stress?",
     "I feel anxious all the time",
     "How can I improve my mood?",
