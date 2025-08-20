@@ -27,7 +27,7 @@ const music = Array.from({ length: 20 }, (_, i) => ({
   whyListen: "Scientifically designed to reduce anxiety and promote relaxation."
 }));
 
-const movies = Array.from({ length: 20 }, (_, i) => ({
+const movies = Array.from({ length: 5 }, (_, i) => ({
   id: i + 1,
   title: `Inspiring Movie ${i + 1}`,
   poster: `https://picsum.photos/200/300?random=${i + 41}`,
