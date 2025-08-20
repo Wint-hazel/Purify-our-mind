@@ -150,6 +150,9 @@ export default function Entertainment() {
                           src={book.cover_url}
                           alt={book.name}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src = 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&h=400&fit=crop&crop=center';
+                          }}
                         />
                       </div>
                       <CardHeader className="pb-1">
