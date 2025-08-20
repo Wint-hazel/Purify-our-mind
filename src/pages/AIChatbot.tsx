@@ -246,7 +246,32 @@ const AIChatbot = () => {
 
           case 'conversation.item.input_audio_transcription.completed':
             if (data.transcript) {
-              addMessage(data.transcript, 'user', 'voice');
+              // Add crisis word detection
+              const crisisWords = ['suicide', 'hurt myself', 'end my life', 'kill myself', 'want to die'];
+              const userMessage = data.transcript.toLowerCase();
+              const hasCrisisWords = crisisWords.some(word => userMessage.includes(word));
+              
+              if (hasCrisisWords) {
+                // Immediately send crisis response
+                const crisisResponse = "If you feel like harming yourself, please reach out immediately to a trusted person or call your local crisis hotline. You are not alone. Crisis Hotline: 988";
+                addMessage(data.transcript, 'user', 'voice');
+                addMessage(crisisResponse, 'assistant', 'voice');
+                
+                // Send crisis intervention via WebSocket
+                if (wsRef.current?.readyState === WebSocket.OPEN) {
+                  wsRef.current.send(JSON.stringify({
+                    type: 'conversation.item.create',
+                    item: {
+                      type: 'message',
+                      role: 'assistant',
+                      content: [{ type: 'input_text', text: crisisResponse }]
+                    }
+                  }));
+                  wsRef.current.send(JSON.stringify({ type: 'response.create' }));
+                }
+              } else {
+                addMessage(data.transcript, 'user', 'voice');
+              }
             }
             break;
 
