@@ -28,6 +28,19 @@ const AIChatbot = () => {
   const getAIResponse = (userMessage: string): string => {
     const message = userMessage.toLowerCase();
     
+    // Greeting responses
+    if (message === 'hello') {
+      return "Hello! It's great to see you here. 💙 If you're feeling stressed, anxious, or just need someone to talk to, I'm here to listen. How are you doing today?";
+    }
+    
+    if (message === 'hi') {
+      return "Hi! I'm MindCare. 🌿 You deserve some self-care today. How's your mood right now, and what would you like support with?";
+    }
+    
+    if (message === 'hey') {
+      return "Hey there! I'm here to help you feel calmer and more positive. 🌸 Are you looking for tips to relax, some motivation, or just someone to talk to?";
+    }
+    
     // Overthinking responses
     if (message.includes('thinking about') || message.includes('mistakes') || message.includes('overthinking') || message.includes("can't stop thinking")) {
       return "It's normal to replay events in your mind. Let's try focusing on the present moment. Can we do a 3-step grounding exercise together?";
