@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      books: {
+        Row: {
+          about: string
+          author: string
+          cover_url: string | null
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+          why_read: string
+        }
+        Insert: {
+          about: string
+          author: string
+          cover_url?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+          why_read: string
+        }
+        Update: {
+          about?: string
+          author?: string
+          cover_url?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          why_read?: string
+        }
+        Relationships: []
+      }
       diary_entries: {
         Row: {
           content: string

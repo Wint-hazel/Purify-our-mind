@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Book, Music, Film, Star, ExternalLink, Play, Pause } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { supabase } from '@/integrations/supabase/client';
 
-// Placeholder data - you can replace this with your actual data
-const books = Array.from({ length: 20 }, (_, i) => ({
-  id: i + 1,
-  title: `Mental Health Book ${i + 1}`,
-  author: `Author ${i + 1}`,
-  cover: `https://picsum.photos/200/300?random=${i + 1}`,
-  description: "A comprehensive guide to understanding and improving mental health through evidence-based practices and personal insights.",
-  whyRead: "Provides practical tools for managing stress and building emotional resilience."
-}));
+interface BookData {
+  id: string;
+  name: string;
+  author: string;
+  about: string;
+  why_read: string;
+  cover_url: string;
+}
 
 const music = Array.from({ length: 20 }, (_, i) => ({
   id: i + 1,
@@ -41,9 +41,34 @@ export default function Entertainment() {
   const [bookSearch, setBookSearch] = useState("");
   const [movieGenre, setMovieGenre] = useState("All");
   const [playingVideo, setPlayingVideo] = useState<number | null>(null);
+  const [books, setBooks] = useState<BookData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchBooks();
+  }, []);
+
+  const fetchBooks = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('books')
+        .select('*')
+        .order('name');
+      
+      if (error) {
+        console.error('Error fetching books:', error);
+      } else {
+        setBooks(data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching books:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredBooks = books.filter(book => 
-    book.title.toLowerCase().includes(bookSearch.toLowerCase()) ||
+    book.name.toLowerCase().includes(bookSearch.toLowerCase()) ||
     book.author.toLowerCase().includes(bookSearch.toLowerCase())
   );
 
@@ -102,28 +127,40 @@ export default function Entertainment() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredBooks.map((book) => (
-                <Card key={book.id} className="hover-scale overflow-hidden">
-                  <div className="aspect-[2/3] relative">
-                    <img
-                      src={book.cover}
-                      alt={book.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg line-clamp-2">{book.title}</CardTitle>
-                    <CardDescription className="text-sm font-medium">{book.author}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <p className="text-sm text-muted-foreground line-clamp-3">{book.description}</p>
-                    <div className="bg-primary/10 p-3 rounded-lg">
-                      <p className="text-sm font-medium text-primary mb-1">Why Read:</p>
-                      <p className="text-sm text-muted-foreground">{book.whyRead}</p>
+              {loading ? (
+                Array.from({ length: 8 }).map((_, i) => (
+                  <Card key={i} className="overflow-hidden">
+                    <div className="aspect-[2/3] bg-muted animate-pulse" />
+                    <CardHeader>
+                      <div className="h-5 bg-muted animate-pulse rounded mb-2" />
+                      <div className="h-4 bg-muted animate-pulse rounded w-3/4" />
+                    </CardHeader>
+                  </Card>
+                ))
+              ) : (
+                filteredBooks.map((book) => (
+                  <Card key={book.id} className="hover-scale overflow-hidden">
+                    <div className="aspect-[2/3] relative">
+                      <img
+                        src={book.cover_url}
+                        alt={book.name}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg line-clamp-2">{book.name}</CardTitle>
+                      <CardDescription className="text-sm font-medium">{book.author}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <p className="text-sm text-muted-foreground line-clamp-3">{book.about}</p>
+                      <div className="bg-primary/10 p-3 rounded-lg">
+                        <p className="text-sm font-medium text-primary mb-1">Why Read:</p>
+                        <p className="text-sm text-muted-foreground">{book.why_read}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
             </div>
           </TabsContent>
 
