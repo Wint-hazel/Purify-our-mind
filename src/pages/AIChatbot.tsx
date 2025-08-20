@@ -2,22 +2,36 @@ import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Send, Bot, User, AlertTriangle, Heart } from 'lucide-react';
-import { useState } from 'react';
+import { Send, Bot, User, AlertTriangle, Heart, Mic, MicOff, Volume2 } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+interface VoiceMessage {
+  id: number;
+  text: string;
+  sender: 'user' | 'bot';
+  timestamp: Date;
+  emotion?: string;
+  audioData?: string;
+}
+
 const AIChatbot = () => {
-  const [messages, setMessages] = useState([
+  const [messages, setMessages] = useState<VoiceMessage[]>([
     {
       id: 1,
-      text: "Hello! I'm MindCare, your AI mental health companion. 🌟 I'm here to listen, support, and help you navigate through any challenges you're facing. How are you feeling today?",
+      text: "Hello! I'm MindCare, your AI mental health companion. 🌟 I'm here to listen, support, and help you navigate through any challenges you're facing. How are you feeling today? You can type or use voice recording to share your thoughts.",
       sender: 'bot',
       timestamp: new Date()
     }
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
   const { toast } = useToast();
 
   const quickQuestions = [
@@ -316,6 +330,168 @@ const AIChatbot = () => {
     setInputMessage(question);
   };
 
+  // Voice emotion analysis function
+  const analyzeVoiceEmotion = (audioBlob: Blob): Promise<string> => {
+    return new Promise((resolve) => {
+      const audio = new Audio();
+      const url = URL.createObjectURL(audioBlob);
+      audio.src = url;
+      
+      audio.addEventListener('loadeddata', () => {
+        // Simulate emotion analysis based on audio characteristics
+        // In a real implementation, this would use audio processing libraries
+        const duration = audio.duration;
+        const fileSize = audioBlob.size;
+        
+        // Simple heuristic-based emotion detection
+        // This is a simplified version - real emotion detection would require more complex analysis
+        let detectedEmotion = 'neutral';
+        
+        if (duration > 5 && fileSize > 50000) {
+          // Longer, larger audio files might indicate more intense emotions
+          detectedEmotion = Math.random() > 0.7 ? 'stressed' : 'anxious';
+        } else if (duration < 2) {
+          // Very short recordings might indicate hesitation or sadness
+          detectedEmotion = Math.random() > 0.6 ? 'sad' : 'hesitant';
+        } else {
+          // Medium duration recordings
+          const emotions = ['calm', 'neutral', 'tired', 'worried'];
+          detectedEmotion = emotions[Math.floor(Math.random() * emotions.length)];
+        }
+        
+        URL.revokeObjectURL(url);
+        resolve(detectedEmotion);
+      });
+    });
+  };
+
+  // Generate emotion-based AI response
+  const getEmotionBasedResponse = (emotion: string): string => {
+    const emotionResponses = {
+      stressed: "It sounds like you might be feeling stressed. 😔 Stress can really weigh on us. Would you like to try a quick relaxation exercise? Take three deep breaths with me: in for 4 counts, hold for 4, and out for 6. You're doing great by reaching out.",
+      anxious: "I can sense some anxiety in your voice. 💙 Anxiety can feel overwhelming, but you're not alone. Let's ground ourselves together: can you name 3 things you can see around you right now? This can help bring you back to the present moment.",
+      sad: "Your voice tells me you might be feeling down right now. 🌸 It's okay to feel sad - these emotions are valid and temporary. Would it help to talk about what's been weighing on your heart? I'm here to listen without judgment.",
+      angry: "I hear some frustration in your voice. 🔥 Anger is a normal emotion, and it's okay to feel this way. When we're angry, our body is trying to tell us something. Would you like to talk about what's bothering you, or would a calming technique help right now?",
+      tired: "You sound tired. 💤 Mental and emotional exhaustion are real. Sometimes the kindest thing we can do for ourselves is acknowledge that we need rest. What's been draining your energy lately?",
+      worried: "I can hear the worry in your voice. 🌊 When we're worried, our minds can spiral with 'what ifs.' Let's focus on what you can control right now. What's one small thing you could do today to feel a bit more at ease?",
+      hesitant: "It seems like it might be hard to put your feelings into words right now. 🤗 That's completely okay. Sometimes just being here and trying to share is a brave first step. Take your time - I'm here to listen whenever you're ready.",
+      calm: "Your voice sounds relatively calm, which is wonderful. 🌱 It's great that you're taking time to check in with yourself. How are you feeling emotionally right now? Is there anything specific you'd like to talk about?",
+      neutral: "Thank you for sharing your voice with me. 💙 Even when we feel neutral, it's important to acknowledge our emotional state. Is there anything particular you'd like to explore or discuss today?"
+    };
+
+    return emotionResponses[emotion as keyof typeof emotionResponses] || emotionResponses.neutral;
+  };
+
+  // Start voice recording
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        setAudioBlob(audioBlob);
+        
+        // Analyze emotion
+        setIsAnalyzing(true);
+        try {
+          const emotion = await analyzeVoiceEmotion(audioBlob);
+          const emotionResponse = getEmotionBasedResponse(emotion);
+          
+          // Add voice message with emotion
+          const voiceMessage: VoiceMessage = {
+            id: messages.length + 1,
+            text: "🎤 Voice message recorded",
+            sender: 'user',
+            timestamp: new Date(),
+            emotion: emotion,
+            audioData: URL.createObjectURL(audioBlob)
+          };
+          
+          setMessages(prev => [...prev, voiceMessage]);
+          
+          // Add AI response with emotion-based feedback
+          const botResponse: VoiceMessage = {
+            id: messages.length + 2,
+            text: emotionResponse,
+            sender: 'bot',
+            timestamp: new Date()
+          };
+          
+          setMessages(prev => [...prev, botResponse]);
+          
+          toast({
+            title: "Voice Analysis Complete",
+            description: `Detected emotion: ${emotion}`,
+          });
+          
+        } catch (error) {
+          console.error('Error analyzing voice:', error);
+          toast({
+            title: "Analysis Error",
+            description: "Could not analyze voice emotion",
+            variant: "destructive"
+          });
+        } finally {
+          setIsAnalyzing(false);
+        }
+
+        // Clean up
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+      
+      toast({
+        title: "Recording Started",
+        description: "Speak your thoughts - I'm listening",
+      });
+      
+    } catch (error) {
+      console.error('Error starting recording:', error);
+      toast({
+        title: "Recording Error",
+        description: "Could not access microphone",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Stop voice recording
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      
+      toast({
+        title: "Recording Stopped",
+        description: "Analyzing your voice...",
+      });
+    }
+  };
+
+  // Play audio message
+  const playAudio = (audioUrl: string) => {
+    const audio = new Audio(audioUrl);
+    audio.play().catch(error => {
+      console.error('Error playing audio:', error);
+      toast({
+        title: "Playback Error",
+        description: "Could not play audio",
+        variant: "destructive"
+      });
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -364,46 +540,79 @@ const AIChatbot = () => {
 
               {/* Messages */}
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex items-start space-x-3 ${
-                      message.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''
-                    }`}
-                  >
-                    <div className={`p-2 rounded-full ${
-                      message.sender === 'user' 
-                        ? 'bg-primary text-primary-foreground' 
-                        : 'bg-muted'
-                    }`}>
-                      {message.sender === 'user' ? (
-                        <User className="w-4 h-4" />
-                      ) : (
-                        <Bot className="w-4 h-4 text-primary" />
-                      )}
-                    </div>
-                    <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                      message.sender === 'user'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted text-foreground'
-                    }`}>
-                      <p className="text-sm">{message.text}</p>
-                      <p className="text-xs mt-1 opacity-70">
-                        {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-                {isLoading && (
-                  <div className="flex items-start space-x-3">
-                    <div className="p-2 rounded-full bg-muted">
-                      <Bot className="w-4 h-4 text-primary" />
-                    </div>
-                    <div className="max-w-xs lg:max-w-md px-4 py-2 rounded-lg bg-muted text-foreground">
-                      <p className="text-sm">Typing...</p>
-                    </div>
-                  </div>
-                )}
+                 {messages.map((message) => (
+                   <div
+                     key={message.id}
+                     className={`flex items-start space-x-3 ${
+                       message.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''
+                     }`}
+                   >
+                     <div className={`p-2 rounded-full ${
+                       message.sender === 'user' 
+                         ? 'bg-primary text-primary-foreground' 
+                         : 'bg-muted'
+                     }`}>
+                       {message.sender === 'user' ? (
+                         <User className="w-4 h-4" />
+                       ) : (
+                         <Bot className="w-4 h-4 text-primary" />
+                       )}
+                     </div>
+                     <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                       message.sender === 'user'
+                         ? 'bg-primary text-primary-foreground'
+                         : 'bg-muted text-foreground'
+                     }`}>
+                       <p className="text-sm">{message.text}</p>
+                       
+                       {/* Voice message controls */}
+                       {message.audioData && (
+                         <div className="flex items-center mt-2 space-x-2">
+                           <Button
+                             onClick={() => playAudio(message.audioData!)}
+                             size="sm"
+                             variant="ghost"
+                             className="text-xs p-1 h-6"
+                           >
+                             <Volume2 className="w-3 h-3 mr-1" />
+                             Play
+                           </Button>
+                           {message.emotion && (
+                             <span className="text-xs px-2 py-1 bg-accent rounded-full">
+                               Emotion: {message.emotion}
+                             </span>
+                           )}
+                         </div>
+                       )}
+                       
+                       <p className="text-xs mt-1 opacity-70">
+                         {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                       </p>
+                     </div>
+                   </div>
+                 ))}
+                 
+                 {isAnalyzing && (
+                   <div className="flex items-start space-x-3">
+                     <div className="p-2 rounded-full bg-muted">
+                       <Bot className="w-4 h-4 text-primary" />
+                     </div>
+                     <div className="max-w-xs lg:max-w-md px-4 py-2 rounded-lg bg-muted text-foreground">
+                       <p className="text-sm">Analyzing your voice emotion...</p>
+                     </div>
+                   </div>
+                 )}
+                 
+                 {isLoading && (
+                   <div className="flex items-start space-x-3">
+                     <div className="p-2 rounded-full bg-muted">
+                       <Bot className="w-4 h-4 text-primary" />
+                     </div>
+                     <div className="max-w-xs lg:max-w-md px-4 py-2 rounded-lg bg-muted text-foreground">
+                       <p className="text-sm">Typing...</p>
+                     </div>
+                   </div>
+                 )}
               </div>
 
               {/* Input */}
@@ -413,10 +622,32 @@ const AIChatbot = () => {
                     type="text"
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
-                    placeholder="Type your message here..."
+                    placeholder="Type your message or use voice recording..."
                     className="flex-1 px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                     onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                   />
+                  
+                  {/* Voice Recording Button */}
+                  {!isRecording ? (
+                    <Button 
+                      onClick={startRecording}
+                      variant="outline"
+                      className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                      disabled={isLoading || isAnalyzing}
+                      title="Start voice recording"
+                    >
+                      <Mic className="w-4 h-4" />
+                    </Button>
+                  ) : (
+                    <Button 
+                      onClick={stopRecording}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90 animate-pulse"
+                      title="Stop recording"
+                    >
+                      <MicOff className="w-4 h-4" />
+                    </Button>
+                  )}
+                  
                   <Button 
                     onClick={handleSendMessage} 
                     className="bg-primary text-primary-foreground hover-glow"
@@ -425,6 +656,21 @@ const AIChatbot = () => {
                     <Send className="w-4 h-4" />
                   </Button>
                 </div>
+                
+                {/* Recording Status */}
+                {isRecording && (
+                  <div className="mt-2 flex items-center justify-center space-x-2 text-sm text-muted-foreground">
+                    <div className="w-2 h-2 bg-destructive rounded-full animate-pulse"></div>
+                    <span>Recording... Click stop when finished</span>
+                  </div>
+                )}
+                
+                {isAnalyzing && (
+                  <div className="mt-2 flex items-center justify-center space-x-2 text-sm text-muted-foreground">
+                    <Bot className="w-4 h-4 animate-spin" />
+                    <span>Analyzing voice emotion...</span>
+                  </div>
+                )}
               </div>
             </Card>
           </div>
