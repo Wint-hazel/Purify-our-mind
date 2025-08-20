@@ -15,7 +15,7 @@ serve(async (req) => {
     const { message } = await req.json();
     
     // Try both environment variable names
-    const apiKey = Deno.env.get('DEEPSEEK_API_KEY') || Deno.env.get('OPENAI_API_KEY');
+    const apiKey = Deno.env.get('OPENAI_API_KEY') || Deno.env.get('DEEPSEEK_API_KEY');
     
     if (!apiKey) {
       console.error('No API key found in environment variables');
@@ -28,16 +28,21 @@ serve(async (req) => {
       });
     }
 
-    console.log('Making request to DeepSeek API...');
+    // Determine which API to use based on available key
+    const useOpenAI = Deno.env.get('OPENAI_API_KEY');
+    const apiUrl = useOpenAI ? 'https://api.openai.com/v1/chat/completions' : 'https://api.deepseek.com/v1/chat/completions';
+    const model = useOpenAI ? 'gpt-4o-mini' : 'deepseek-chat';
     
-    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+    console.log(`Making request to ${useOpenAI ? 'OpenAI' : 'DeepSeek'} API...`);
+    
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'deepseek-chat',
+        model: model,
         messages: [
           { 
             role: 'system', 
@@ -51,9 +56,9 @@ serve(async (req) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('DeepSeek API error:', errorText);
+      console.error('API error:', errorText);
       return new Response(JSON.stringify({ 
-        error: 'DeepSeek API error',
+        error: 'AI API error',
         details: `Status: ${response.status}, Response: ${errorText}`
       }), {
         status: 500,
@@ -66,7 +71,7 @@ serve(async (req) => {
 
     if (!aiResponse) {
       return new Response(JSON.stringify({ 
-        error: 'Invalid response from DeepSeek API',
+        error: 'Invalid response from AI API',
         details: 'No message content in response'
       }), {
         status: 500,
