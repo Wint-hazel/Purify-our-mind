@@ -4,6 +4,7 @@ import Footer from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
 import { 
   Send, 
@@ -11,15 +12,22 @@ import {
   User, 
   Heart, 
   AlertTriangle,
-  MessageCircle
+  MessageCircle,
+  Mic,
+  MicOff,
+  Volume2,
+  VolumeX,
+  Headphones
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { AudioRecorder, encodeAudioForAPI, playAudioData } from '@/utils/RealtimeAudio';
 
 interface ChatMessage {
   id: string;
   content: string;
   sender: 'user' | 'assistant';
   timestamp: Date;
+  type: 'text' | 'voice';
 }
 
 const AIChatbot = () => {
@@ -28,15 +36,28 @@ const AIChatbot = () => {
       id: '1',
       content: "Hello! I'm your AI mental health companion. I'm here to listen, provide support, and help you work through your feelings. How are you doing today?",
       sender: 'assistant',
-      timestamp: new Date()
+      timestamp: new Date(),
+      type: 'text'
     }
   ]);
   
   const [textInput, setTextInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('text');
+  
+  // Voice chat states
+  const [isConnected, setIsConnected] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [currentTranscript, setCurrentTranscript] = useState('');
   
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // Voice chat refs
+  const wsRef = useRef<WebSocket | null>(null);
+  const recorderRef = useRef<AudioRecorder | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
 
   const mentalHealthResponses = {
     greeting: [
@@ -117,12 +138,13 @@ const AIChatbot = () => {
     return mentalHealthResponses.general[Math.floor(Math.random() * mentalHealthResponses.general.length)];
   };
 
-  const addMessage = (content: string, sender: 'user' | 'assistant') => {
+  const addMessage = (content: string, sender: 'user' | 'assistant', type: 'text' | 'voice' = 'text') => {
     const newMessage: ChatMessage = {
       id: Date.now().toString(),
       content,
       sender,
-      timestamp: new Date()
+      timestamp: new Date(),
+      type
     };
     setMessages(prev => [...prev, newMessage]);
   };
@@ -131,7 +153,7 @@ const AIChatbot = () => {
     const content = messageText || textInput.trim();
     if (!content) return;
 
-    addMessage(content, 'user');
+    addMessage(content, 'user', 'text');
     setTextInput('');
     setIsLoading(true);
 
@@ -142,20 +164,192 @@ const AIChatbot = () => {
       });
 
       if (data && data.response) {
-        addMessage(data.response, 'assistant');
+        addMessage(data.response, 'assistant', 'text');
       } else {
         // Fallback to local responses
         const response = getAIResponse(content);
-        addMessage(response, 'assistant');
+        addMessage(response, 'assistant', 'text');
       }
     } catch (error) {
       console.error('Error:', error);
       // Use local response as fallback
       const response = getAIResponse(content);
-      addMessage(response, 'assistant');
+      addMessage(response, 'assistant', 'text');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Voice chat functions
+  const connectVoiceChat = () => {
+    try {
+      const ws = new WebSocket('wss://jqdjfmnmiyfczrgtyisp.supabase.co/functions/v1/realtime-chat');
+      
+      ws.onopen = () => {
+        setIsConnected(true);
+        toast({
+          title: "Connected",
+          description: "Voice chat is ready!"
+        });
+      };
+
+      ws.onmessage = async (event) => {
+        const data = JSON.parse(event.data);
+        console.log('Received:', data.type);
+        
+        switch (data.type) {
+          case 'session.created':
+            console.log('Session created');
+            break;
+            
+          case 'session.updated':
+            console.log('Session updated');
+            break;
+
+          case 'response.audio.delta':
+            if (data.delta) {
+              try {
+                const binaryString = atob(data.delta);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                  bytes[i] = binaryString.charCodeAt(i);
+                }
+                
+                if (!audioContextRef.current) {
+                  audioContextRef.current = new AudioContext();
+                }
+                
+                await playAudioData(audioContextRef.current, bytes);
+                setIsSpeaking(true);
+              } catch (error) {
+                console.error('Error playing audio:', error);
+              }
+            }
+            break;
+
+          case 'response.audio.done':
+            setIsSpeaking(false);
+            break;
+
+          case 'response.audio_transcript.delta':
+            if (data.delta) {
+              setCurrentTranscript(prev => prev + data.delta);
+            }
+            break;
+
+          case 'response.audio_transcript.done':
+            if (currentTranscript) {
+              addMessage(currentTranscript, 'assistant', 'voice');
+              setCurrentTranscript('');
+            }
+            break;
+
+          case 'conversation.item.input_audio_transcription.completed':
+            if (data.transcript) {
+              addMessage(data.transcript, 'user', 'voice');
+            }
+            break;
+
+          case 'error':
+            console.error('Voice chat error:', data.error);
+            toast({
+              title: "Voice Chat Error",
+              description: data.error,
+              variant: "destructive"
+            });
+            break;
+        }
+      };
+
+      ws.onclose = () => {
+        setIsConnected(false);
+        setIsRecording(false);
+        setIsSpeaking(false);
+        toast({
+          title: "Disconnected",
+          description: "Voice chat connection closed"
+        });
+      };
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        toast({
+          title: "Connection Error",
+          description: "Failed to connect to voice chat",
+          variant: "destructive"
+        });
+      };
+
+      wsRef.current = ws;
+    } catch (error) {
+      toast({
+        title: "Connection Error",
+        description: "Failed to connect to voice chat",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const startVoiceRecording = async () => {
+    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+      toast({
+        title: "Not Connected",
+        description: "Please connect to voice chat first",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      recorderRef.current = new AudioRecorder((audioData) => {
+        if (wsRef.current?.readyState === WebSocket.OPEN) {
+          const encodedAudio = encodeAudioForAPI(audioData);
+          wsRef.current.send(JSON.stringify({
+            type: 'input_audio_buffer.append',
+            audio: encodedAudio
+          }));
+        }
+      });
+
+      await recorderRef.current.start();
+      setIsRecording(true);
+      
+      toast({
+        title: "Recording Started",
+        description: "Speak naturally - I'm listening!"
+      });
+    } catch (error) {
+      console.error('Error starting recording:', error);
+      toast({
+        title: "Microphone Error",
+        description: error instanceof Error ? error.message : 'Failed to start recording',
+        variant: "destructive"
+      });
+    }
+  };
+
+  const stopVoiceRecording = () => {
+    if (recorderRef.current) {
+      recorderRef.current.stop();
+      recorderRef.current = null;
+    }
+    setIsRecording(false);
+  };
+
+  const disconnectVoiceChat = () => {
+    stopVoiceRecording();
+    
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+    
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
+    
+    setIsConnected(false);
   };
 
   const scrollToBottom = () => {
@@ -165,6 +359,13 @@ const AIChatbot = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    // Cleanup on unmount
+    return () => {
+      disconnectVoiceChat();
+    };
+  }, []);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -191,110 +392,217 @@ const AIChatbot = () => {
           </div>
 
           {/* Main Chat Interface */}
-          <div className="max-w-4xl mx-auto space-y-6">
-            {/* Messages Display */}
-            <Card className="h-[500px] flex flex-col">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Heart className="w-5 h-5 text-primary" />
-                  Conversation
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex-1 overflow-y-auto p-4">
-                <div className="space-y-4">
-                  {messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex gap-3 ${message.sender === 'user' ? 'flex-row-reverse' : ''}`}
-                    >
-                      <div className={`p-2 rounded-full ${
-                        message.sender === 'user' 
-                          ? 'bg-primary text-primary-foreground' 
-                          : 'bg-secondary text-secondary-foreground'
-                      }`}>
-                        {message.sender === 'user' ? 
-                          <User className="w-4 h-4" /> : 
-                          <Bot className="w-4 h-4" />
-                        }
-                      </div>
-                      <div className={`max-w-[75%] p-4 rounded-lg ${
-                        message.sender === 'user'
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted'
-                      }`}>
-                        <p className="text-sm leading-relaxed">{message.content}</p>
-                        <span className="text-xs opacity-70 mt-2 block">
-                          {message.timestamp.toLocaleTimeString()}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                  
-                  {isLoading && (
-                    <div className="flex gap-3">
-                      <div className="p-2 rounded-full bg-secondary text-secondary-foreground">
-                        <Bot className="w-4 h-4" />
-                      </div>
-                      <div className="bg-muted p-4 rounded-lg">
-                        <div className="flex space-x-1">
-                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
-                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+          <div className="max-w-4xl mx-auto">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsTrigger value="text" className="flex items-center gap-2">
+                  <MessageCircle className="w-4 h-4" />
+                  Text Chat
+                </TabsTrigger>
+                <TabsTrigger value="voice" className="flex items-center gap-2">
+                  <Headphones className="w-4 h-4" />
+                  Voice Chat
+                </TabsTrigger>
+              </TabsList>
+
+              {/* Shared Messages Display */}
+              <Card className="h-[500px] flex flex-col mb-6">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Heart className="w-5 h-5 text-primary" />
+                    Conversation
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex-1 overflow-y-auto p-4">
+                  <div className="space-y-4">
+                    {messages.map((message) => (
+                      <div
+                        key={message.id}
+                        className={`flex gap-3 ${message.sender === 'user' ? 'flex-row-reverse' : ''}`}
+                      >
+                        <div className={`p-2 rounded-full ${
+                          message.sender === 'user' 
+                            ? 'bg-primary text-primary-foreground' 
+                            : 'bg-secondary text-secondary-foreground'
+                        }`}>
+                          {message.sender === 'user' ? 
+                            <User className="w-4 h-4" /> : 
+                            <Bot className="w-4 h-4" />
+                          }
+                        </div>
+                        <div className={`max-w-[75%] p-4 rounded-lg ${
+                          message.sender === 'user'
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted'
+                        }`}>
+                          <p className="text-sm leading-relaxed">{message.content}</p>
+                          <div className="flex items-center justify-between mt-2">
+                            <span className="text-xs opacity-70">
+                              {message.timestamp.toLocaleTimeString()}
+                            </span>
+                            <div className="flex items-center gap-1 text-xs opacity-70">
+                              {message.type === 'voice' ? (
+                                <Mic className="w-3 h-3" />
+                              ) : (
+                                <MessageCircle className="w-3 h-3" />
+                              )}
+                              {message.type}
+                            </div>
+                          </div>
                         </div>
                       </div>
+                    ))}
+                    
+                    {/* Current transcript preview */}
+                    {currentTranscript && (
+                      <div className="flex gap-3">
+                        <div className="p-2 rounded-full bg-secondary text-secondary-foreground">
+                          <Bot className="w-4 h-4" />
+                        </div>
+                        <div className="bg-blue-50 p-4 rounded-lg max-w-[75%]">
+                          <p className="text-sm text-blue-700">{currentTranscript}</p>
+                          <span className="text-xs text-blue-500">AI is responding...</span>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {isLoading && !currentTranscript && (
+                      <div className="flex gap-3">
+                        <div className="p-2 rounded-full bg-secondary text-secondary-foreground">
+                          <Bot className="w-4 h-4" />
+                        </div>
+                        <div className="bg-muted p-4 rounded-lg">
+                          <div className="flex space-x-1">
+                            <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
+                            <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                            <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    <div ref={messagesEndRef} />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Text Chat Tab */}
+              <TabsContent value="text" className="space-y-6">
+                {/* Text Input */}
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex gap-2">
+                      <Textarea
+                        value={textInput}
+                        onChange={(e) => setTextInput(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                        placeholder="Share what's on your mind... I'm here to listen 💙"
+                        className="min-h-[80px] resize-none"
+                        disabled={isLoading}
+                      />
+                      <Button
+                        onClick={() => sendTextMessage()}
+                        disabled={!textInput.trim() || isLoading}
+                        size="icon"
+                        className="self-end"
+                      >
+                        <Send className="w-4 h-4" />
+                      </Button>
                     </div>
-                  )}
-                  <div ref={messagesEndRef} />
-                </div>
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
 
-            {/* Text Input */}
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex gap-2">
-                  <Textarea
-                    value={textInput}
-                    onChange={(e) => setTextInput(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="Share what's on your mind... I'm here to listen 💙"
-                    className="min-h-[80px] resize-none"
-                    disabled={isLoading}
-                  />
-                  <Button
-                    onClick={() => sendTextMessage()}
-                    disabled={!textInput.trim() || isLoading}
-                    size="icon"
-                    className="self-end"
-                  >
-                    <Send className="w-4 h-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                {/* Quick Suggestions */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Quick Topics</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                      {quickSuggestions.map((suggestion, index) => (
+                        <Button
+                          key={index}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => sendTextMessage(suggestion)}
+                          disabled={isLoading}
+                          className="text-left justify-start h-auto p-3 whitespace-normal"
+                        >
+                          {suggestion}
+                        </Button>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
-            {/* Quick Suggestions */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Quick Topics</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                  {quickSuggestions.map((suggestion, index) => (
-                    <Button
-                      key={index}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => sendTextMessage(suggestion)}
-                      disabled={isLoading}
-                      className="text-left justify-start h-auto p-3 whitespace-normal"
-                    >
-                      {suggestion}
-                    </Button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+              {/* Voice Chat Tab */}
+              <TabsContent value="voice" className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Volume2 className="w-5 h-5" />
+                      Voice Interaction
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center space-y-6">
+                    {!isConnected ? (
+                      <div className="space-y-4">
+                        <p className="text-muted-foreground">
+                          Connect to start voice conversations with your AI companion
+                        </p>
+                        <Button onClick={connectVoiceChat} size="lg">
+                          <Headphones className="w-4 h-4 mr-2" />
+                          Connect Voice Chat
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-6">
+                        <div className="flex items-center justify-center gap-6">
+                          <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${
+                            isConnected ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                          }`}>
+                            <Volume2 className="w-4 h-4" />
+                            Connected
+                          </div>
+                          
+                          <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${
+                            isRecording ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'
+                          }`}>
+                            {isRecording ? <Mic className="w-4 h-4" /> : <MicOff className="w-4 h-4" />}
+                            {isRecording ? 'Recording...' : 'Ready'}
+                          </div>
+
+                          <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${
+                            isSpeaking ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'
+                          }`}>
+                            {isSpeaking ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                            {isSpeaking ? 'AI Speaking' : 'AI Silent'}
+                          </div>
+                        </div>
+
+                        <div className="space-y-3">
+                          {!isRecording ? (
+                            <Button onClick={startVoiceRecording} size="lg" className="bg-red-500 hover:bg-red-600">
+                              <Mic className="w-4 h-4 mr-2" />
+                              Start Recording
+                            </Button>
+                          ) : (
+                            <Button onClick={stopVoiceRecording} variant="outline" size="lg">
+                              <MicOff className="w-4 h-4 mr-2" />
+                              Stop Recording
+                            </Button>
+                          )}
+                          
+                          <Button onClick={disconnectVoiceChat} variant="secondary" size="sm">
+                            Disconnect
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </div>
 
           {/* Support Information */}
@@ -310,7 +618,7 @@ const AIChatbot = () => {
                   <li>• Guide you through breathing and relaxation exercises</li>
                   <li>• Offer support for mood and sleep issues</li>
                   <li>• Help you process difficult emotions</li>
-                  <li>• Available 24/7 for whenever you need support</li>
+                  <li>• Available via text chat or voice conversation</li>
                 </ul>
               </CardContent>
             </Card>
