@@ -26,7 +26,7 @@ const AIChatbot = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: '1',
-      content: "Hello! I'm your AI mental health companion. I'm here to listen, provide support, and help you work through your feelings. How are you doing today?",
+      content: "Hello! 😊 I'm your AI mental health companion. I'm here to listen, provide support, and help you work through your feelings. How are you doing today? 💙",
       sender: 'assistant',
       timestamp: new Date()
     }
@@ -40,58 +40,58 @@ const AIChatbot = () => {
 
   const mentalHealthResponses = {
     greeting: [
-      "Hello! I'm here to listen and support you. How are you feeling today?",
-      "Hi there! It's good to connect with you. What's on your mind?",
-      "Welcome! I'm here to provide a safe space for you to share. How can I help?"
+      "Hello! 😊 I'm here to listen and support you. How are you feeling today?",
+      "Hi there! 🌟 It's good to connect with you. What's on your mind?",
+      "Welcome! 🤗 I'm here to provide a safe space for you to share. How can I help?"
     ],
     anxiety: [
-      "I understand you're feeling anxious. Let's take this one step at a time. Try taking a slow, deep breath with me - in through your nose, and out through your mouth.",
-      "Anxiety can feel overwhelming, but you're not alone. Let's ground ourselves - can you name 5 things you can see around you right now?",
-      "When anxiety hits, remember that it's temporary. Your feelings are valid, and we can work through this together."
+      "I understand you're feeling anxious. 😌 Let's take this one step at a time. Try taking a slow, deep breath with me - in through your nose, and out through your mouth. 🌬️",
+      "Anxiety can feel overwhelming, but you're not alone. 💙 Let's ground ourselves - can you name 5 things you can see around you right now? 👀",
+      "When anxiety hits, remember that it's temporary. ⏰ Your feelings are valid, and we can work through this together. 🤝"
     ],
     sadness: [
-      "I hear that you're feeling sad, and that's completely okay. Sadness is a natural emotion, and it's important to acknowledge it.",
-      "It's brave of you to share how you're feeling. Would you like to talk about what's contributing to these feelings?",
-      "Sadness can feel heavy, but please know that you don't have to carry it alone. I'm here to listen."
+      "I hear that you're feeling sad, and that's completely okay. 💔 Sadness is a natural emotion, and it's important to acknowledge it.",
+      "It's brave of you to share how you're feeling. 🌈 Would you like to talk about what's contributing to these feelings?",
+      "Sadness can feel heavy, but please know that you don't have to carry it alone. 🫂 I'm here to listen."
     ],
     stress: [
-      "Stress can be really challenging. Let's think about some ways to manage it. Have you tried any breathing exercises or mindfulness techniques?",
-      "When we're stressed, our bodies and minds need extra care. What usually helps you feel more relaxed?",
-      "Stress is your body's way of responding to challenges. Let's explore some healthy coping strategies together."
+      "Stress can be really challenging. 😮‍💨 Let's think about some ways to manage it. Have you tried any breathing exercises or mindfulness techniques? 🧘‍♀️",
+      "When we're stressed, our bodies and minds need extra care. 🌿 What usually helps you feel more relaxed?",
+      "Stress is your body's way of responding to challenges. 💪 Let's explore some healthy coping strategies together."
     ],
     sleep: [
-      "Sleep troubles can affect everything. Let's create a calming bedtime routine. Try avoiding screens an hour before bed and doing some gentle stretching.",
-      "Good sleep is so important for mental health. Have you noticed any patterns in your sleep difficulties?",
-      "Creating a peaceful sleep environment can really help. Consider dimming lights, keeping your room cool, and practicing relaxation techniques."
+      "Sleep troubles can affect everything. 😴 Let's create a calming bedtime routine. Try avoiding screens an hour before bed and doing some gentle stretching. 🌙",
+      "Good sleep is so important for mental health. 💤 Have you noticed any patterns in your sleep difficulties?",
+      "Creating a peaceful sleep environment can really help. 🕯️ Consider dimming lights, keeping your room cool, and practicing relaxation techniques."
     ],
     loneliness: [
-      "Feeling lonely is more common than you might think, and it's nothing to be ashamed of. You're reaching out, which shows real strength.",
-      "Loneliness can feel isolating, but remember that connection is possible. Even small interactions can make a difference.",
-      "You're not alone, even when it feels that way. Let's think about ways to build meaningful connections."
+      "Feeling lonely is more common than you might think, and it's nothing to be ashamed of. 🤗 You're reaching out, which shows real strength.",
+      "Loneliness can feel isolating, but remember that connection is possible. 🌉 Even small interactions can make a difference.",
+      "You're not alone, even when it feels that way. 💕 Let's think about ways to build meaningful connections."
     ],
     anger: [
-      "Feeling angry is normal. Let's find a safe way to express it.",
-      "Pause and take a deep breath before reacting.",
-      "Try writing down your feelings to release tension.",
-      "Express anger safely, like talking calmly or exercising.",
-      "Remember, controlling anger helps you feel better."
+      "Feeling angry is normal. 😤 Let's find a safe way to express it.",
+      "Pause and take a deep breath before reacting. 🛑 This gives you time to choose your response.",
+      "Try writing down your feelings to release tension. ✍️ Sometimes getting it out on paper helps.",
+      "Express anger safely, like talking calmly or exercising. 🏃‍♀️ Physical activity can be a great outlet.",
+      "Remember, controlling anger helps you feel better. 🧠 You have the power to manage these emotions."
     ],
     general: [
-      "Thank you for sharing with me. Your feelings are valid, and it's okay to not be okay sometimes.",
-      "I'm here to listen without judgment. Would you like to explore these feelings a bit more?",
-      "It takes courage to reach out. You're taking an important step by talking about how you're feeling."
+      "Thank you for sharing with me. 🙏 Your feelings are valid, and it's okay to not be okay sometimes.",
+      "I'm here to listen without judgment. 👂 Would you like to explore these feelings a bit more?",
+      "It takes courage to reach out. 💪 You're taking an important step by talking about how you're feeling."
     ]
   };
 
   const quickSuggestions = [
-    "I'm feeling anxious",
-    "I can't sleep",
-    "I feel overwhelmed",
-    "I'm feeling sad",
-    "I feel lonely",
-    "How to manage stress?",
-    "I need motivation",
-    "Breathing exercises"
+    "😰 I'm feeling anxious",
+    "😴 I can't sleep",
+    "😵‍💫 I feel overwhelmed",
+    "😢 I'm feeling sad",
+    "😔 I feel lonely",
+    "🧘‍♀️ How to manage stress?",
+    "💪 I need motivation",
+    "🌬️ Breathing exercises"
   ];
 
   const getAIResponse = (userMessage: string): string => {
