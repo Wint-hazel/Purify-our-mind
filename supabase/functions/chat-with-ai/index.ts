@@ -9,18 +9,26 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  console.log('Edge function called with method:', req.method);
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    console.log('Parsing request body...');
     const { message } = await req.json();
+    console.log('Received message:', message);
 
+    console.log('Checking OpenAI API key...');
     if (!openAIApiKey) {
+      console.error('OpenAI API key not found in environment');
       throw new Error('OpenAI API key not found');
     }
+    console.log('OpenAI API key found');
 
+    console.log('Making request to OpenAI API...');
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -32,18 +40,7 @@ serve(async (req) => {
         messages: [
           { 
             role: 'system', 
-            content: `You are MindCare, a compassionate AI mental health support chatbot. Your role is to:
-            
-            - Provide emotional support and encouragement
-            - Offer practical mental health tips and coping strategies
-            - Listen actively and respond with empathy
-            - Suggest mindfulness, breathing exercises, or relaxation techniques when appropriate
-            - Encourage professional help when needed (but don't diagnose)
-            - Use a warm, caring, and supportive tone
-            - Keep responses concise but meaningful
-            - Include relevant emojis to make interactions feel more personal
-            
-            Remember: You're not a replacement for professional therapy, but you're here to provide immediate support and guidance.`
+            content: 'You are MindCare, a compassionate AI mental health support chatbot. Provide emotional support, practical mental health tips, and coping strategies. Use a warm, caring tone and include relevant emojis. Keep responses concise but meaningful. Remember: You are not a replacement for professional therapy, but you are here to provide immediate support and guidance.'
           },
           { role: 'user', content: message }
         ],
@@ -52,6 +49,8 @@ serve(async (req) => {
       }),
     });
 
+    console.log('OpenAI API response status:', response.status);
+
     if (!response.ok) {
       const errorData = await response.json();
       console.error('OpenAI API error:', errorData);
@@ -59,6 +58,7 @@ serve(async (req) => {
     }
 
     const data = await response.json();
+    console.log('OpenAI API response received successfully');
     const aiResponse = data.choices[0].message.content;
 
     return new Response(JSON.stringify({ response: aiResponse }), {
@@ -66,6 +66,8 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error('Error in chat-with-ai function:', error);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
     return new Response(JSON.stringify({ 
       error: 'Sorry, I am having trouble connecting right now. Please try again in a moment.' 
     }), {
