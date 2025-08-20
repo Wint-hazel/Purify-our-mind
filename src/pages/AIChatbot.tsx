@@ -9,7 +9,7 @@ const AIChatbot = () => {
   const [messages, setMessages] = useState([
     {
       id: 1,
-      text: "Hello! I'm here to provide mental health support and guidance. How are you feeling today?",
+      text: "Hello! I'm here to provide mental health support and guidance. How are you feeling today on a scale of 1-10? I can suggest activities to improve your mood based on your answer.",
       sender: 'bot',
       timestamp: new Date()
     }
@@ -17,13 +17,50 @@ const AIChatbot = () => {
   const [inputMessage, setInputMessage] = useState('');
 
   const quickQuestions = [
-    "I'm feeling anxious",
-    "Help me with stress",
-    "I need breathing exercises",
-    "I'm having trouble sleeping",
-    "I feel overwhelmed",
-    "I need motivation"
+    "I'm feeling anxious about exams",
+    "I feel lonely and unmotivated",
+    "How are you feeling today?",
+    "I can't sleep at night",
+    "I feel lazy and unproductive",
+    "Help me with stress"
   ];
+
+  const getAIResponse = (userMessage: string): string => {
+    const message = userMessage.toLowerCase();
+    
+    // Stress & Anxiety responses
+    if (message.includes('anxious') || message.includes('anxiety') || message.includes('exam')) {
+      return "It's natural to feel nervous before exams. Let's try a 2-minute breathing exercise together. Inhale slowly… now exhale. Would you like more tips to calm your mind?";
+    }
+    
+    // Loneliness & Sadness responses
+    if (message.includes('lonely') || message.includes('unmotivated') || message.includes('sad')) {
+      return "I'm here for you. Sometimes talking about how you feel can help. Would you like me to suggest a simple activity to lift your mood today?";
+    }
+    
+    // Daily Check-in responses
+    if (message.includes('how are you feeling') || message.includes('feeling today') || message.includes('check in')) {
+      return "Hi! How are you feeling today on a scale of 1-10? I can suggest an activity to improve your mood based on your answer.";
+    }
+    
+    // Sleep & Relaxation responses
+    if (message.includes('sleep') || message.includes("can't sleep") || message.includes('insomnia')) {
+      return "A calming bedtime routine can help. Try reading a book, listening to soft music, or practicing 5 minutes of deep breathing before bed. Want me to guide you through it?";
+    }
+    
+    // Motivation & Goals responses
+    if (message.includes('lazy') || message.includes('unproductive') || message.includes('motivation')) {
+      return "That's okay! Even small steps count. Let's break your tasks into tiny, achievable goals. What's one thing you can do right now?";
+    }
+    
+    // Stress responses
+    if (message.includes('stress') || message.includes('overwhelmed')) {
+      return "I understand you're feeling stressed. Stress is very common, and there are ways to manage it. Would you like to try a quick breathing exercise, or would you prefer some practical stress-management tips?";
+    }
+    
+    // Default supportive response
+    return "Thank you for sharing that with me. I understand this can be challenging. Let me help you work through this step by step. Would you like to try a brief breathing exercise, or would you prefer to talk more about what you're experiencing?";
+  };
 
   const handleSendMessage = () => {
     if (!inputMessage.trim()) return;
@@ -36,13 +73,14 @@ const AIChatbot = () => {
     };
 
     setMessages(prev => [...prev, newMessage]);
+    const currentMessage = inputMessage;
     setInputMessage('');
 
-    // Simulate AI response
+    // Simulate AI response with context-aware replies
     setTimeout(() => {
       const botResponse = {
         id: messages.length + 2,
-        text: "Thank you for sharing that with me. I understand this can be challenging. Let me help you work through this step by step. Would you like to try a brief breathing exercise, or would you prefer to talk more about what you're experiencing?",
+        text: getAIResponse(currentMessage),
         sender: 'bot' as const,
         timestamp: new Date()
       };
@@ -178,13 +216,13 @@ const AIChatbot = () => {
               <CardContent className="p-4">
                 <h3 className="font-semibold text-foreground mb-4">What I Can Help With</h3>
                 <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li>• Managing anxiety and stress</li>
-                  <li>• Breathing and relaxation techniques</li>
-                  <li>• Mood tracking and insights</li>
+                  <li>• Stress & Anxiety management</li>
+                  <li>• Loneliness & Sadness support</li>
+                  <li>• Daily mood check-ins</li>
+                  <li>• Sleep & Relaxation guidance</li>
+                  <li>• Motivation & Goal setting</li>
+                  <li>• Breathing exercises</li>
                   <li>• Coping strategies</li>
-                  <li>• Sleep hygiene tips</li>
-                  <li>• Mindfulness practices</li>
-                  <li>• Goal setting and motivation</li>
                 </ul>
               </CardContent>
             </Card>
