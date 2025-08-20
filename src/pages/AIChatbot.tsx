@@ -30,32 +30,87 @@ const AIChatbot = () => {
   ];
 
   const getAIResponse = async (userMessage: string): Promise<string> => {
-    try {
-      const { data, error } = await supabase.functions.invoke('chat-with-ai', {
-        body: { message: userMessage }
-      });
-
-      if (error) {
-        console.error('Supabase function error:', error);
-        throw error;
-      }
-
-      if (data.error) {
-        throw new Error(data.error);
-      }
-
-      return data.response;
-    } catch (error) {
-      console.error('Error getting AI response:', error);
-      toast({
-        title: "Connection Error",
-        description: "I'm having trouble connecting. Please try again in a moment.",
-        variant: "destructive",
-      });
-      
-      // Fallback response
-      return "I apologize, but I am having some technical difficulties right now. 💙 Please try sending your message again in a moment. In the meantime, remember that you are doing great by reaching out for support.";
+    const message = userMessage.toLowerCase().trim();
+    
+    // Anxiety-related responses
+    if (message.includes('anxious') || message.includes('anxiety') || message.includes('worried') || message.includes('nervous')) {
+      const anxietyResponses = [
+        "I understand that anxiety can feel overwhelming. 💙 Try the 4-7-8 breathing technique: breathe in for 4 counts, hold for 7, exhale for 8. This can help calm your nervous system.",
+        "Anxiety is your body's natural response to stress, and it's okay to feel this way. 🌸 One helpful technique is grounding: name 5 things you can see, 4 you can touch, 3 you can hear, 2 you can smell, and 1 you can taste.",
+        "When anxiety strikes, remember that this feeling is temporary. 🌟 Try progressive muscle relaxation: tense and then relax each muscle group, starting from your toes and working up to your head."
+      ];
+      return anxietyResponses[Math.floor(Math.random() * anxietyResponses.length)];
     }
+
+    // Depression/sadness responses
+    if (message.includes('sad') || message.includes('depressed') || message.includes('down') || message.includes('lonely') || message.includes('empty')) {
+      const sadnessResponses = [
+        "I hear that you're going through a difficult time, and I want you to know that your feelings are valid. 💝 Sometimes, taking small steps like going for a short walk or listening to music can help lift your mood slightly.",
+        "Loneliness can be really painful. 🤗 Remember that you're not alone in feeling this way. Consider reaching out to a friend, family member, or mental health professional. Even small connections can make a difference.",
+        "It's brave of you to share how you're feeling. 🌱 When we're feeling low, self-care becomes even more important. Try to do one small thing for yourself today, even if it's just drinking a glass of water or taking a warm shower."
+      ];
+      return sadnessResponses[Math.floor(Math.random() * sadnessResponses.length)];
+    }
+
+    // Sleep-related responses
+    if (message.includes('sleep') || message.includes('insomnia') || message.includes("can't sleep") || message.includes('tired')) {
+      const sleepResponses = [
+        "Sleep troubles can be really frustrating. 😴 Try creating a bedtime routine: dim the lights 1 hour before bed, avoid screens, and try some gentle stretching or reading. Your brain needs time to wind down.",
+        "Good sleep hygiene can make a big difference. 🌙 Keep your bedroom cool and dark, avoid caffeine after 2pm, and try the '4-7-8' breathing technique when you lie down to help relax your mind.",
+        "If your mind is racing at bedtime, try keeping a journal by your bed. 📝 Write down your worries or tomorrow's tasks to 'park' them outside your head. This can help quiet racing thoughts."
+      ];
+      return sleepResponses[Math.floor(Math.random() * sleepResponses.length)];
+    }
+
+    // Stress-related responses
+    if (message.includes('stress') || message.includes('overwhelmed') || message.includes('pressure') || message.includes('exam')) {
+      const stressResponses = [
+        "Feeling stressed is a normal response to challenging situations. 🌟 Try breaking down overwhelming tasks into smaller, manageable steps. Focus on what you can control right now.",
+        "When stress builds up, your body needs release. 💪 Physical activity, even just 10 minutes of walking, can help reduce stress hormones and clear your mind.",
+        "Stress about exams is very common. 📚 Remember to take regular breaks while studying (try the Pomodoro technique: 25 minutes work, 5 minutes break), stay hydrated, and get enough sleep. Your mental health is just as important as academic success."
+      ];
+      return stressResponses[Math.floor(Math.random() * stressResponses.length)];
+    }
+
+    // Motivation/productivity responses
+    if (message.includes('lazy') || message.includes('unmotivated') || message.includes('productive') || message.includes('energy')) {
+      const motivationResponses = [
+        "Low motivation is often a sign that you need rest or that you're being too hard on yourself. 🌱 Start with just one small task today. Progress isn't always about being productive - sometimes it's about being kind to yourself.",
+        "Motivation often comes after starting, not before. ✨ Try the '2-minute rule': if something takes less than 2 minutes, do it now. This can help build momentum for bigger tasks.",
+        "Remember that rest is not laziness - it's necessary for your wellbeing. 🌸 If you're feeling unmotivated, ask yourself: What do I need right now? Sometimes the most productive thing is to take a break."
+      ];
+      return motivationResponses[Math.floor(Math.random() * motivationResponses.length)];
+    }
+
+    // General mood/feelings responses
+    if (message.includes('how are you') || message.includes('feeling') || message.includes('mood')) {
+      const generalResponses = [
+        "Thank you for asking! I'm here and ready to support you. 💙 How are you feeling today? I'm here to listen without judgment and help however I can.",
+        "I'm doing well and I'm grateful you're here. 🌟 Mental health is a journey, and it's okay to have ups and downs. What's on your mind today?",
+        "I'm here and focused on you. 🤗 Your feelings matter, and I want to understand how you're doing. What would be most helpful for you to talk about right now?"
+      ];
+      return generalResponses[Math.floor(Math.random() * generalResponses.length)];
+    }
+
+    // Greeting responses
+    if (message.includes('hello') || message.includes('hi') || message.includes('hey') || message.length < 10) {
+      const greetingResponses = [
+        "Hello! 🌟 I'm MindCare, and I'm here to support your mental wellbeing. How are you feeling today? What's on your mind?",
+        "Hi there! 💙 I'm glad you're here. Whether you're having a good day or a challenging one, I'm here to listen and support you. What would you like to talk about?",
+        "Hey! 🌸 Welcome to a safe space where you can share whatever is on your heart and mind. I'm here to listen and help. How can I support you today?"
+      ];
+      return greetingResponses[Math.floor(Math.random() * greetingResponses.length)];
+    }
+
+    // Default supportive response
+    const defaultResponses = [
+      "Thank you for sharing that with me. 💙 I want you to know that whatever you're going through, your feelings are valid and you don't have to face this alone. Can you tell me more about what's been on your mind?",
+      "I hear you, and I appreciate you opening up. 🌟 Sometimes just expressing our thoughts and feelings can be the first step toward feeling better. What's been the most challenging part of your day?",
+      "It sounds like you have a lot on your mind. 🤗 I'm here to listen and support you through whatever you're experiencing. Would it help to talk about what's been weighing on you lately?",
+      "Your wellbeing matters, and I'm glad you're taking the time to check in with yourself. 🌱 Mental health is just as important as physical health. What kind of support would be most helpful for you right now?"
+    ];
+    
+    return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
   };
 
   const handleSendMessage = async () => {
