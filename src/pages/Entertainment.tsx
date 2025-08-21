@@ -101,9 +101,62 @@ export default function Entertainment() {
   const [activeTab, setActiveTab] = useState("books");
   const [bookSearch, setBookSearch] = useState("");
   const [movieGenre, setMovieGenre] = useState("All");
+  const [activeWellnessCategory, setActiveWellnessCategory] = useState("Calm Focus");
   const { state, playTrack } = useMusicPlayer();
   const [books, setBooks] = useState<BookData[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Wellness categories with their respective music
+  const wellnessCategories = [
+    { 
+      name: 'Calm Focus', 
+      icon: '🎯', 
+      tracks: [1, 4, 5], // Weightless, Gymnopédie No. 1, Moonlight Sonata
+      description: 'Enhance concentration and mental clarity'
+    },
+    { 
+      name: 'Sleep Sounds', 
+      icon: '🌙',
+      tracks: [5, 6, 8], // Moonlight Sonata, Clair de Lune, River
+      description: 'Drift into peaceful sleep'
+    },
+    { 
+      name: 'Meditation', 
+      icon: '🧘',
+      tracks: [3, 7], // Watermark, Om Mani Padme Hum
+      description: 'Deepen your mindfulness practice'
+    },
+    { 
+      name: 'Anxiety Relief', 
+      icon: '🌊',
+      tracks: [1, 2, 3], // Weightless, Strawberry Swing, Watermark
+      description: 'Calm anxious thoughts and feelings'
+    },
+    { 
+      name: 'Nature Sounds', 
+      icon: '🍃',
+      tracks: [2, 8], // Strawberry Swing, River
+      description: 'Connect with natural tranquility'
+    },
+    { 
+      name: 'Binaural Beats', 
+      icon: '🎵',
+      tracks: [1, 8], // Weightless, River
+      description: 'Synchronize brainwave patterns'
+    },
+    { 
+      name: 'Guided Breathing', 
+      icon: '💨',
+      tracks: [4, 6], // Gymnopédie No. 1, Clair de Lune
+      description: 'Breathe mindfully with soothing sounds'
+    },
+    { 
+      name: 'Stress Relief', 
+      icon: '☮️',
+      tracks: [1, 2, 6, 8], // Weightless, Strawberry Swing, Clair de Lune, River
+      description: 'Release tension and find inner peace'
+    }
+  ];
 
   useEffect(() => {
     fetchBooks();
@@ -171,6 +224,20 @@ export default function Entertainment() {
 
   const handlePlayMusic = (track: typeof music[0]) => {
     playTrack(track, music);
+  };
+
+  const getCurrentCategoryTracks = () => {
+    const currentCategory = wellnessCategories.find(cat => cat.name === activeWellnessCategory);
+    if (!currentCategory) return music;
+    
+    return music.filter(track => currentCategory.tracks.includes(track.id));
+  };
+
+  const playDeepFocusCollection = () => {
+    const focusTrack = music.find(track => track.id === 1); // Weightless - the most calming
+    if (focusTrack) {
+      playTrack(focusTrack, getCurrentCategoryTracks());
+    }
   };
 
   return (
@@ -294,29 +361,21 @@ export default function Entertainment() {
                       <h3 className="font-medium mb-4" style={{ color: 'hsl(var(--wellness-text))' }}>
                         Wellness Categories
                       </h3>
-                      <nav className="space-y-2">
-                        {[
-                          { name: 'Calm Focus', icon: '🎯', active: true },
-                          { name: 'Sleep Sounds', icon: '🌙' },
-                          { name: 'Meditation', icon: '🧘' },
-                          { name: 'Anxiety Relief', icon: '🌊' },
-                          { name: 'Nature Sounds', icon: '🍃' },
-                          { name: 'Binaural Beats', icon: '🎵' },
-                          { name: 'Guided Breathing', icon: '💨' },
-                          { name: 'Stress Relief', icon: '☮️' }
-                        ].map((category) => (
+                       <nav className="space-y-2">
+                        {wellnessCategories.map((category) => (
                           <button
                             key={category.name}
-                            className={`w-full text-left p-3 rounded-lg transition-all duration-200 flex items-center gap-3 ${
-                              category.active 
+                            onClick={() => setActiveWellnessCategory(category.name)}
+                            className={`w-full text-left p-3 rounded-lg transition-all duration-200 flex items-center gap-3 hover:bg-white/50 ${
+                              activeWellnessCategory === category.name 
                                 ? 'text-white font-medium' 
-                                : 'hover:bg-white/50'
+                                : ''
                             }`}
                             style={{
-                              backgroundColor: category.active 
+                              backgroundColor: activeWellnessCategory === category.name 
                                 ? 'hsl(var(--wellness-blue))' 
                                 : 'transparent',
-                              color: category.active 
+                              color: activeWellnessCategory === category.name 
                                 ? 'white' 
                                 : 'hsl(var(--wellness-text-muted))'
                             }}
@@ -376,29 +435,47 @@ export default function Entertainment() {
 
                     {/* Featured Collection */}
                     <div className="mb-8">
-                      <h3 className="text-xl font-medium mb-4" style={{ color: 'hsl(var(--wellness-text))' }}>
-                        Featured: Calm Focus Collection
-                      </h3>
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-xl font-medium" style={{ color: 'hsl(var(--wellness-text))' }}>
+                          Featured: {activeWellnessCategory} Collection
+                        </h3>
+                        <Button
+                          onClick={playDeepFocusCollection}
+                          className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
+                        >
+                          <Play className="w-4 h-4 mr-2" />
+                          Play Collection
+                        </Button>
+                      </div>
                       <div className="p-6 rounded-xl bg-gradient-to-r from-blue-50 to-teal-50" style={{ backgroundColor: 'hsl(var(--wellness-card-alt))' }}>
                         <div className="flex items-center gap-6">
-                          <div className="w-20 h-20 rounded-xl bg-gradient-to-br" style={{ backgroundColor: 'hsl(var(--wellness-blue))' }}>
-                            <div className="w-full h-full flex items-center justify-center text-2xl text-white rounded-xl">
-                              🎯
-                            </div>
-                          </div>
+                          <button
+                            onClick={playDeepFocusCollection}
+                            className="w-20 h-20 rounded-xl bg-gradient-to-br transition-all duration-200 hover:scale-105 flex items-center justify-center text-2xl text-white cursor-pointer" 
+                            style={{ backgroundColor: 'hsl(var(--wellness-blue))' }}
+                          >
+                            {wellnessCategories.find(cat => cat.name === activeWellnessCategory)?.icon}
+                          </button>
                           <div className="flex-1">
                             <h4 className="text-lg font-medium mb-1" style={{ color: 'hsl(var(--wellness-text))' }}>
-                              Deep Focus Soundscapes
+                              {activeWellnessCategory} Soundscapes
                             </h4>
-                            <p className="mb-3" style={{ color: 'hsl(var(--wellness-text-muted))' }}>
-                              Scientifically designed audio to enhance concentration and reduce distractions
+                            <p className="text-sm mb-3" style={{ color: 'hsl(var(--wellness-text-muted))' }}>
+                              {wellnessCategories.find(cat => cat.name === activeWellnessCategory)?.description}
                             </p>
-                            <button 
-                              className="px-6 py-2 rounded-full text-white font-medium transition-all duration-200 hover:shadow-lg"
-                              style={{ backgroundColor: 'hsl(var(--wellness-blue))' }}
-                            >
-                              ▶ Start Focus Session
-                            </button>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs bg-white/60 px-2 py-1 rounded">
+                                {getCurrentCategoryTracks().length} tracks
+                              </span>
+                              <span className="text-xs bg-white/60 px-2 py-1 rounded">
+                                Curated for wellness
+                              </span>
+                              {state.currentTrack && getCurrentCategoryTracks().some(t => t.id === state.currentTrack?.id) && (
+                                <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded animate-pulse">
+                                  ● Now Playing
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -407,10 +484,10 @@ export default function Entertainment() {
                     {/* Sound Collections Grid */}
                     <div>
                       <h3 className="text-xl font-medium mb-4" style={{ color: 'hsl(var(--wellness-text))' }}>
-                        Recommended for You
+                        {activeWellnessCategory} Collection
                       </h3>
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {music.slice(0, 8).map((track) => (
+                        {getCurrentCategoryTracks().map((track) => (
                           <div key={track.id} className="group cursor-pointer" onClick={() => handlePlayMusic(track)}>
                             <div 
                               className="p-4 rounded-xl transition-all duration-200 hover:shadow-lg"
@@ -460,6 +537,15 @@ export default function Entertainment() {
                           </div>
                         ))}
                       </div>
+                      
+                      {/* Show message if category has fewer tracks */}
+                      {getCurrentCategoryTracks().length < 4 && (
+                        <div className="mt-6 p-4 rounded-xl border-2 border-dashed border-gray-200">
+                          <p className="text-center text-gray-500 text-sm">
+                            Explore other categories for more {activeWellnessCategory.toLowerCase()} content
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
