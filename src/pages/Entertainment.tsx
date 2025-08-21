@@ -91,7 +91,7 @@ const movies = [
     id: 1,
     title: "The Shawshank Redemption",
     year: 1994,
-    poster: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=300&h=450&fit=crop&crop=center",
+    poster: "/lovable-uploads/5deef50e-ee0e-4678-a35b-16a5e837736d.png",
     description: "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency. This story of hope and friendship in the bleakest of circumstances offers powerful lessons about resilience.",
     whyWatch: "A masterpiece about hope, friendship, and the human spirit's ability to overcome adversity.",
     rating: "9.3",
@@ -643,7 +643,7 @@ export default function Entertainment() {
                       <Button 
                         size="lg" 
                         variant="outline"
-                        className="border-white/50 text-white hover:bg-white/10 transition-all duration-300"
+                        className="border-black/50 text-black hover:bg-black/10 transition-all duration-300"
                       >
                         + Add to Watchlist
                       </Button>
