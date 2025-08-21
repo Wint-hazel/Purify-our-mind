@@ -594,10 +594,10 @@ const DailyPlan = () => {
               <p className="text-sm text-stone-600 mt-2">{waterCount}/8 glasses today</p>
             </div>
 
-            {/* Notes */}
+            {/* Diary */}
             <div>
               <h3 className="text-xl font-semibold text-stone-800 mb-4 flex items-center justify-between">
-                Notes
+                Diary
                 <span className="text-2xl">🍃</span>
               </h3>
               <div className="bg-stone-50 rounded-xl border border-stone-200">
@@ -613,7 +613,7 @@ const DailyPlan = () => {
                     className="bg-stone-600 hover:bg-stone-700 text-white"
                     size="sm"
                   >
-                    Save Notes
+                    Save Diary
                   </Button>
                 </div>
               </div>
