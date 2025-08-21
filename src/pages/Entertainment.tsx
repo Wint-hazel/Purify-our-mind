@@ -91,7 +91,7 @@ const movies = [
     id: 1,
     title: "The Shawshank Redemption",
     year: 1994,
-    poster: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=300&h=450&fit=crop&crop=center",
+    poster: "/lovable-uploads/f1aa51b2-c2a2-42ab-9451-c1c62d714cd1.png",
     description: "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency. This story of hope and friendship in the bleakest of circumstances offers powerful lessons about resilience.",
     whyWatch: "A masterpiece about hope, friendship, and the human spirit's ability to overcome adversity.",
     rating: "9.3",
