@@ -102,7 +102,7 @@ const movies = [
     id: 2,
     title: "Inside Out",
     year: 2015,
-    poster: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=450&fit=crop&crop=center",
+    poster: "/lovable-uploads/933f03f4-096e-4caf-8882-14dc41f20a15.png",
     description: "After young Riley is uprooted from her Midwest life and moved to San Francisco, her emotions - Joy, Fear, Anger, Disgust and Sadness - conflict on how best to navigate a new city, house, and school. An excellent exploration of emotional health.",
     whyWatch: "Perfect for understanding emotional health and how our feelings work together.",
     rating: "8.1",
@@ -643,7 +643,7 @@ export default function Entertainment() {
                       <Button 
                         size="lg" 
                         variant="outline"
-                        className="border-white/50 text-white hover:bg-white/10 transition-all duration-300"
+                        className="border-white/50 text-black hover:bg-white/10 transition-all duration-300"
                       >
                         + Add to Watchlist
                       </Button>
