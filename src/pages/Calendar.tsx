@@ -322,90 +322,101 @@ const Calendar = () => {
           {/* Upcoming Events Section */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-              <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                <CalendarIcon className="w-5 h-5 mr-2 text-blue-600" />
-                Upcoming Events
-              </h2>
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-1">
+                  Upcoming events
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Don't miss scheduled events
+                </p>
+              </div>
               
-              <div className="space-y-3 max-h-96 overflow-y-auto">
+              <div className="space-y-4 max-h-96 overflow-y-auto">
                 {getUpcomingEvents().length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
                     <CalendarIcon className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                     <p className="text-sm">No upcoming events</p>
-                    <p className="text-xs mt-1">Start by adding entries to your daily plan</p>
+                    <p className="text-xs mt-1 text-gray-400">Start by adding entries to your daily plan</p>
                   </div>
                 ) : (
                   getUpcomingEvents().map((event, index) => (
                     <div 
                       key={`${event.type}-${event.id}-${index}`}
-                      className="border border-gray-200 rounded-lg p-3 hover:bg-gray-50 transition-colors cursor-pointer"
+                      className="group cursor-pointer"
                       onClick={() => {
                         const dateString = new Date(event.entry_date).toISOString().split('T')[0];
                         navigate(`/daily-plan?date=${dateString}`);
                       }}
                     >
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center">
-                          <div className={`w-3 h-3 rounded-full mr-2 ${
-                            event.type === 'diary' ? 'bg-purple-400' : 'bg-green-400'
-                          }`}></div>
-                          <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                            {event.type === 'diary' ? 'Diary' : 'Schedule'}
-                          </span>
+                      <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        {/* Time */}
+                        <div className="flex-shrink-0 w-20">
+                          {event.time ? (
+                            <div className="text-sm font-medium text-gray-900">
+                              {event.time.slice(0, 5)}
+                            </div>
+                          ) : (
+                            <div className="text-sm font-medium text-gray-900">
+                              {new Date(event.entry_date).toLocaleDateString('en-US', {
+                                month: 'short',
+                                day: 'numeric'
+                              })}
+                            </div>
+                          )}
                         </div>
-                        {event.time && (
-                          <span className="text-xs text-gray-400">
-                            {event.time.slice(0, 5)}
-                          </span>
-                        )}
-                      </div>
-                      
-                      <h3 className="font-medium text-gray-800 text-sm mb-1 line-clamp-2">
-                        {event.type === 'diary' 
-                          ? (event.title || 'Diary Entry')
-                          : event.activity_title
-                        }
-                      </h3>
-                      
-                      <p className="text-xs text-gray-600 mb-2">
-                        {new Date(event.entry_date).toLocaleDateString('en-US', {
-                          weekday: 'short',
-                          month: 'short',
-                          day: 'numeric'
-                        })}
-                      </p>
-                      
-                      {((event.type === 'diary' && event.content) || 
-                        (event.type === 'schedule' && event.description)) && (
-                        <p className="text-xs text-gray-500 line-clamp-2">
-                          {event.type === 'diary' ? event.content : event.description}
-                        </p>
-                      )}
-                      
-                      {event.type === 'diary' && event.mood_rating && (
-                        <div className="mt-2 flex items-center">
-                          <span className="text-xs text-gray-400 mr-1">Mood:</span>
-                          <div className="flex">
-                            {[1,2,3,4,5].map((star) => (
-                              <span 
-                                key={star}
-                                className={`text-xs ${
-                                  star <= event.mood_rating! ? 'text-yellow-400' : 'text-gray-300'
-                                }`}
-                              >
-                                ★
-                              </span>
-                            ))}
+                        
+                        {/* Event Details */}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-base font-semibold text-gray-900 mb-1 leading-tight">
+                            {event.type === 'diary' 
+                              ? (event.title || 'Diary Entry')
+                              : event.activity_title
+                            }
+                          </h3>
+                          
+                          {((event.type === 'diary' && event.content) || 
+                            (event.type === 'schedule' && event.description)) && (
+                            <p className="text-sm text-gray-600 line-clamp-1">
+                              {event.type === 'diary' ? event.content : event.description}
+                            </p>
+                          )}
+                          
+                          {/* Date and Type Indicator */}
+                          <div className="flex items-center gap-2 mt-2">
+                            <div className={`w-2 h-2 rounded-full ${
+                              event.type === 'diary' ? 'bg-purple-400' : 'bg-blue-400'
+                            }`}></div>
+                            <span className="text-xs text-gray-500">
+                              {new Date(event.entry_date).toLocaleDateString('en-US', {
+                                weekday: 'short',
+                                month: 'short',
+                                day: 'numeric'
+                              })}
+                            </span>
+                            {event.type === 'diary' && event.mood_rating && (
+                              <div className="flex ml-2">
+                                {[1,2,3,4,5].map((star) => (
+                                  <span 
+                                    key={star}
+                                    className={`text-xs ${
+                                      star <= event.mood_rating! ? 'text-yellow-400' : 'text-gray-300'
+                                    }`}
+                                  >
+                                    ★
+                                  </span>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </div>
-                      )}
+                      </div>
                     </div>
                   ))
                 )}
               </div>
               
               {getUpcomingEvents().length > 0 && (
-                <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="mt-6 pt-4 border-t border-gray-100">
                   <Button
                     variant="outline"
                     size="sm"
