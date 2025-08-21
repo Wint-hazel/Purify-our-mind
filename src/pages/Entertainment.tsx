@@ -80,6 +80,12 @@ export default function Entertainment() {
             cover_url: '/lovable-uploads/a32545a8-f7f9-482c-bc0b-c63d2e058edd.png'
           };
         }
+        if (books.length > 3) {
+          books[3] = {
+            ...books[3],
+            cover_url: '/lovable-uploads/12b382f6-9428-4572-80ac-4e9854f3d086.png'
+          };
+        }
         setBooks(books);
       }
     } catch (error) {
