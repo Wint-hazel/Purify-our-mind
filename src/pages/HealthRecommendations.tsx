@@ -16,10 +16,14 @@ import {
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import AppointmentBookingModal from '@/components/AppointmentBookingModal';
+import MapModal from '@/components/MapModal';
+import { toast } from 'sonner';
 
 const HealthRecommendations = () => {
   const [selectedDoctor, setSelectedDoctor] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedHospital, setSelectedHospital] = useState<any>(null);
+  const [isMapModalOpen, setIsMapModalOpen] = useState(false);
 
   const handleBookAppointment = (doctor: any) => {
     setSelectedDoctor(doctor);
@@ -29,6 +33,36 @@ const HealthRecommendations = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedDoctor(null);
+  };
+
+  const handleGetDirections = (hospital: any) => {
+    setSelectedHospital(hospital);
+    setIsMapModalOpen(true);
+  };
+
+  const handleCloseMapModal = () => {
+    setIsMapModalOpen(false);
+    setSelectedHospital(null);
+  };
+
+  const handleCallNow = (phone: string) => {
+    // For web browsers, we'll show a toast with instructions
+    if (navigator.userAgent.match(/Mobile|Android|iPhone|iPad/)) {
+      // On mobile devices, try to initiate a call
+      window.location.href = `tel:${phone}`;
+    } else {
+      // On desktop, show helpful message
+      toast.info(`Call ${phone}`, {
+        description: 'Click to copy the phone number to your clipboard',
+        action: {
+          label: 'Copy',
+          onClick: () => {
+            navigator.clipboard.writeText(phone);
+            toast.success('Phone number copied to clipboard');
+          }
+        }
+      });
+    }
   };
 
   const doctors = [
@@ -246,12 +280,14 @@ const HealthRecommendations = () => {
                       variant="outline" 
                       size="sm" 
                       className="flex-1 border-green-200 text-green-700 hover:bg-green-50"
+                      onClick={() => handleGetDirections(hospital)}
                     >
                       Get Directions
                     </Button>
                     <Button 
                       size="sm" 
                       className="flex-1 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white"
+                      onClick={() => handleCallNow(hospital.phone)}
                     >
                       Call Now
                     </Button>
@@ -281,6 +317,13 @@ const HealthRecommendations = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         doctor={selectedDoctor}
+      />
+      
+      <MapModal
+        isOpen={isMapModalOpen}
+        onClose={handleCloseMapModal}
+        hospitalName={selectedHospital?.name || ''}
+        hospitalAddress={selectedHospital?.address || ''}
       />
     </div>
   );
