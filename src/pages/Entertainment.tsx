@@ -60,7 +60,15 @@ export default function Entertainment() {
       if (error) {
         console.error('Error fetching books:', error);
       } else {
-        setBooks(data || []);
+        const books = data || [];
+        // Update the first book's cover with the uploaded A Man Called Ove poster
+        if (books.length > 0) {
+          books[0] = {
+            ...books[0],
+            cover_url: '/lovable-uploads/85bafac3-c27d-423b-9c7a-def66fcf85c3.png'
+          };
+        }
+        setBooks(books);
       }
     } catch (error) {
       console.error('Error fetching books:', error);
