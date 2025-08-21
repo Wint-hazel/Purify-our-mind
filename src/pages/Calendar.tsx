@@ -160,6 +160,17 @@ const Calendar = () => {
     setCurrentDate(newDate);
   };
 
+  // Sample events for September 2025
+  const getSampleEventsForSeptember = () => {
+    return {
+      3: 'Workshop',
+      7: 'Team Meeting',
+      12: 'Doctor Appointment',
+      18: 'Birthday Party',
+      25: 'Project Deadline'
+    };
+  };
+
   const generateCalendarDays = () => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -167,12 +178,15 @@ const Calendar = () => {
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const today = new Date();
     
+    // Get sample events for September 2025
+    const sampleEvents = (year === 2025 && month === 8) ? getSampleEventsForSeptember() : {};
+    
     const calendarDays = [];
     
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < firstDayOfMonth; i++) {
       calendarDays.push(
-        <div key={`empty-${i}`} className="h-20 bg-gray-50/50"></div>
+        <div key={`empty-${i}`} className="h-24 bg-gray-50/50 rounded-lg"></div>
       );
     }
     
@@ -184,40 +198,48 @@ const Calendar = () => {
       const isToday = dayDate.toDateString() === today.toDateString();
       const isPastMonth = year < today.getFullYear() || (year === today.getFullYear() && month < today.getMonth());
       const isPastDay = dayDate < today && !isToday;
+      const sampleEvent = sampleEvents[day as keyof typeof sampleEvents];
       
       calendarDays.push(
         <Card 
           key={day} 
-          className={`h-20 cursor-pointer transition-all duration-200 hover:shadow-md border ${
+          className={`h-24 cursor-pointer transition-all duration-200 hover:shadow-md border ${
             isToday 
               ? 'bg-blue-50 border-blue-200 shadow-md' 
-              : 'bg-white border-gray-200 hover:bg-gray-50'
+              : sampleEvent
+                ? 'bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 hover:shadow-lg'
+                : 'bg-white border-gray-200 hover:bg-gray-50'
           }`}
           onClick={() => handleDateClick(day)}
         >
           <CardContent className="p-2 h-full flex flex-col justify-between">
             <div className="flex justify-between items-start">
-              <span className={`text-lg font-semibold ${
+              <span className={`text-lg font-bold ${
                 isToday 
                   ? 'text-blue-600' 
                   : isPastDay 
                     ? 'text-gray-400' 
-                    : 'text-gray-700'
+                    : sampleEvent 
+                      ? 'text-blue-700'
+                      : 'text-gray-700'
               }`}>
-                {day.toString().padStart(2, '0')}
+                {day}
               </span>
             </div>
-            <div className="text-xs">
-              {taskCount > 0 ? (
-                <span className={`${
-                  taskCount > 0 
-                    ? 'text-blue-600 font-medium' 
-                    : 'text-gray-400'
-                }`}>
+            
+            <div className="flex-1 flex flex-col justify-center">
+              {sampleEvent && (
+                <div className="bg-blue-100 text-blue-800 text-[10px] font-medium px-2 py-1 rounded-md text-center leading-tight">
+                  {sampleEvent}
+                </div>
+              )}
+            </div>
+            
+            <div className="text-[10px] text-gray-400 text-center mt-1">
+              {taskCount > 0 && (
+                <span className="text-blue-600 font-medium">
                   {taskCount} {taskCount === 1 ? 'entry' : 'entries'}
                 </span>
-              ) : (
-                <span className="text-gray-400">0 entries</span>
               )}
             </div>
           </CardContent>
@@ -407,6 +429,14 @@ const Calendar = () => {
           >
             <CalendarIcon className="w-4 h-4 mr-2" />
             January 2025
+          </Button>
+          <Button
+            onClick={() => setCurrentDate(new Date(2025, 8, 1))}
+            variant="outline"
+            className="bg-blue-100 border-blue-300 hover:bg-blue-200 text-blue-700"
+          >
+            <CalendarIcon className="w-4 h-4 mr-2" />
+            September 2025
           </Button>
           <Button
             onClick={() => setCurrentDate(new Date())}
