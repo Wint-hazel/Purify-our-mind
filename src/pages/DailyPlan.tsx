@@ -369,7 +369,6 @@ const DailyPlan = () => {
                 <h1 className="text-4xl font-bold text-stone-800" style={{ fontFamily: 'cursive' }}>
                   Daily Planner
                 </h1>
-                <p className="text-stone-600 text-sm">@wellness.app</p>
               </div>
             </div>
             
