@@ -32,6 +32,7 @@ const DailyPlan = () => {
   const [entries, setEntries] = useState<DiaryEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [notes, setNotes] = useState('');
+  const [goals, setGoals] = useState('');
   const [selectedMood, setSelectedMood] = useState<number | null>(null);
   const [waterCount, setWaterCount] = useState(0);
   const [todos, setTodos] = useState([
@@ -69,6 +70,7 @@ const DailyPlan = () => {
       
       if (data && data.length > 0) {
         setNotes(data[0].content || '');
+        setGoals(data[0].title || '');
       }
     } catch (error) {
       toast({
@@ -116,6 +118,47 @@ const DailyPlan = () => {
       toast({
         title: "Error",
         description: "Failed to save notes",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const saveGoals = async () => {
+    if (!user || !goals.trim()) return;
+
+    try {
+      const entryDate = selectedDate || today.toISOString().split('T')[0];
+      
+      if (entries.length > 0) {
+        // Update existing entry
+        const { error } = await supabase
+          .from('diary_entries')
+          .update({ title: goals })
+          .eq('id', entries[0].id);
+        if (error) throw error;
+      } else {
+        // Create new entry
+        const { error } = await supabase
+          .from('diary_entries')
+          .insert({
+            user_id: user.id,
+            title: goals,
+            content: notes || ' ',
+            entry_date: entryDate,
+            mood_rating: selectedMood
+          });
+        if (error) throw error;
+      }
+
+      toast({
+        title: "Success",
+        description: "Goals saved successfully",
+      });
+      fetchEntries();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save goals",
         variant: "destructive",
       });
     }
@@ -337,11 +380,25 @@ const DailyPlan = () => {
 
               {/* My Goals */}
               <div className="bg-stone-200 rounded-xl p-4">
-                <h3 className="text-xl font-semibold text-stone-800 mb-2">My goals</h3>
-                <div className="flex items-center justify-center py-4">
-                  <div className="text-center">
-                    <div className="text-4xl mb-2">😸☕</div>
-                    <p className="text-sm text-stone-600">Stay positive & hydrated</p>
+                <h3 className="text-xl font-semibold text-stone-800 mb-2 flex items-center justify-between">
+                  My goals
+                  <span className="text-2xl">😸☕</span>
+                </h3>
+                <div className="bg-stone-50 rounded-xl border border-stone-200">
+                  <Textarea
+                    placeholder="Write your goals for today..."
+                    value={goals}
+                    onChange={(e) => setGoals(e.target.value)}
+                    className="min-h-[80px] border-0 bg-transparent resize-none focus:ring-0"
+                  />
+                  <div className="p-3 border-t border-stone-200">
+                    <Button 
+                      onClick={saveGoals}
+                      className="bg-stone-600 hover:bg-stone-700 text-white"
+                      size="sm"
+                    >
+                      Save Goals
+                    </Button>
                   </div>
                 </div>
               </div>
