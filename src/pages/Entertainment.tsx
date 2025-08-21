@@ -554,61 +554,204 @@ export default function Entertainment() {
               </div>
             </TabsContent>
 
-            {/* Movies Section */}
-            <TabsContent value="movies" className="space-y-6">
-              <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-                <h2 className="text-2xl font-semibold text-foreground">Uplifting Movies</h2>
-                <Select value={movieGenre} onValueChange={setMovieGenre}>
-                  <SelectTrigger className="w-full sm:w-48">
-                    <SelectValue placeholder="Filter by genre" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="All">All Genres</SelectItem>
-                    <SelectItem value="Drama">Drama</SelectItem>
-                    <SelectItem value="Animation">Animation</SelectItem>
-                    <SelectItem value="Documentary">Documentary</SelectItem>
-                    <SelectItem value="Comedy">Comedy</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredMovies.map((movie) => (
-                  <Card key={movie.id} className="hover-scale overflow-hidden">
-                    <div className="aspect-[2/3] relative">
-                      <img
-                        src={movie.poster}
-                        alt={movie.title}
-                        className="w-full h-full object-cover"
-                      />
+            {/* Movies Section - Disney+ Style */}
+            <TabsContent value="movies" className="space-y-0">
+              <div className="min-h-screen" style={{ backgroundColor: '#0F171E' }}>
+                {/* Hero Section */}
+                <div className="relative h-80 sm:h-96 overflow-hidden rounded-lg mb-8">
+                  <img
+                    src={filteredMovies[0]?.poster || "https://picsum.photos/800/400?random=1"}
+                    alt="Featured Movie"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                  <div className="absolute bottom-0 left-0 p-6 sm:p-8 text-white max-w-2xl">
+                    <h1 className="text-3xl sm:text-4xl font-bold mb-4">
+                      {filteredMovies[0]?.title || "Featured Mental Wellness Film"}
+                    </h1>
+                    <p className="text-lg mb-4 leading-relaxed">
+                      {filteredMovies[0]?.description || "Discover inspiring stories that promote emotional well-being and personal growth through powerful storytelling."}
+                    </p>
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="flex items-center gap-2">
+                        <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                        <span className="font-semibold">{filteredMovies[0]?.rating || "8.2"}</span>
+                      </div>
+                      <span className="px-3 py-1 bg-white/20 rounded-full text-sm font-medium">
+                        {filteredMovies[0]?.genre || "Drama"}
+                      </span>
                     </div>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-lg line-clamp-2">{movie.title}</CardTitle>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <span className="bg-primary/20 px-2 py-1 rounded text-xs font-medium">
-                          {movie.genre}
-                        </span>
-                        <div className="flex items-center gap-1">
-                          <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                          <span>{movie.rating}</span>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <p className="text-sm text-muted-foreground line-clamp-3">{movie.description}</p>
-                      <div className="bg-primary/10 p-3 rounded-lg">
-                        <p className="text-sm font-medium text-primary mb-1">Why Watch:</p>
-                        <p className="text-sm text-muted-foreground">{movie.whyWatch}</p>
-                      </div>
-                      <Button variant="outline" size="sm" className="w-full" asChild>
-                        <a href={movie.imdbUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
-                          <ExternalLink className="w-3 h-3" />
-                          View on IMDB
-                        </a>
+                    <div className="flex gap-3">
+                      <Button 
+                        size="lg" 
+                        className="bg-white text-black hover:bg-gray-200 transition-colors"
+                      >
+                        <Play className="w-5 h-5 mr-2 fill-current" />
+                        Play
                       </Button>
-                    </CardContent>
-                  </Card>
-                ))}
+                      <Button 
+                        size="lg" 
+                        variant="outline"
+                        className="border-white/50 text-white hover:bg-white/10 transition-colors"
+                      >
+                        + Add to Watchlist
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Filter Section */}
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-semibold text-white">Browse Movies</h2>
+                  <Select value={movieGenre} onValueChange={setMovieGenre}>
+                    <SelectTrigger className="w-48 bg-[#1A242F] border-gray-600 text-white">
+                      <SelectValue placeholder="Filter by genre" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#1A242F] border-gray-600">
+                      <SelectItem value="All" className="text-white hover:bg-[#0063E5]">All Genres</SelectItem>
+                      <SelectItem value="Drama" className="text-white hover:bg-[#0063E5]">Drama</SelectItem>
+                      <SelectItem value="Animation" className="text-white hover:bg-[#0063E5]">Animation</SelectItem>
+                      <SelectItem value="Documentary" className="text-white hover:bg-[#0063E5]">Documentary</SelectItem>
+                      <SelectItem value="Comedy" className="text-white hover:bg-[#0063E5]">Comedy</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Content Rows */}
+                <div className="space-y-8">
+                  {/* Featured Collection */}
+                  <div>
+                    <h3 className="text-xl font-medium text-white mb-4">Featured for Mental Wellness</h3>
+                     <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                      {filteredMovies.map((movie) => (
+                        <div 
+                          key={movie.id} 
+                          className="flex-shrink-0 w-48 group cursor-pointer"
+                        >
+                          <div className="relative aspect-[2/3] rounded-md overflow-hidden mb-2 transform transition-transform duration-300 hover:scale-105">
+                            <img
+                              src={movie.poster}
+                              alt={movie.title}
+                              className="w-full h-full object-cover"
+                            />
+                            {/* Hover Overlay */}
+                            <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+                              <div className="text-white">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                                  <span className="text-sm font-medium">{movie.rating}</span>
+                                </div>
+                                <p className="text-xs mb-3 line-clamp-3">{movie.description}</p>
+                                <div className="flex gap-2">
+                                  <Button size="sm" className="bg-white text-black hover:bg-gray-200 text-xs px-3 py-1">
+                                    <Play className="w-3 h-3 mr-1 fill-current" />
+                                    Play
+                                  </Button>
+                                  <Button size="sm" variant="outline" className="border-white/50 text-white hover:bg-white/10 text-xs px-2 py-1">
+                                    +
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <h4 className="text-sm font-medium text-white line-clamp-2 mb-1">{movie.title}</h4>
+                          <p className="text-xs text-[#A0A5AA]">{movie.genre}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Recently Added */}
+                  <div>
+                    <h3 className="text-xl font-medium text-white mb-4">Recently Added</h3>
+                    <div className="flex gap-4 overflow-x-auto pb-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                      {filteredMovies.slice().reverse().map((movie) => (
+                        <div 
+                          key={`recent-${movie.id}`} 
+                          className="flex-shrink-0 w-48 group cursor-pointer"
+                        >
+                          <div className="relative aspect-[2/3] rounded-md overflow-hidden mb-2 transform transition-transform duration-300 hover:scale-105">
+                            <img
+                              src={movie.poster}
+                              alt={movie.title}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+                              <div className="text-white">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                                  <span className="text-sm font-medium">{movie.rating}</span>
+                                </div>
+                                <p className="text-xs mb-3 line-clamp-3">{movie.whyWatch}</p>
+                                <div className="flex gap-2">
+                                  <Button size="sm" className="bg-white text-black hover:bg-gray-200 text-xs px-3 py-1">
+                                    <Play className="w-3 h-3 mr-1 fill-current" />
+                                    Play
+                                  </Button>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className="border-white/50 text-white hover:bg-white/10 text-xs px-2 py-1"
+                                    asChild
+                                  >
+                                    <a href={movie.imdbUrl} target="_blank" rel="noopener noreferrer">
+                                      <ExternalLink className="w-3 h-3" />
+                                    </a>
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <h4 className="text-sm font-medium text-white line-clamp-2 mb-1">{movie.title}</h4>
+                          <p className="text-xs text-[#A0A5AA]">{movie.genre}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Recommended for You */}
+                  <div>
+                    <h3 className="text-xl font-medium text-white mb-4">Recommended for You</h3>
+                    <div className="flex gap-4 overflow-x-auto pb-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                      {filteredMovies.map((movie) => (
+                        <div 
+                          key={`recommended-${movie.id}`} 
+                          className="flex-shrink-0 w-48 group cursor-pointer"
+                        >
+                          <div className="relative aspect-[2/3] rounded-md overflow-hidden mb-2 transform transition-transform duration-300 hover:scale-105">
+                            <img
+                              src={movie.poster}
+                              alt={movie.title}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+                              <div className="text-white">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                                  <span className="text-sm font-medium">{movie.rating}</span>
+                                </div>
+                                <p className="text-xs mb-3 line-clamp-3">{movie.whyWatch}</p>
+                                <div className="flex gap-2">
+                                  <Button size="sm" className="bg-white text-black hover:bg-gray-200 text-xs px-3 py-1">
+                                    <Play className="w-3 h-3 mr-1 fill-current" />
+                                    Play
+                                  </Button>
+                                  <Button size="sm" variant="outline" className="border-white/50 text-white hover:bg-white/10 text-xs px-2 py-1">
+                                    +
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <h4 className="text-sm font-medium text-white line-clamp-2 mb-1">{movie.title}</h4>
+                          <p className="text-xs text-[#A0A5AA]">{movie.genre}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pb-8"></div> {/* Bottom spacing */}
               </div>
             </TabsContent>
           </Tabs>
