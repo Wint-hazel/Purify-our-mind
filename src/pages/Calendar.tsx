@@ -463,25 +463,6 @@ const Calendar = () => {
             Open Daily Plan
           </Button>
         </div>
-
-        {/* Calendar Legend */}
-        <div className="mt-8 bg-white rounded-lg p-4 border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-800 mb-3">Legend</h3>
-          <div className="flex flex-wrap gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-blue-50 border-2 border-blue-200 rounded"></div>
-              <span className="text-gray-600">Today</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-white border-2 border-gray-200 rounded"></div>
-              <span className="text-gray-600">Available Days</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-blue-600 font-medium">Blue text</span>
-              <span className="text-gray-600">- Days with diary entries</span>
-            </div>
-          </div>
-        </div>
       </main>
       
       <Footer />
