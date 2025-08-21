@@ -76,16 +76,7 @@ const Index = () => {
                   Your journey to mental wellness starts with a single, gentle step.
                 </p>
                 
-                {/* Supportive friendship image */}
-                <div className="mb-8 animate-fade-in">
-                  <img 
-                    src="/lovable-uploads/ece7f644-f532-4318-bb56-110ac4da7163.png" 
-                    alt="Two friends supporting each other - one offering help to another in a warm, golden park setting"
-                    className="w-full max-w-md mx-auto h-auto rounded-2xl shadow-soft"
-                  />
-                </div>
-                
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col sm:flex-row gap-4 mb-8">
                   <Link to="/daily-plans">
                     <Button size="lg" className="bg-primary text-primary-foreground hover-glow transition-smooth px-8 py-4 text-lg font-medium">
                       Get Started
@@ -97,6 +88,15 @@ const Index = () => {
                       Explore Services
                     </Button>
                   </Link>
+                </div>
+                
+                {/* Supportive friendship image */}
+                <div className="animate-fade-in">
+                  <img 
+                    src="/lovable-uploads/ece7f644-f532-4318-bb56-110ac4da7163.png" 
+                    alt="Two friends supporting each other - one offering help to another in a warm, golden park setting"
+                    className="w-full max-w-lg mx-auto h-auto rounded-2xl shadow-soft"
+                  />
                 </div>
               </div>
               <div className="animate-fade-in">
