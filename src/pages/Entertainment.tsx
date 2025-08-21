@@ -113,7 +113,7 @@ const movies = [
     id: 3,
     title: "Good Will Hunting",
     year: 1997,
-    poster: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=450&fit=crop&crop=center",
+    poster: "/lovable-uploads/e37990d5-0560-4cab-8cea-2fcb108a9d93.png",
     description: "Will Hunting, a janitor at M.I.T., has a gift for mathematics but needs help from a psychologist to find direction in his life. A moving story about overcoming trauma and finding self-worth.",
     whyWatch: "A powerful story about healing, therapy, and discovering your true potential.",
     rating: "8.3",
