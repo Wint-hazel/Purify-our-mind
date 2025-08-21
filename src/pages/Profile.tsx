@@ -23,12 +23,15 @@ const Profile = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [newEmail, setNewEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [emailChanging, setEmailChanging] = useState(false);
 
   useEffect(() => {
     if (user) {
       fetchProfile();
+      setNewEmail(user.email || '');
     }
   }, [user]);
 
@@ -102,6 +105,42 @@ const Profile = () => {
     }
   };
 
+  const updateEmail = async () => {
+    if (!user || !newEmail || newEmail === user.email) return;
+    
+    setEmailChanging(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        email: newEmail,
+      }, {
+        emailRedirectTo: `${window.location.origin}/profile`
+      });
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Verification Required",
+          description: "Please check both your old and new email addresses for verification links. The email change will take effect after both emails are verified.",
+          duration: 8000,
+        });
+        setNewEmail(user.email || ''); // Reset to current email
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setEmailChanging(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background to-muted">
@@ -128,40 +167,67 @@ const Profile = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-foreground mb-2 block">
-                    Email
-                  </label>
-                  <Input
-                    value={user?.email || ''}
-                    disabled
-                    className="bg-muted"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Email cannot be changed
-                  </p>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-2 block">
+                      Current Email
+                    </label>
+                    <Input
+                      value={user?.email || ''}
+                      disabled
+                      className="bg-muted"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-2 block">
+                      New Email
+                    </label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="email"
+                        value={newEmail}
+                        onChange={(e) => setNewEmail(e.target.value)}
+                        placeholder="Enter new email address"
+                        className="flex-1"
+                      />
+                      <Button 
+                        onClick={updateEmail}
+                        disabled={emailChanging || !newEmail || newEmail === user?.email}
+                        variant="outline"
+                        size="sm"
+                      >
+                        {emailChanging ? 'Sending...' : 'Verify'}
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      You'll receive verification emails at both your current and new email addresses
+                    </p>
+                  </div>
                 </div>
                 
-                <div>
-                  <label className="text-sm font-medium text-foreground mb-2 block">
-                    First Name
-                  </label>
-                  <Input
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="Enter your first name"
-                  />
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium text-foreground mb-2 block">
-                    Last Name
-                  </label>
-                  <Input
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Enter your last name"
-                  />
+                <div className="border-t pt-4 space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-2 block">
+                      First Name
+                    </label>
+                    <Input
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="Enter your first name"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-2 block">
+                      Last Name
+                    </label>
+                    <Input
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Enter your last name"
+                    />
+                  </div>
                 </div>
               </div>
               
