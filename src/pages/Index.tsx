@@ -65,7 +65,7 @@ const Index = () => {
         <section className="relative overflow-hidden bg-gradient-hero py-20 lg:py-32">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background/80 to-primary-light/10"></div>
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="text-center">
               <div className="animate-fade-in">
                 <h1 className="text-5xl lg:text-6xl font-bold text-foreground mb-6">
                   Purify Your Mind, 
@@ -76,7 +76,7 @@ const Index = () => {
                   Your journey to mental wellness starts with a single, gentle step.
                 </p>
                 
-                <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                <div className="flex flex-col sm:flex-row gap-4 mb-8 justify-center">
                   <Link to="/daily-plans">
                     <Button size="lg" className="bg-primary text-primary-foreground hover-glow transition-smooth px-8 py-4 text-lg font-medium">
                       Get Started
@@ -97,16 +97,6 @@ const Index = () => {
                     alt="Two friends supporting each other - one offering help to another in a warm, golden park setting"
                     className="w-full max-w-lg mx-auto h-auto rounded-2xl shadow-soft"
                   />
-                </div>
-              </div>
-              <div className="animate-fade-in">
-                <div className="relative">
-                  <img 
-                    src={heroImage} 
-                    alt="Peaceful mind wellness illustration"
-                    className="w-full h-auto rounded-2xl shadow-soft"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent rounded-2xl"></div>
                 </div>
               </div>
             </div>
