@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
+import { useMusicPlayer } from '@/contexts/MusicPlayerContext';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 
@@ -100,7 +101,7 @@ export default function Entertainment() {
   const [activeTab, setActiveTab] = useState("books");
   const [bookSearch, setBookSearch] = useState("");
   const [movieGenre, setMovieGenre] = useState("All");
-  const [playingVideo, setPlayingVideo] = useState<number | null>(null);
+  const { state, playTrack } = useMusicPlayer();
   const [books, setBooks] = useState<BookData[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -168,8 +169,8 @@ export default function Entertainment() {
     movieGenre === "All" || movie.genre === movieGenre
   );
 
-  const handlePlayVideo = (videoId: number) => {
-    setPlayingVideo(playingVideo === videoId ? null : videoId);
+  const handlePlayMusic = (track: typeof music[0]) => {
+    playTrack(track, music);
   };
 
   return (
@@ -334,7 +335,8 @@ export default function Entertainment() {
                       </h3>
                       <div className="space-y-2">
                         {music.slice(0, 3).map((track) => (
-                          <div key={track.id} className="flex items-center gap-2 p-2 rounded hover:bg-white/50 transition-colors cursor-pointer">
+                          <div key={track.id} className="flex items-center gap-2 p-2 rounded hover:bg-white/50 transition-colors cursor-pointer"
+                               onClick={() => handlePlayMusic(track)}>
                             <img src={track.albumArt} alt="" className="w-8 h-8 rounded object-cover" />
                             <div className="flex-1 min-w-0">
                               <p className="text-xs font-medium truncate" style={{ color: 'hsl(var(--wellness-text))' }}>
@@ -344,6 +346,9 @@ export default function Entertainment() {
                                 {track.artist}
                               </p>
                             </div>
+                            {state.currentTrack?.id === track.id && (
+                              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                            )}
                           </div>
                         ))}
                       </div>
@@ -406,7 +411,7 @@ export default function Entertainment() {
                       </h3>
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {music.slice(0, 8).map((track) => (
-                          <div key={track.id} className="group cursor-pointer">
+                          <div key={track.id} className="group cursor-pointer" onClick={() => handlePlayMusic(track)}>
                             <div 
                               className="p-4 rounded-xl transition-all duration-200 hover:shadow-lg"
                               style={{ backgroundColor: 'hsl(var(--wellness-card))' }}
@@ -417,12 +422,14 @@ export default function Entertainment() {
                                   alt={track.title}
                                   className="w-full aspect-square object-cover rounded-lg"
                                 />
-                                <button
-                                  onClick={() => handlePlayVideo(track.id)}
-                                  className="absolute inset-0 bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-all duration-200 rounded-lg flex items-center justify-center"
-                                >
-                                  {playingVideo === track.id ? (
-                                    <Pause className="w-6 h-6" />
+                                <div className="absolute inset-0 bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-all duration-200 rounded-lg flex items-center justify-center">
+                                  {state.currentTrack?.id === track.id && state.isPlaying ? (
+                                    <div 
+                                      className="w-10 h-10 rounded-full flex items-center justify-center"
+                                      style={{ backgroundColor: 'hsl(var(--wellness-blue))' }}
+                                    >
+                                      <Pause className="w-5 h-5" />
+                                    </div>
                                   ) : (
                                     <div 
                                       className="w-10 h-10 rounded-full flex items-center justify-center"
@@ -431,7 +438,10 @@ export default function Entertainment() {
                                       <Play className="w-5 h-5" />
                                     </div>
                                   )}
-                                </button>
+                                </div>
+                                {state.currentTrack?.id === track.id && (
+                                  <div className="absolute top-2 right-2 w-3 h-3 bg-green-400 rounded-full animate-pulse" />
+                                )}
                               </div>
                               <h4 className="font-medium text-sm mb-1 line-clamp-1" style={{ color: 'hsl(var(--wellness-text))' }}>
                                 {track.title}
@@ -439,23 +449,6 @@ export default function Entertainment() {
                               <p className="text-xs mb-2" style={{ color: 'hsl(var(--wellness-text-muted))' }}>
                                 {track.artist}
                               </p>
-                              
-                              {playingVideo === track.id && (
-                                <div className="mt-3">
-                                  <div className="aspect-video mb-3">
-                                    <iframe
-                                      width="100%"
-                                      height="100%"
-                                      src={`https://www.youtube.com/embed/${track.youtubeId}?autoplay=1`}
-                                      title={track.title}
-                                      frameBorder="0"
-                                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                      allowFullScreen
-                                      className="rounded-lg"
-                                    />
-                                  </div>
-                                </div>
-                              )}
                               
                               <div className="text-xs p-2 rounded" style={{ 
                                 backgroundColor: 'hsl(var(--wellness-bg-alt))',
@@ -471,45 +464,7 @@ export default function Entertainment() {
                   </div>
                 </div>
 
-                {/* Bottom Player (Fixed) */}
-                {playingVideo && (
-                  <div className="fixed bottom-0 left-0 right-0 p-4 border-t transition-all duration-300" style={{ 
-                    backgroundColor: 'hsl(var(--wellness-bg-alt))',
-                    borderColor: 'hsl(var(--wellness-border))'
-                  }}>
-                    <div className="max-w-7xl mx-auto flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <img 
-                          src={music.find(m => m.id === playingVideo)?.albumArt} 
-                          alt="" 
-                          className="w-12 h-12 rounded-lg object-cover" 
-                        />
-                        <div>
-                          <p className="font-medium text-sm" style={{ color: 'hsl(var(--wellness-text))' }}>
-                            {music.find(m => m.id === playingVideo)?.title}
-                          </p>
-                          <p className="text-xs" style={{ color: 'hsl(var(--wellness-text-muted))' }}>
-                            {music.find(m => m.id === playingVideo)?.artist}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-4">
-                        <button
-                          onClick={() => setPlayingVideo(null)}
-                          className="w-8 h-8 rounded-full flex items-center justify-center text-white transition-all duration-200"
-                          style={{ backgroundColor: 'hsl(var(--wellness-blue))' }}
-                        >
-                          <Pause className="w-4 h-4" />
-                        </button>
-                        <div className="w-48 h-1 rounded-full" style={{ backgroundColor: 'hsl(var(--wellness-border))' }}>
-                          <div className="w-1/3 h-full rounded-full" style={{ backgroundColor: 'hsl(var(--wellness-blue))' }}></div>
-                        </div>
-                        <span className="text-xs" style={{ color: 'hsl(var(--wellness-text-muted))' }}>2:34 / 8:42</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                {/* Bottom Player removed - using GlobalMusicPlayer instead */}
               </div>
             </TabsContent>
 
