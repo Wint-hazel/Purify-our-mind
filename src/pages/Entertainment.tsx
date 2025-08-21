@@ -91,7 +91,7 @@ const movies = [
     id: 1,
     title: "The Shawshank Redemption",
     year: 1994,
-    poster: "/lovable-uploads/f1aa51b2-c2a2-42ab-9451-c1c62d714cd1.png",
+    poster: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=300&h=450&fit=crop&crop=center",
     description: "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency. This story of hope and friendship in the bleakest of circumstances offers powerful lessons about resilience.",
     whyWatch: "A masterpiece about hope, friendship, and the human spirit's ability to overcome adversity.",
     rating: "9.3",
@@ -102,7 +102,7 @@ const movies = [
     id: 2,
     title: "Inside Out",
     year: 2015,
-    poster: "/lovable-uploads/933f03f4-096e-4caf-8882-14dc41f20a15.png",
+    poster: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=450&fit=crop&crop=center",
     description: "After young Riley is uprooted from her Midwest life and moved to San Francisco, her emotions - Joy, Fear, Anger, Disgust and Sadness - conflict on how best to navigate a new city, house, and school. An excellent exploration of emotional health.",
     whyWatch: "Perfect for understanding emotional health and how our feelings work together.",
     rating: "8.1",
@@ -113,7 +113,7 @@ const movies = [
     id: 3,
     title: "Good Will Hunting",
     year: 1997,
-    poster: "/lovable-uploads/e37990d5-0560-4cab-8cea-2fcb108a9d93.png",
+    poster: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=450&fit=crop&crop=center",
     description: "Will Hunting, a janitor at M.I.T., has a gift for mathematics but needs help from a psychologist to find direction in his life. A moving story about overcoming trauma and finding self-worth.",
     whyWatch: "A powerful story about healing, therapy, and discovering your true potential.",
     rating: "8.3",
@@ -643,7 +643,7 @@ export default function Entertainment() {
                       <Button 
                         size="lg" 
                         variant="outline"
-                        className="border-white/50 text-black hover:bg-white/10 transition-all duration-300"
+                        className="border-white/50 text-white hover:bg-white/10 transition-all duration-300"
                       >
                         + Add to Watchlist
                       </Button>
