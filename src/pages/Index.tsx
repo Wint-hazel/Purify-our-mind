@@ -77,7 +77,7 @@ const Index = () => {
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-4 mb-8 justify-center">
-                  <Link to="/daily-plan">
+                  <Link to="/calendar">
                     <Button size="lg" className="bg-primary text-primary-foreground hover-glow transition-smooth px-8 py-4 text-lg font-medium">
                       Get Started
                       <ArrowRight className="ml-2 w-5 h-5" />
