@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,8 +15,22 @@ import {
 } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import AppointmentBookingModal from '@/components/AppointmentBookingModal';
 
 const HealthRecommendations = () => {
+  const [selectedDoctor, setSelectedDoctor] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleBookAppointment = (doctor: any) => {
+    setSelectedDoctor(doctor);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedDoctor(null);
+  };
+
   const doctors = [
     {
       id: 1,
@@ -162,7 +177,10 @@ const HealthRecommendations = () => {
                     <span className="text-gray-600">{doctor.experience}</span>
                   </div>
                   
-                  <Button className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white">
+                  <Button 
+                    onClick={() => handleBookAppointment(doctor)}
+                    className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white"
+                  >
                     Book Appointment
                   </Button>
                 </CardContent>
@@ -258,6 +276,12 @@ const HealthRecommendations = () => {
       </main>
       
       <Footer />
+      
+      <AppointmentBookingModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        doctor={selectedDoctor}
+      />
     </div>
   );
 };
