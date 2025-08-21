@@ -322,46 +322,51 @@ export default function Entertainment() {
             </TabsList>
 
             {/* Books Section */}
-            <TabsContent value="books" className="space-y-6">
+            <TabsContent value="books" className="space-y-8">
               <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-                <h2 className="text-2xl font-semibold text-foreground">Mental Health Books</h2>
+                <div>
+                  <h2 className="text-2xl font-medium text-slate-700 mb-2">Gentle Reads for Wellness</h2>
+                  <p className="text-slate-500 text-sm">Nurturing books to support your mental health journey</p>
+                </div>
                 <div className="relative w-full sm:w-80">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
                   <Input
                     placeholder="Search by title or author..."
                     value={bookSearch}
                     onChange={(e) => setBookSearch(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 border-slate-200 bg-white/80 backdrop-blur-sm rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-200 transition-all duration-200"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                 {loading ? (
                   Array.from({ length: 8 }).map((_, i) => (
-                    <Card key={i} className="overflow-hidden">
-                      <div className="aspect-[2/3] bg-muted animate-pulse" />
-                      <CardHeader>
-                        <div className="h-5 bg-muted animate-pulse rounded mb-2" />
-                        <div className="h-4 bg-muted animate-pulse rounded w-3/4" />
-                      </CardHeader>
-                    </Card>
+                    <div key={i} className="bg-slate-50 rounded-3xl p-6 border border-slate-100 shadow-sm">
+                      <div className="aspect-[3/4] bg-slate-200 animate-pulse rounded-2xl mb-4" />
+                      <div className="space-y-3">
+                        <div className="h-5 bg-slate-200 animate-pulse rounded-lg" />
+                        <div className="h-4 bg-slate-200 animate-pulse rounded-lg w-3/4" />
+                        <div className="h-3 bg-slate-200 animate-pulse rounded-lg w-1/2" />
+                      </div>
+                    </div>
                   ))
                 ) : (
                   filteredBooks.map((book) => (
-                    <Card key={book.id} className="hover-scale overflow-hidden">
-                      <div className="aspect-[3/4] relative">
+                    <div 
+                      key={book.id} 
+                      className="group bg-white/90 backdrop-blur-sm rounded-3xl p-6 border border-slate-100 shadow-sm hover:shadow-lg hover:shadow-slate-200/50 transition-all duration-300 hover:-translate-y-1"
+                    >
+                      <div className="aspect-[3/4] relative mb-6">
                         <img
                           src={book.cover_url}
                           alt={book.name}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover rounded-2xl shadow-md"
                           onError={(e) => {
                             console.log(`Image failed to load: ${book.cover_url}`);
-                            // Try with the full domain first
                             if (!e.currentTarget.src.includes('://')) {
                               e.currentTarget.src = `${window.location.origin}${book.cover_url}`;
                             } else {
-                              // Fallback to a default book cover
                               e.currentTarget.src = 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&h=400&fit=crop&crop=center';
                             }
                           }}
@@ -370,18 +375,31 @@ export default function Entertainment() {
                           }}
                         />
                       </div>
-                      <CardHeader className="pb-1">
-                        <CardTitle className="text-base line-clamp-2">{book.name}</CardTitle>
-                        <CardDescription className="text-xs font-medium">{book.author}</CardDescription>
-                      </CardHeader>
-                      <CardContent className="space-y-2">
-                        <p className="text-xs text-muted-foreground line-clamp-2">{book.about}</p>
-                        <div className="bg-primary/10 p-2 rounded-lg">
-                          <p className="text-xs font-medium text-primary mb-1">Why Read:</p>
-                          <p className="text-xs text-muted-foreground line-clamp-2">{book.why_read}</p>
+                      
+                      <div className="space-y-4">
+                        <div>
+                          <h3 className="font-medium text-slate-700 text-lg leading-snug line-clamp-2 mb-2">
+                            {book.name}
+                          </h3>
+                          <p className="text-slate-500 text-sm font-medium">
+                            by {book.author}
+                          </p>
                         </div>
-                      </CardContent>
-                    </Card>
+                        
+                        <p className="text-slate-400 text-sm leading-relaxed line-clamp-2">
+                          {book.about}
+                        </p>
+                        
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full bg-slate-50/80 border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-700 hover:border-slate-300 rounded-xl transition-all duration-200 group-hover:shadow-md"
+                        >
+                          <Book className="w-4 h-4 mr-2" />
+                          Learn More
+                        </Button>
+                      </div>
+                    </div>
                   ))
                 )}
               </div>
