@@ -214,58 +214,244 @@ export default function Entertainment() {
               </div>
             </TabsContent>
 
-            {/* Music Section */}
-            <TabsContent value="music" className="space-y-6">
-              <h2 className="text-2xl font-semibold text-foreground">Therapeutic Music</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {music.map((song) => (
-                  <Card key={song.id} className="hover-scale overflow-hidden">
-                    <div className="aspect-square relative">
-                      <img
-                        src={song.albumArt}
-                        alt={song.title}
-                        className="w-full h-full object-cover"
-                      />
-                      <Button
-                        onClick={() => handlePlayVideo(song.id)}
-                        className="absolute inset-0 bg-black/50 hover:bg-black/60 text-white opacity-0 hover:opacity-100 transition-opacity"
-                        variant="ghost"
-                        size="lg"
-                      >
-                        {playingVideo === song.id ? (
-                          <Pause className="w-8 h-8" />
-                        ) : (
-                          <Play className="w-8 h-8" />
-                        )}
-                      </Button>
+            {/* Music Section - Wellness Music Platform */}
+            <TabsContent value="music" className="space-y-0">
+              <div className="font-nunito" style={{ backgroundColor: 'hsl(var(--wellness-bg))' }}>
+                {/* Music Platform Header */}
+                <div className="mb-6 p-6 rounded-xl" style={{ backgroundColor: 'hsl(var(--wellness-bg-alt))' }}>
+                  <h2 className="text-3xl font-semibold mb-2" style={{ color: 'hsl(var(--wellness-text))' }}>
+                    Therapeutic Soundscapes
+                  </h2>
+                  <p className="text-lg" style={{ color: 'hsl(var(--wellness-text-muted))' }}>
+                    Curated audio experiences designed to support your mental wellness journey
+                  </p>
+                </div>
+
+                {/* Main Music Layout */}
+                <div className="flex gap-6">
+                  {/* Left Sidebar */}
+                  <div className="w-64 flex-shrink-0">
+                    <div className="p-4 rounded-xl" style={{ backgroundColor: 'hsl(var(--wellness-card))' }}>
+                      <h3 className="font-medium mb-4" style={{ color: 'hsl(var(--wellness-text))' }}>
+                        Wellness Categories
+                      </h3>
+                      <nav className="space-y-2">
+                        {[
+                          { name: 'Calm Focus', icon: '🎯', active: true },
+                          { name: 'Sleep Sounds', icon: '🌙' },
+                          { name: 'Meditation', icon: '🧘' },
+                          { name: 'Anxiety Relief', icon: '🌊' },
+                          { name: 'Nature Sounds', icon: '🍃' },
+                          { name: 'Binaural Beats', icon: '🎵' },
+                          { name: 'Guided Breathing', icon: '💨' },
+                          { name: 'Stress Relief', icon: '☮️' }
+                        ].map((category) => (
+                          <button
+                            key={category.name}
+                            className={`w-full text-left p-3 rounded-lg transition-all duration-200 flex items-center gap-3 ${
+                              category.active 
+                                ? 'text-white font-medium' 
+                                : 'hover:bg-white/50'
+                            }`}
+                            style={{
+                              backgroundColor: category.active 
+                                ? 'hsl(var(--wellness-blue))' 
+                                : 'transparent',
+                              color: category.active 
+                                ? 'white' 
+                                : 'hsl(var(--wellness-text-muted))'
+                            }}
+                          >
+                            <span className="text-lg">{category.icon}</span>
+                            <span className="text-sm">{category.name}</span>
+                          </button>
+                        ))}
+                      </nav>
                     </div>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-lg line-clamp-1">{song.title}</CardTitle>
-                      <CardDescription className="text-sm font-medium">{song.artist}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      {playingVideo === song.id && (
-                        <div className="aspect-video">
-                          <iframe
-                            width="100%"
-                            height="100%"
-                            src={`https://www.youtube.com/embed/${song.youtubeId}?autoplay=1`}
-                            title={song.title}
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                            className="rounded-lg"
-                          />
-                        </div>
-                      )}
-                      <div className="bg-primary/10 p-3 rounded-lg">
-                        <p className="text-sm font-medium text-primary mb-1">Why Listen:</p>
-                        <p className="text-sm text-muted-foreground">{song.whyListen}</p>
+
+                    {/* Recently Played */}
+                    <div className="mt-4 p-4 rounded-xl" style={{ backgroundColor: 'hsl(var(--wellness-card))' }}>
+                      <h3 className="font-medium mb-3" style={{ color: 'hsl(var(--wellness-text))' }}>
+                        Recently Played
+                      </h3>
+                      <div className="space-y-2">
+                        {music.slice(0, 3).map((track) => (
+                          <div key={track.id} className="flex items-center gap-2 p-2 rounded hover:bg-white/50 transition-colors cursor-pointer">
+                            <img src={track.albumArt} alt="" className="w-8 h-8 rounded object-cover" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium truncate" style={{ color: 'hsl(var(--wellness-text))' }}>
+                                {track.title}
+                              </p>
+                              <p className="text-xs truncate" style={{ color: 'hsl(var(--wellness-text-muted))' }}>
+                                {track.artist}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                    </div>
+                  </div>
+
+                  {/* Main Content Area */}
+                  <div className="flex-1">
+                    {/* Search Bar */}
+                    <div className="mb-6">
+                      <div className="relative max-w-md">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" style={{ color: 'hsl(var(--wellness-text-muted))' }} />
+                        <input
+                          type="text"
+                          placeholder="Search sounds, moods, or techniques..."
+                          className="w-full pl-10 pr-4 py-3 rounded-lg border-0 outline-none transition-all duration-200"
+                          style={{ 
+                            backgroundColor: 'hsl(var(--wellness-bg-alt))',
+                            color: 'hsl(var(--wellness-text))',
+                            boxShadow: `0 2px 8px hsl(var(--wellness-border) / 0.3)`
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Featured Collection */}
+                    <div className="mb-8">
+                      <h3 className="text-xl font-medium mb-4" style={{ color: 'hsl(var(--wellness-text))' }}>
+                        Featured: Calm Focus Collection
+                      </h3>
+                      <div className="p-6 rounded-xl bg-gradient-to-r from-blue-50 to-teal-50" style={{ backgroundColor: 'hsl(var(--wellness-card-alt))' }}>
+                        <div className="flex items-center gap-6">
+                          <div className="w-20 h-20 rounded-xl bg-gradient-to-br" style={{ backgroundColor: 'hsl(var(--wellness-blue))' }}>
+                            <div className="w-full h-full flex items-center justify-center text-2xl text-white rounded-xl">
+                              🎯
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="text-lg font-medium mb-1" style={{ color: 'hsl(var(--wellness-text))' }}>
+                              Deep Focus Soundscapes
+                            </h4>
+                            <p className="mb-3" style={{ color: 'hsl(var(--wellness-text-muted))' }}>
+                              Scientifically designed audio to enhance concentration and reduce distractions
+                            </p>
+                            <button 
+                              className="px-6 py-2 rounded-full text-white font-medium transition-all duration-200 hover:shadow-lg"
+                              style={{ backgroundColor: 'hsl(var(--wellness-blue))' }}
+                            >
+                              ▶ Start Focus Session
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Sound Collections Grid */}
+                    <div>
+                      <h3 className="text-xl font-medium mb-4" style={{ color: 'hsl(var(--wellness-text))' }}>
+                        Recommended for You
+                      </h3>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {music.slice(0, 8).map((track) => (
+                          <div key={track.id} className="group cursor-pointer">
+                            <div 
+                              className="p-4 rounded-xl transition-all duration-200 hover:shadow-lg"
+                              style={{ backgroundColor: 'hsl(var(--wellness-card))' }}
+                            >
+                              <div className="relative mb-3">
+                                <img
+                                  src={track.albumArt}
+                                  alt={track.title}
+                                  className="w-full aspect-square object-cover rounded-lg"
+                                />
+                                <button
+                                  onClick={() => handlePlayVideo(track.id)}
+                                  className="absolute inset-0 bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-all duration-200 rounded-lg flex items-center justify-center"
+                                >
+                                  {playingVideo === track.id ? (
+                                    <Pause className="w-6 h-6" />
+                                  ) : (
+                                    <div 
+                                      className="w-10 h-10 rounded-full flex items-center justify-center"
+                                      style={{ backgroundColor: 'hsl(var(--wellness-blue))' }}
+                                    >
+                                      <Play className="w-5 h-5" />
+                                    </div>
+                                  )}
+                                </button>
+                              </div>
+                              <h4 className="font-medium text-sm mb-1 line-clamp-1" style={{ color: 'hsl(var(--wellness-text))' }}>
+                                {track.title}
+                              </h4>
+                              <p className="text-xs mb-2" style={{ color: 'hsl(var(--wellness-text-muted))' }}>
+                                {track.artist}
+                              </p>
+                              
+                              {playingVideo === track.id && (
+                                <div className="mt-3">
+                                  <div className="aspect-video mb-3">
+                                    <iframe
+                                      width="100%"
+                                      height="100%"
+                                      src={`https://www.youtube.com/embed/${track.youtubeId}?autoplay=1`}
+                                      title={track.title}
+                                      frameBorder="0"
+                                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                      allowFullScreen
+                                      className="rounded-lg"
+                                    />
+                                  </div>
+                                </div>
+                              )}
+                              
+                              <div className="text-xs p-2 rounded" style={{ 
+                                backgroundColor: 'hsl(var(--wellness-bg-alt))',
+                                color: 'hsl(var(--wellness-text-muted))'
+                              }}>
+                                {track.whyListen}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom Player (Fixed) */}
+                {playingVideo && (
+                  <div className="fixed bottom-0 left-0 right-0 p-4 border-t transition-all duration-300" style={{ 
+                    backgroundColor: 'hsl(var(--wellness-bg-alt))',
+                    borderColor: 'hsl(var(--wellness-border))'
+                  }}>
+                    <div className="max-w-7xl mx-auto flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <img 
+                          src={music.find(m => m.id === playingVideo)?.albumArt} 
+                          alt="" 
+                          className="w-12 h-12 rounded-lg object-cover" 
+                        />
+                        <div>
+                          <p className="font-medium text-sm" style={{ color: 'hsl(var(--wellness-text))' }}>
+                            {music.find(m => m.id === playingVideo)?.title}
+                          </p>
+                          <p className="text-xs" style={{ color: 'hsl(var(--wellness-text-muted))' }}>
+                            {music.find(m => m.id === playingVideo)?.artist}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-4">
+                        <button
+                          onClick={() => setPlayingVideo(null)}
+                          className="w-8 h-8 rounded-full flex items-center justify-center text-white transition-all duration-200"
+                          style={{ backgroundColor: 'hsl(var(--wellness-blue))' }}
+                        >
+                          <Pause className="w-4 h-4" />
+                        </button>
+                        <div className="w-48 h-1 rounded-full" style={{ backgroundColor: 'hsl(var(--wellness-border))' }}>
+                          <div className="w-1/3 h-full rounded-full" style={{ backgroundColor: 'hsl(var(--wellness-blue))' }}></div>
+                        </div>
+                        <span className="text-xs" style={{ color: 'hsl(var(--wellness-text-muted))' }}>2:34 / 8:42</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </TabsContent>
 
