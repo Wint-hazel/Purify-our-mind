@@ -61,11 +61,17 @@ export default function Entertainment() {
         console.error('Error fetching books:', error);
       } else {
         const books = data || [];
-        // Update the first book's cover with the uploaded A Man Called Ove poster
+        // Update book covers with uploaded images
         if (books.length > 0) {
           books[0] = {
             ...books[0],
             cover_url: '/lovable-uploads/85bafac3-c27d-423b-9c7a-def66fcf85c3.png'
+          };
+        }
+        if (books.length > 1) {
+          books[1] = {
+            ...books[1],
+            cover_url: '/lovable-uploads/e687e4c6-b81d-45b9-ace2-953fd8a6ecac.png'
           };
         }
         setBooks(books);
