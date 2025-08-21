@@ -2,10 +2,9 @@
 import { useState, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Calendar as CalendarIcon, Clock, Bell, Plus, BookOpen, Eye, Snowflake, TrendingUp, Settings, Hand, Heart, Leaf, Brain, Sun } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -22,65 +21,20 @@ interface DiaryEntry {
   updated_at: string;
 }
 
-const moodOptions = [
-  { value: 1, label: 'Very Low', emoji: '😢', color: 'bg-red-100 text-red-800' },
-  { value: 2, label: 'Low', emoji: '😔', color: 'bg-red-50 text-red-600' },
-  { value: 3, label: 'Struggling', emoji: '😟', color: 'bg-orange-100 text-orange-800' },
-  { value: 4, label: 'Below Average', emoji: '😕', color: 'bg-orange-50 text-orange-600' },
-  { value: 5, label: 'Neutral', emoji: '😐', color: 'bg-gray-100 text-gray-800' },
-  { value: 6, label: 'Okay', emoji: '🙂', color: 'bg-blue-100 text-blue-800' },
-  { value: 7, label: 'Good', emoji: '😊', color: 'bg-green-100 text-green-800' },
-  { value: 8, label: 'Very Good', emoji: '😄', color: 'bg-green-200 text-green-900' },
-  { value: 9, label: 'Great', emoji: '😁', color: 'bg-emerald-100 text-emerald-800' },
-  { value: 10, label: 'Excellent', emoji: '🤩', color: 'bg-emerald-200 text-emerald-900' },
-];
-
 const Calendar = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [diaryEntries, setDiaryEntries] = useState<DiaryEntry[]>([]);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [selectedDateEntries, setSelectedDateEntries] = useState<DiaryEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentDate, setCurrentDate] = useState(new Date(2025, 0, 1)); // Start with January 2025
 
-  const today = new Date();
-  const currentMonth = today.toLocaleString('default', { month: 'long', year: 'numeric' });
-  
-  const appointments = [
-    {
-      id: 1,
-      title: 'Morning Meditation Session',
-      time: '8:00 AM',
-      date: 'Today',
-      type: 'daily',
-      color: 'bg-primary'
-    },
-    {
-      id: 2,
-      title: 'Therapy Session',
-      time: '2:00 PM',
-      date: 'Tomorrow',
-      type: 'appointment',
-      color: 'bg-success'
-    },
-    {
-      id: 3,
-      title: 'Mindfulness Check-in',
-      time: '6:00 PM',
-      date: 'Today',
-      type: 'reminder',
-      color: 'bg-primary-light'
-    }
+  const monthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
   ];
 
-  const upcomingTasks = [
-    'Complete daily gratitude journal',
-    'Take a 10-minute mindful walk',
-    'Practice breathing exercises',
-    'Review weekly wellness goals',
-    'Schedule next therapy session'
-  ];
+  const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
   useEffect(() => {
     if (user) {
@@ -115,38 +69,88 @@ const Calendar = () => {
   };
 
   const handleDateClick = (day: number) => {
-    const clickedDate = new Date(today.getFullYear(), today.getMonth(), day);
+    const clickedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
     const dateString = clickedDate.toISOString().split('T')[0];
     navigate(`/daily-plan?date=${dateString}`);
   };
 
-  const getMoodOption = (rating: number | null) => {
-    return moodOptions.find(m => m.value === rating);
+  const navigateMonth = (direction: 'prev' | 'next') => {
+    const newDate = new Date(currentDate);
+    if (direction === 'next') {
+      newDate.setMonth(currentDate.getMonth() + 1);
+    } else {
+      newDate.setMonth(currentDate.getMonth() - 1);
+    }
+    setCurrentDate(newDate);
   };
 
-  const formatDateForDisplay = (date: Date) => {
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    });
+  const generateCalendarDays = () => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const firstDayOfMonth = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const today = new Date();
+    
+    const calendarDays = [];
+    
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < firstDayOfMonth; i++) {
+      calendarDays.push(
+        <div key={`empty-${i}`} className="h-20 bg-gray-50/50"></div>
+      );
+    }
+    
+    // Add all days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dayDate = new Date(year, month, day);
+      const entriesForDay = getDiaryEntriesForDate(dayDate);
+      const taskCount = entriesForDay.length;
+      const isToday = dayDate.toDateString() === today.toDateString();
+      const isPastMonth = year < today.getFullYear() || (year === today.getFullYear() && month < today.getMonth());
+      const isPastDay = dayDate < today && !isToday;
+      
+      calendarDays.push(
+        <Card 
+          key={day} 
+          className={`h-20 cursor-pointer transition-all duration-200 hover:shadow-md border ${
+            isToday 
+              ? 'bg-blue-50 border-blue-200 shadow-md' 
+              : 'bg-white border-gray-200 hover:bg-gray-50'
+          }`}
+          onClick={() => handleDateClick(day)}
+        >
+          <CardContent className="p-2 h-full flex flex-col justify-between">
+            <div className="flex justify-between items-start">
+              <span className={`text-lg font-semibold ${
+                isToday 
+                  ? 'text-blue-600' 
+                  : isPastDay 
+                    ? 'text-gray-400' 
+                    : 'text-gray-700'
+              }`}>
+                {day.toString().padStart(2, '0')}
+              </span>
+            </div>
+            <div className="text-xs">
+              {taskCount > 0 ? (
+                <span className={`${
+                  taskCount > 0 
+                    ? 'text-blue-600 font-medium' 
+                    : 'text-gray-400'
+                }`}>
+                  {taskCount} {taskCount === 1 ? 'entry' : 'entries'}
+                </span>
+              ) : (
+                <span className="text-gray-400">0 entries</span>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+    
+    return calendarDays;
   };
-
-  // Simple calendar grid for display
-  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).getDay();
-  const calendarDays = [];
-  
-  // Add empty cells for days before the first day of the month
-  for (let i = 0; i < firstDayOfMonth; i++) {
-    calendarDays.push(null);
-  }
-  
-  // Add all days of the month
-  for (let day = 1; day <= daysInMonth; day++) {
-    calendarDays.push(day);
-  }
 
   if (loading) {
     return (
@@ -161,159 +165,98 @@ const Calendar = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
       <Navigation />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Daily Planner Layout */}
-        <div className="bg-gradient-to-br from-stone-100 via-stone-50 to-orange-50 rounded-3xl p-8 shadow-xl border border-stone-200">
-          {/* Header Section */}
-          <div className="flex items-start justify-between mb-8">
-            {/* Daily Planner Title */}
-            <div className="flex items-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-orange-200 to-yellow-200 rounded-full flex items-center justify-center mr-4">
-                <span className="text-2xl">📅</span>
-              </div>
-              <div>
-                <h1 className="text-4xl font-bold text-stone-800" style={{ fontFamily: 'cursive' }}>
-                  Daily Planner
-                </h1>
-                <p className="text-stone-600 text-sm">@wellness.app</p>
-              </div>
-            </div>
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigateMonth('prev')}
+              className="bg-blue-500 text-white border-blue-500 hover:bg-blue-600 hover:border-blue-600"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
             
-            {/* Mini Calendar */}
-            <div className="bg-stone-200 rounded-xl p-4 min-w-[200px]">
-              <div className="text-center mb-2">
-                <span className="text-sm font-medium text-stone-700">Date:</span>
-              </div>
-              <div className="grid grid-cols-7 gap-1 text-xs text-center mb-2">
-                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day) => (
-                  <div key={day} className="text-stone-600 font-medium">{day}</div>
-                ))}
-              </div>
-              <div className="grid grid-cols-7 gap-1 text-xs">
-                {Array.from({ length: 35 }, (_, i) => {
-                  const day = i - 6;
-                  const isToday = day === today.getDate();
-                  return (
-                    <div 
-                      key={i} 
-                      className={`h-6 flex items-center justify-center rounded ${
-                        day > 0 && day <= daysInMonth 
-                          ? isToday 
-                            ? 'bg-orange-300 text-stone-800 font-bold' 
-                            : 'text-stone-700 hover:bg-stone-300 cursor-pointer'
-                          : ''
-                      }`}
-                      onClick={() => day > 0 && day <= daysInMonth && handleDateClick(day)}
-                    >
-                      {day > 0 && day <= daysInMonth ? day : ''}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+            <h1 className="text-3xl font-bold text-gray-800 min-w-[200px]">
+              {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+            </h1>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigateMonth('next')}
+              className="bg-blue-500 text-white border-blue-500 hover:bg-blue-600 hover:border-blue-600"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </Button>
           </div>
+          
+          <p className="text-gray-600">
+            Track your wellness journey throughout 2025
+          </p>
+        </div>
 
-          {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Left Side - Schedule */}
-            <div>
-              <h2 className="text-2xl font-semibold text-stone-800 mb-6 flex items-center">
-                Schedule
-                <div className="ml-3 w-8 h-8 bg-green-200 rounded-full flex items-center justify-center">
-                  <span className="text-lg">🍵</span>
-                </div>
-              </h2>
-              
-              <div className="space-y-3">
-                {Array.from({ length: 19 }, (_, i) => {
-                  const hour = i + 5;
-                  const time = `${hour.toString().padStart(2, '0')}:00`;
-                  const hasActivity = appointments.some(apt => apt.time.includes(hour.toString()));
-                  
-                  return (
-                    <div key={hour} className="flex items-center space-x-4">
-                      <span className="text-stone-600 text-sm w-12">{time}</span>
-                      <div className={`w-6 h-6 rounded-full border-2 ${
-                        hasActivity ? 'bg-green-200 border-green-400' : 'border-stone-300'
-                      }`}></div>
-                      {hasActivity && hour === 8 && (
-                        <span className="text-sm text-stone-700">Morning Meditation</span>
-                      )}
-                    </div>
-                  );
-                })}
+        {/* Calendar */}
+        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+          {/* Day Headers */}
+          <div className="grid grid-cols-7 gap-2 mb-4">
+            {dayNames.map((day) => (
+              <div key={day} className="text-center text-sm font-semibold text-gray-600 p-2">
+                {day}
               </div>
-            </div>
-
-            {/* Right Side - To Do List & Other Sections */}
-            <div className="space-y-6">
-              {/* To Do List */}
-              <div>
-                <h2 className="text-2xl font-semibold text-stone-800 mb-4 flex items-center">
-                  To Do List 
-                  <span className="ml-2 text-2xl">🥕</span>
-                </h2>
-                <div className="space-y-2">
-                  {upcomingTasks.slice(0, 5).map((task, index) => (
-                    <div key={index} className="flex items-center space-x-3">
-                      <div className="w-4 h-4 rounded border-2 border-stone-400"></div>
-                      <span className="text-stone-700 text-sm">{task}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* My Mood */}
-              <div>
-                <h3 className="text-xl font-semibold text-stone-800 mb-3">My mood</h3>
-                <div className="flex space-x-2">
-                  {Array.from({ length: 5 }, (_, i) => (
-                    <div key={i} className="w-10 h-10 rounded-full bg-stone-200 flex items-center justify-center cursor-pointer hover:bg-stone-300">
-                      <span className="text-lg">😊</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* My Goals */}
-              <div className="bg-stone-200 rounded-xl p-4">
-                <h3 className="text-xl font-semibold text-stone-800 mb-2">My goals</h3>
-                <div className="flex items-center justify-center py-4">
-                  <div className="text-center">
-                    <div className="text-4xl mb-2">😸☕</div>
-                    <p className="text-sm text-stone-600">Stay positive & hydrated</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
+          
+          {/* Calendar Grid */}
+          <div className="grid grid-cols-7 gap-2">
+            {generateCalendarDays()}
+          </div>
+        </div>
 
-          {/* Bottom Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-            {/* Water Tracker */}
-            <div>
-              <h3 className="text-xl font-semibold text-stone-800 mb-4">Water</h3>
-              <div className="grid grid-cols-4 gap-2">
-                {Array.from({ length: 8 }, (_, i) => (
-                  <div key={i} className="w-12 h-16 bg-stone-200 rounded-lg border-2 border-stone-300 flex items-center justify-center">
-                    <span className="text-xs">💧</span>
-                  </div>
-                ))}
-              </div>
+        {/* Quick Actions */}
+        <div className="mt-8 flex flex-wrap gap-4 justify-center">
+          <Button
+            onClick={() => setCurrentDate(new Date(2025, 0, 1))}
+            variant="outline"
+            className="bg-white border-gray-300 hover:bg-gray-50"
+          >
+            <CalendarIcon className="w-4 h-4 mr-2" />
+            January 2025
+          </Button>
+          <Button
+            onClick={() => setCurrentDate(new Date())}
+            variant="outline"
+            className="bg-white border-gray-300 hover:bg-gray-50"
+          >
+            Today
+          </Button>
+          <Button
+            onClick={() => navigate('/daily-plan')}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            Open Daily Plan
+          </Button>
+        </div>
+
+        {/* Calendar Legend */}
+        <div className="mt-8 bg-white rounded-lg p-4 border border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-800 mb-3">Legend</h3>
+          <div className="flex flex-wrap gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-blue-50 border-2 border-blue-200 rounded"></div>
+              <span className="text-gray-600">Today</span>
             </div>
-
-            {/* Notes */}
-            <div>
-              <h3 className="text-xl font-semibold text-stone-800 mb-4 flex items-center justify-between">
-                Notes
-                <span className="text-2xl">🍃</span>
-              </h3>
-              <div className="bg-stone-50 rounded-xl p-6 min-h-[120px] border border-stone-200">
-                <p className="text-stone-600 text-sm italic">Click to add your thoughts for today...</p>
-              </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-white border-2 border-gray-200 rounded"></div>
+              <span className="text-gray-600">Available Days</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-blue-600 font-medium">Blue text</span>
+              <span className="text-gray-600">- Days with diary entries</span>
             </div>
           </div>
         </div>
