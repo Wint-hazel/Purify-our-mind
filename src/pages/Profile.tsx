@@ -5,9 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { LogOut } from 'lucide-react';
+import { LogOut, Calendar, Clock, User, Badge } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import { format } from 'date-fns';
 
 interface Profile {
   id: string;
@@ -17,23 +18,70 @@ interface Profile {
   email: string | null;
 }
 
+interface Appointment {
+  id: string;
+  doctor_name: string;
+  doctor_title: string;
+  doctor_specialization: string;
+  doctor_avatar: string;
+  appointment_date: string;
+  time_slot: string;
+  patient_name: string;
+  status: string;
+  created_at: string;
+}
+
 const Profile = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [emailChanging, setEmailChanging] = useState(false);
+  const [appointmentsLoading, setAppointmentsLoading] = useState(false);
 
   useEffect(() => {
     if (user) {
       fetchProfile();
+      fetchAppointments();
       setNewEmail(user.email || '');
     }
   }, [user]);
+
+  const fetchAppointments = async () => {
+    if (!user) return;
+    
+    setAppointmentsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('appointments')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('appointment_date', { ascending: true });
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to load appointments",
+          variant: "destructive",
+        });
+      } else {
+        setAppointments(data || []);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setAppointmentsLoading(false);
+    }
+  };
 
   const fetchProfile = async () => {
     if (!user) return;
@@ -157,7 +205,8 @@ const Profile = () => {
     <div className="min-h-screen bg-gradient-to-br from-background to-muted">
       <Navigation />
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-4xl mx-auto space-y-6">
+          {/* Profile Card */}
           <Card>
             <CardHeader>
               <CardTitle>Your Profile</CardTitle>
@@ -251,6 +300,76 @@ const Profile = () => {
                   Logout
                 </Button>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Appointments Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="w-5 h-5" />
+                My Appointments
+              </CardTitle>
+              <CardDescription>
+                View and manage your scheduled appointments
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {appointmentsLoading ? (
+                <div className="text-center py-4">Loading appointments...</div>
+              ) : appointments.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Calendar className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>No appointments booked yet</p>
+                  <p className="text-sm">Book your first appointment from the Health Guide page</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {appointments.map((appointment) => (
+                    <div key={appointment.id} className="border rounded-lg p-4 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-950/10 dark:to-purple-950/10">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-4">
+                          <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center text-lg">
+                            {appointment.doctor_avatar}
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-foreground">{appointment.doctor_name}</h3>
+                            <p className="text-sm text-muted-foreground">{appointment.doctor_title}</p>
+                            <p className="text-sm text-primary font-medium">{appointment.doctor_specialization}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="flex items-center gap-1 mb-1">
+                            <Calendar className="w-4 h-4" />
+                            <span className="text-sm font-medium">
+                              {format(new Date(appointment.appointment_date), 'MMM dd, yyyy')}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1 mb-2">
+                            <Clock className="w-4 h-4" />
+                            <span className="text-sm">{appointment.time_slot}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Badge className={`text-xs px-2 py-1 ${
+                              appointment.status === 'scheduled' 
+                                ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' 
+                                : 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
+                            }`}>
+                              {appointment.status}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-3 pt-3 border-t">
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <User className="w-4 h-4" />
+                          <span>Patient: {appointment.patient_name}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

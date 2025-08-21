@@ -11,6 +11,8 @@ import { Calendar as CalendarIcon, Clock, User, Phone, Mail, MessageSquare, Star
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Doctor {
   id: number;
@@ -38,6 +40,7 @@ const AppointmentBookingModal = ({ isOpen, onClose, doctor }: AppointmentBooking
   const [symptoms, setSymptoms] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const timeSlots = [
     '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM',
@@ -61,11 +64,39 @@ const AppointmentBookingModal = ({ isOpen, onClose, doctor }: AppointmentBooking
       return;
     }
 
-    // Simulate API call
-    setTimeout(() => {
+    if (!user || !doctor) {
+      toast({
+        title: "Error",
+        description: "Please log in to book an appointment.",
+        variant: "destructive"
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      // Save appointment to database
+      const { error } = await supabase
+        .from('appointments')
+        .insert({
+          user_id: user.id,
+          doctor_name: doctor.name,
+          doctor_title: doctor.title,
+          doctor_specialization: doctor.specialization,
+          doctor_avatar: doctor.avatar,
+          appointment_date: date.toISOString().split('T')[0],
+          time_slot: timeSlot,
+          patient_name: patientName,
+          patient_phone: patientPhone,
+          patient_email: patientEmail,
+          symptoms: symptoms || null,
+        });
+
+      if (error) throw error;
+
       toast({
         title: "Appointment Booked Successfully! 🎉",
-        description: `Your appointment with ${doctor?.name} is scheduled for ${format(date, "PPP")} at ${timeSlot}.`,
+        description: `Your appointment with ${doctor.name} is scheduled for ${format(date, "PPP")} at ${timeSlot}.`,
       });
       
       // Reset form
@@ -75,9 +106,17 @@ const AppointmentBookingModal = ({ isOpen, onClose, doctor }: AppointmentBooking
       setPatientPhone('');
       setPatientEmail('');
       setSymptoms('');
-      setIsLoading(false);
       onClose();
-    }, 2000);
+    } catch (error) {
+      console.error('Error booking appointment:', error);
+      toast({
+        title: "Booking Failed",
+        description: "There was an error booking your appointment. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (!doctor) return null;
