@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import PhotoUpload from '@/components/PhotoUpload';
 
 interface DiaryEntry {
   id: string;
@@ -557,6 +558,17 @@ const DailyPlan = () => {
                 </div>
               </div>
             </div>
+          </div>
+          
+          {/* Photo Upload Section */}
+          <div className="mt-8">
+            <PhotoUpload 
+              date={selectedDate || today.toISOString().split('T')[0]}
+              onPhotosChange={(photos) => {
+                // Handle photo changes if needed for future features
+                console.log('Photos updated:', photos);
+              }}
+            />
           </div>
         </div>
 
