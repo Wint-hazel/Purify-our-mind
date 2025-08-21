@@ -1,14 +1,12 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, User, LogOut } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
+import { Menu, X, User } from 'lucide-react';
 import logo from '@/assets/logo.png';
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  const { signOut } = useAuth();
 
   const navLinks = [
     { href: '/', label: 'Home' },
@@ -58,9 +56,6 @@ const Navigation = () => {
                 <User className="w-4 h-4" />
               </Button>
             </Link>
-            <Button variant="ghost" size="sm" onClick={signOut}>
-              <LogOut className="w-4 h-4" />
-            </Button>
           </div>
 
           {/* Mobile menu button */}
@@ -105,18 +100,6 @@ const Navigation = () => {
                     Profile
                   </Button>
                 </Link>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="w-full justify-start" 
-                  onClick={() => {
-                    setIsOpen(false);
-                    signOut();
-                  }}
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Logout
-                </Button>
               </div>
             </div>
           </div>
