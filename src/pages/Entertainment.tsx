@@ -18,14 +18,72 @@ interface BookData {
   cover_url: string;
 }
 
-const music = Array.from({ length: 20 }, (_, i) => ({
-  id: i + 1,
-  title: `Calming Song ${i + 1}`,
-  artist: `Artist ${i + 1}`,
-  albumArt: `https://picsum.photos/250/250?random=${i + 21}`,
-  youtubeId: "UfcAVejslrU", // Placeholder - Weightless by Marconi Union
-  whyListen: "Scientifically designed to reduce anxiety and promote relaxation."
-}));
+const music = [
+  {
+    id: 1,
+    title: "Weightless",
+    artist: "Marconi Union",
+    albumArt: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=250&h=250&fit=crop&crop=center",
+    youtubeId: "UfcAVejslrU",
+    whyListen: "Specifically composed to reduce anxiety, with a rhythm that slows the heart rate and reduces cortisol levels."
+  },
+  {
+    id: 2,
+    title: "Strawberry Swing",
+    artist: "Coldplay",
+    albumArt: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=250&h=250&fit=crop&crop=center",
+    youtubeId: "h3pJZSTQqIg",
+    whyListen: "Gentle guitar melody and soothing vocals create a peaceful atmosphere that can ease tension and promote relaxation."
+  },
+  {
+    id: 3,
+    title: "Watermark",
+    artist: "Enya",
+    albumArt: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=250&h=250&fit=crop&crop=center",
+    youtubeId: "LTrk4X9ACtw",
+    whyListen: "Ethereal vocals and minimalist instrumentation create a meditative soundscape that helps quiet racing thoughts."
+  },
+  {
+    id: 4,
+    title: "Gymnopédie No. 1",
+    artist: "Erik Satie",
+    albumArt: "https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=250&h=250&fit=crop&crop=center",
+    youtubeId: "S-Ead8rg3u0",
+    whyListen: "This classical piano piece has a slow, meandering melody that helps slow breathing and calm the nervous system."
+  },
+  {
+    id: 5,
+    title: "Moonlight Sonata (1st Movement)",
+    artist: "Ludwig van Beethoven",
+    albumArt: "https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=250&h=250&fit=crop&crop=center",
+    youtubeId: "4Tr0otuiQuU",
+    whyListen: "The gentle, repetitive piano patterns create a hypnotic effect that can reduce stress and aid in sleep preparation."
+  },
+  {
+    id: 6,
+    title: "Clair de Lune",
+    artist: "Claude Debussy",
+    albumArt: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=250&h=250&fit=crop&crop=center&seed=6",
+    youtubeId: "CvFH_6DNRCY",
+    whyListen: "Impressionistic piano melodies that evoke tranquility and help reduce anxiety through beautiful, flowing harmonies."
+  },
+  {
+    id: 7,
+    title: "Om Mani Padme Hum",
+    artist: "Deva Premal",
+    albumArt: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=250&h=250&fit=crop&crop=center&seed=7",
+    youtubeId: "hz931_bx4QM",
+    whyListen: "Sacred chanting that promotes deep meditation and inner peace, reducing stress through spiritual connection."
+  },
+  {
+    id: 8,
+    title: "River",
+    artist: "Max Richter",
+    albumArt: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=250&h=250&fit=crop&crop=center&seed=8",
+    youtubeId: "g1uKOSuPZr0",
+    whyListen: "Minimalist composition that creates a sense of flowing calm, perfect for stress relief and emotional regulation."
+  }
+];
 
 const movies = Array.from({ length: 5 }, (_, i) => ({
   id: i + 1,
