@@ -2,10 +2,7 @@ import React, { useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-  Heart, 
-  AlertTriangle
-} from 'lucide-react';
+import { Heart, AlertTriangle } from 'lucide-react';
 
 declare global {
   interface Window {
@@ -35,7 +32,9 @@ const AIChatbot = () => {
     
     return () => {
       // Cleanup script when component unmounts
-      document.head.removeChild(script);
+      if (document.head.contains(script)) {
+        document.head.removeChild(script);
+      }
     };
   }, []);
 
