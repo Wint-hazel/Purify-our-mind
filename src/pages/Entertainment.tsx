@@ -74,6 +74,12 @@ export default function Entertainment() {
             cover_url: '/lovable-uploads/e687e4c6-b81d-45b9-ace2-953fd8a6ecac.png'
           };
         }
+        if (books.length > 2) {
+          books[2] = {
+            ...books[2],
+            cover_url: '/lovable-uploads/a32545a8-f7f9-482c-bc0b-c63d2e058edd.png'
+          };
+        }
         setBooks(books);
       }
     } catch (error) {
