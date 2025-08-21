@@ -228,14 +228,4 @@ Theme: Calming blues with gradients and accessibility focus.
       transform: translateY(0);
     }
   }
-
-  /* Scrollbar Utilities for Disney+ style horizontal scrolling */
-  .scrollbar-hide {
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* Internet Explorer 10+ */
-  }
-  
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none; /* WebKit */
-  }
 }

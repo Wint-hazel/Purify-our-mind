@@ -4,8 +4,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./hooks/useAuth";
-import { MusicPlayerProvider } from "./contexts/MusicPlayerContext";
-import GlobalMusicPlayer from "./components/GlobalMusicPlayer";
 import Auth from "./pages/Auth";
 import Index from "./pages/Index";
 import Calendar from "./pages/Calendar";
@@ -41,54 +39,51 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <MusicPlayerProvider>
-            <Routes>
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/" element={
-                <ProtectedRoute>
-                  <Index />
-                </ProtectedRoute>
-              } />
-              <Route path="/calendar" element={
-                <ProtectedRoute>
-                  <Calendar />
-                </ProtectedRoute>
-              } />
-              <Route path="/ai-chatbot" element={
-                <ProtectedRoute>
-                  <AIChatbot />
-                </ProtectedRoute>
-              } />
-              <Route path="/contact" element={
-                <ProtectedRoute>
-                  <Contact />
-                </ProtectedRoute>
-              } />
-              <Route path="/profile" element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              } />
-              <Route path="/daily-plan" element={
-                <ProtectedRoute>
-                  <DailyPlan />
-                </ProtectedRoute>
-              } />
-              <Route path="/health-recommendations" element={
-                <ProtectedRoute>
-                  <HealthRecommendations />
-                </ProtectedRoute>
-              } />
-              <Route path="/entertainment" element={
-                <ProtectedRoute>
-                  <Entertainment />
-                </ProtectedRoute>
-              } />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <GlobalMusicPlayer />
-          </MusicPlayerProvider>
+          <Routes>
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/" element={
+              <ProtectedRoute>
+                <Index />
+              </ProtectedRoute>
+            } />
+            <Route path="/calendar" element={
+              <ProtectedRoute>
+                <Calendar />
+              </ProtectedRoute>
+            } />
+            <Route path="/ai-chatbot" element={
+              <ProtectedRoute>
+                <AIChatbot />
+              </ProtectedRoute>
+            } />
+            <Route path="/contact" element={
+              <ProtectedRoute>
+                <Contact />
+              </ProtectedRoute>
+            } />
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            } />
+            <Route path="/daily-plan" element={
+              <ProtectedRoute>
+                <DailyPlan />
+              </ProtectedRoute>
+            } />
+            <Route path="/health-recommendations" element={
+              <ProtectedRoute>
+                <HealthRecommendations />
+              </ProtectedRoute>
+            } />
+            <Route path="/entertainment" element={
+              <ProtectedRoute>
+                <Entertainment />
+              </ProtectedRoute>
+            } />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

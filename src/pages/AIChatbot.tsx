@@ -1,8 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Heart, AlertTriangle } from 'lucide-react';
+import VoiceInterface from '@/components/VoiceInterface';
+import SimpleVoiceChat from '@/components/SimpleVoiceChat';
 
 declare global {
   interface Window {
@@ -11,6 +13,8 @@ declare global {
 }
 
 const AIChatbot = () => {
+  const [isAISpeaking, setIsAISpeaking] = useState(false);
+  const [aiTranscript, setAiTranscript] = useState('');
 
   useEffect(() => {
     // Load Landbot script
@@ -52,8 +56,33 @@ const AIChatbot = () => {
             </h1>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
               A safe space for mental health support. Chat with our compassionate AI companion 
-              designed to listen, understand, and provide helpful guidance through text conversations.
+              designed to listen, understand, and provide helpful guidance. Choose between text chat or voice conversation.
             </p>
+          </div>
+
+          {/* Voice Interface */}
+          <div className="max-w-4xl mx-auto mb-8">
+            <VoiceInterface 
+              onSpeakingChange={setIsAISpeaking}
+              onTranscriptChange={setAiTranscript}
+            />
+            
+            {/* AI Transcript Display */}
+            {aiTranscript && (
+              <Card className="mt-4">
+                <CardHeader>
+                  <CardTitle className="text-lg">AI Response</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-foreground">{aiTranscript}</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Simple Voice Chat */}
+          <div className="max-w-4xl mx-auto mb-8">
+            <SimpleVoiceChat />
           </div>
 
           {/* Landbot Chat Interface */}
@@ -84,7 +113,8 @@ const AIChatbot = () => {
                   <li>• Guide you through breathing and relaxation exercises</li>
                   <li>• Offer support for mood and sleep issues</li>
                   <li>• Help you process difficult emotions</li>
-                  <li>• Available 24/7 for supportive text conversations</li>
+                  <li>• Available 24/7 for both text and voice support</li>
+                  <li>• Real-time voice conversations with empathetic responses</li>
                 </ul>
               </CardContent>
             </Card>

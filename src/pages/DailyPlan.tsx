@@ -307,6 +307,50 @@ const DailyPlan = () => {
     navigate(`/daily-plan?date=${dateString}`);
   };
 
+  // Generate mini calendar
+  const generateMiniCalendar = () => {
+    const year = displayDate.getFullYear();
+    const month = displayDate.getMonth();
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const today = new Date();
+    const todayDate = today.getDate();
+    const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+    
+    const days = [];
+    
+    // Empty cells for days before the first day
+    for (let i = 0; i < firstDay; i++) {
+      days.push(<div key={`empty-${i}`} className="h-5"></div>);
+    }
+    
+    // Days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      const isToday = isCurrentMonth && day === todayDate;
+      const isSelected = displayDate.getDate() === day;
+      
+      days.push(
+        <div 
+          key={day}
+          className={`h-5 flex items-center justify-center text-xs cursor-pointer rounded ${
+            isSelected ? 'bg-orange-300 text-stone-800 font-bold' :
+            isToday ? 'bg-stone-300 text-stone-800' : 
+            'text-stone-600 hover:bg-stone-200'
+          }`}
+          onClick={() => {
+            const newDate = new Date(year, month, day);
+            const dateString = newDate.toISOString().split('T')[0];
+            navigate(`/daily-plan?date=${dateString}`);
+          }}
+        >
+          {day}
+        </div>
+      );
+    }
+    
+    return days;
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
       <Navigation />
@@ -315,7 +359,7 @@ const DailyPlan = () => {
         {/* Daily Planner Layout */}
         <div className="bg-gradient-to-br from-stone-100 via-stone-50 to-orange-50 rounded-3xl p-8 shadow-xl border border-stone-200">
           {/* Header Section */}
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-start justify-between mb-8">
             {/* Daily Planner Title */}
             <div className="flex items-center">
               <div className="w-16 h-16 bg-gradient-to-br from-orange-200 to-yellow-200 rounded-full flex items-center justify-center mr-4">
@@ -358,6 +402,23 @@ const DailyPlan = () => {
               >
                 <ChevronRight className="w-4 h-4" />
               </Button>
+            </div>
+            
+            {/* Mini Calendar */}
+            <div className="bg-stone-200 rounded-xl p-4 min-w-[200px]">
+              <div className="text-center mb-2">
+                <span className="text-sm font-medium text-stone-700">
+                  {displayDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                </span>
+              </div>
+              <div className="grid grid-cols-7 gap-1 text-xs text-center mb-2">
+                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day) => (
+                  <div key={day} className="text-stone-600 font-medium h-5 flex items-center justify-center">{day}</div>
+                ))}
+              </div>
+              <div className="grid grid-cols-7 gap-1 text-xs">
+                {generateMiniCalendar()}
+              </div>
             </div>
           </div>
 

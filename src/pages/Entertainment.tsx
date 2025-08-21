@@ -6,7 +6,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
-import { useMusicPlayer } from '@/contexts/MusicPlayerContext';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 
@@ -40,7 +39,7 @@ const music = [
     id: 3,
     title: "Watermark",
     artist: "Enya",
-    albumArt: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=250&h=250&fit=crop&crop=center",
+    albumArt: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=250&h=250&fit=crop&crop=center",
     youtubeId: "LTrk4X9ACtw",
     whyListen: "Ethereal vocals and minimalist instrumentation create a meditative soundscape that helps quiet racing thoughts."
   },
@@ -72,7 +71,7 @@ const music = [
     id: 7,
     title: "Om Mani Padme Hum",
     artist: "Deva Premal",
-    albumArt: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=250&h=250&fit=crop&crop=center",
+    albumArt: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=250&h=250&fit=crop&crop=center&seed=7",
     youtubeId: "hz931_bx4QM",
     whyListen: "Sacred chanting that promotes deep meditation and inner peace, reducing stress through spiritual connection."
   },
@@ -86,124 +85,24 @@ const music = [
   }
 ];
 
-const movies = [
-  {
-    id: 1,
-    title: "The Shawshank Redemption",
-    year: 1994,
-    poster: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=300&h=450&fit=crop&crop=center",
-    description: "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency. This story of hope and friendship in the bleakest of circumstances offers powerful lessons about resilience.",
-    whyWatch: "A masterpiece about hope, friendship, and the human spirit's ability to overcome adversity.",
-    rating: "9.3",
-    genre: "Drama",
-    imdbUrl: "https://www.imdb.com/title/tt0111161/"
-  },
-  {
-    id: 2,
-    title: "Inside Out",
-    year: 2015,
-    poster: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=450&fit=crop&crop=center",
-    description: "After young Riley is uprooted from her Midwest life and moved to San Francisco, her emotions - Joy, Fear, Anger, Disgust and Sadness - conflict on how best to navigate a new city, house, and school. An excellent exploration of emotional health.",
-    whyWatch: "Perfect for understanding emotional health and how our feelings work together.",
-    rating: "8.1",
-    genre: "Animation",
-    imdbUrl: "https://www.imdb.com/title/tt2096673/"
-  },
-  {
-    id: 3,
-    title: "Good Will Hunting",
-    year: 1997,
-    poster: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=450&fit=crop&crop=center",
-    description: "Will Hunting, a janitor at M.I.T., has a gift for mathematics but needs help from a psychologist to find direction in his life. A moving story about overcoming trauma and finding self-worth.",
-    whyWatch: "A powerful story about healing, therapy, and discovering your true potential.",
-    rating: "8.3",
-    genre: "Drama",
-    imdbUrl: "https://www.imdb.com/title/tt0119217/"
-  },
-  {
-    id: 4,
-    title: "Peaceful Warrior",
-    year: 2006,
-    poster: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=450&fit=crop&crop=center",
-    description: "A chance encounter with a stranger changes the life of a college gymnast. Based on Dan Millman's book, this film explores mindfulness and being present in the moment.",
-    whyWatch: "Teaches valuable lessons about mindfulness, presence, and finding inner peace.",
-    rating: "7.3",
-    genre: "Drama",
-    imdbUrl: "https://www.imdb.com/title/tt0438315/"
-  },
-  {
-    id: 5,
-    title: "The Secret Life of Walter Mitty",
-    year: 2013,
-    poster: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=300&h=450&fit=crop&crop=center",
-    description: "When his job along with that of his co-worker are threatened, Walter takes action in the real world embarking on a global journey that turns into an adventure more extraordinary than anything he could have ever imagined. Inspires courage and breaking from routine.",
-    whyWatch: "Inspires courage to break from routine and pursue your dreams.",
-    rating: "7.3",
-    genre: "Comedy",
-    imdbUrl: "https://www.imdb.com/title/tt0359950/"
-  }
-];
+const movies = Array.from({ length: 5 }, (_, i) => ({
+  id: i + 1,
+  title: `Inspiring Movie ${i + 1}`,
+  poster: `https://picsum.photos/200/300?random=${i + 41}`,
+  description: "A heartwarming story about overcoming challenges and finding inner strength through life's difficulties.",
+  whyWatch: "Offers valuable insights into emotional growth and mental health awareness.",
+  rating: (7.0 + Math.random() * 2.5).toFixed(1),
+  genre: ["Drama", "Animation", "Documentary", "Comedy"][i % 4],
+  imdbUrl: `https://www.imdb.com/title/placeholder${i + 1}`
+}));
 
 export default function Entertainment() {
   const [activeTab, setActiveTab] = useState("books");
   const [bookSearch, setBookSearch] = useState("");
   const [movieGenre, setMovieGenre] = useState("All");
-  const [activeWellnessCategory, setActiveWellnessCategory] = useState("Calm Focus");
-  const { state, playTrack } = useMusicPlayer();
+  const [playingVideo, setPlayingVideo] = useState<number | null>(null);
   const [books, setBooks] = useState<BookData[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Wellness categories with their respective music
-  const wellnessCategories = [
-    { 
-      name: 'Calm Focus', 
-      icon: '🎯', 
-      tracks: [1, 4, 5], // Weightless, Gymnopédie No. 1, Moonlight Sonata
-      description: 'Enhance concentration and mental clarity'
-    },
-    { 
-      name: 'Sleep Sounds', 
-      icon: '🌙',
-      tracks: [5, 6, 8], // Moonlight Sonata, Clair de Lune, River
-      description: 'Drift into peaceful sleep'
-    },
-    { 
-      name: 'Meditation', 
-      icon: '🧘',
-      tracks: [3, 7], // Watermark, Om Mani Padme Hum
-      description: 'Deepen your mindfulness practice'
-    },
-    { 
-      name: 'Anxiety Relief', 
-      icon: '🌊',
-      tracks: [1, 2, 3], // Weightless, Strawberry Swing, Watermark
-      description: 'Calm anxious thoughts and feelings'
-    },
-    { 
-      name: 'Nature Sounds', 
-      icon: '🍃',
-      tracks: [2, 8], // Strawberry Swing, River
-      description: 'Connect with natural tranquility'
-    },
-    { 
-      name: 'Binaural Beats', 
-      icon: '🎵',
-      tracks: [1, 8], // Weightless, River
-      description: 'Synchronize brainwave patterns'
-    },
-    { 
-      name: 'Guided Breathing', 
-      icon: '💨',
-      tracks: [4, 6], // Gymnopédie No. 1, Clair de Lune
-      description: 'Breathe mindfully with soothing sounds'
-    },
-    { 
-      name: 'Stress Relief', 
-      icon: '☮️',
-      tracks: [1, 2, 6, 8], // Weightless, Strawberry Swing, Clair de Lune, River
-      description: 'Release tension and find inner peace'
-    }
-  ];
 
   useEffect(() => {
     fetchBooks();
@@ -269,22 +168,8 @@ export default function Entertainment() {
     movieGenre === "All" || movie.genre === movieGenre
   );
 
-  const handlePlayMusic = (track: typeof music[0]) => {
-    playTrack(track, music);
-  };
-
-  const getCurrentCategoryTracks = () => {
-    const currentCategory = wellnessCategories.find(cat => cat.name === activeWellnessCategory);
-    if (!currentCategory) return music;
-    
-    return music.filter(track => currentCategory.tracks.includes(track.id));
-  };
-
-  const playDeepFocusCollection = () => {
-    const focusTrack = music.find(track => track.id === 1); // Weightless - the most calming
-    if (focusTrack) {
-      playTrack(focusTrack, getCurrentCategoryTracks());
-    }
+  const handlePlayVideo = (videoId: number) => {
+    setPlayingVideo(playingVideo === videoId ? null : videoId);
   };
 
   return (
@@ -408,21 +293,29 @@ export default function Entertainment() {
                       <h3 className="font-medium mb-4" style={{ color: 'hsl(var(--wellness-text))' }}>
                         Wellness Categories
                       </h3>
-                       <nav className="space-y-2">
-                        {wellnessCategories.map((category) => (
+                      <nav className="space-y-2">
+                        {[
+                          { name: 'Calm Focus', icon: '🎯', active: true },
+                          { name: 'Sleep Sounds', icon: '🌙' },
+                          { name: 'Meditation', icon: '🧘' },
+                          { name: 'Anxiety Relief', icon: '🌊' },
+                          { name: 'Nature Sounds', icon: '🍃' },
+                          { name: 'Binaural Beats', icon: '🎵' },
+                          { name: 'Guided Breathing', icon: '💨' },
+                          { name: 'Stress Relief', icon: '☮️' }
+                        ].map((category) => (
                           <button
                             key={category.name}
-                            onClick={() => setActiveWellnessCategory(category.name)}
-                            className={`w-full text-left p-3 rounded-lg transition-all duration-200 flex items-center gap-3 hover:bg-white/50 ${
-                              activeWellnessCategory === category.name 
+                            className={`w-full text-left p-3 rounded-lg transition-all duration-200 flex items-center gap-3 ${
+                              category.active 
                                 ? 'text-white font-medium' 
-                                : ''
+                                : 'hover:bg-white/50'
                             }`}
                             style={{
-                              backgroundColor: activeWellnessCategory === category.name 
+                              backgroundColor: category.active 
                                 ? 'hsl(var(--wellness-blue))' 
                                 : 'transparent',
-                              color: activeWellnessCategory === category.name 
+                              color: category.active 
                                 ? 'white' 
                                 : 'hsl(var(--wellness-text-muted))'
                             }}
@@ -441,8 +334,7 @@ export default function Entertainment() {
                       </h3>
                       <div className="space-y-2">
                         {music.slice(0, 3).map((track) => (
-                          <div key={track.id} className="flex items-center gap-2 p-2 rounded hover:bg-white/50 transition-colors cursor-pointer"
-                               onClick={() => handlePlayMusic(track)}>
+                          <div key={track.id} className="flex items-center gap-2 p-2 rounded hover:bg-white/50 transition-colors cursor-pointer">
                             <img src={track.albumArt} alt="" className="w-8 h-8 rounded object-cover" />
                             <div className="flex-1 min-w-0">
                               <p className="text-xs font-medium truncate" style={{ color: 'hsl(var(--wellness-text))' }}>
@@ -452,9 +344,6 @@ export default function Entertainment() {
                                 {track.artist}
                               </p>
                             </div>
-                            {state.currentTrack?.id === track.id && (
-                              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                            )}
                           </div>
                         ))}
                       </div>
@@ -482,47 +371,29 @@ export default function Entertainment() {
 
                     {/* Featured Collection */}
                     <div className="mb-8">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-xl font-medium" style={{ color: 'hsl(var(--wellness-text))' }}>
-                          Featured: {activeWellnessCategory} Collection
-                        </h3>
-                        <Button
-                          onClick={playDeepFocusCollection}
-                          className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
-                        >
-                          <Play className="w-4 h-4 mr-2" />
-                          Play Collection
-                        </Button>
-                      </div>
+                      <h3 className="text-xl font-medium mb-4" style={{ color: 'hsl(var(--wellness-text))' }}>
+                        Featured: Calm Focus Collection
+                      </h3>
                       <div className="p-6 rounded-xl bg-gradient-to-r from-blue-50 to-teal-50" style={{ backgroundColor: 'hsl(var(--wellness-card-alt))' }}>
                         <div className="flex items-center gap-6">
-                          <button
-                            onClick={playDeepFocusCollection}
-                            className="w-20 h-20 rounded-xl bg-gradient-to-br transition-all duration-200 hover:scale-105 flex items-center justify-center text-2xl text-white cursor-pointer" 
-                            style={{ backgroundColor: 'hsl(var(--wellness-blue))' }}
-                          >
-                            {wellnessCategories.find(cat => cat.name === activeWellnessCategory)?.icon}
-                          </button>
+                          <div className="w-20 h-20 rounded-xl bg-gradient-to-br" style={{ backgroundColor: 'hsl(var(--wellness-blue))' }}>
+                            <div className="w-full h-full flex items-center justify-center text-2xl text-white rounded-xl">
+                              🎯
+                            </div>
+                          </div>
                           <div className="flex-1">
                             <h4 className="text-lg font-medium mb-1" style={{ color: 'hsl(var(--wellness-text))' }}>
-                              {activeWellnessCategory} Soundscapes
+                              Deep Focus Soundscapes
                             </h4>
-                            <p className="text-sm mb-3" style={{ color: 'hsl(var(--wellness-text-muted))' }}>
-                              {wellnessCategories.find(cat => cat.name === activeWellnessCategory)?.description}
+                            <p className="mb-3" style={{ color: 'hsl(var(--wellness-text-muted))' }}>
+                              Scientifically designed audio to enhance concentration and reduce distractions
                             </p>
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs bg-white/60 px-2 py-1 rounded">
-                                {getCurrentCategoryTracks().length} tracks
-                              </span>
-                              <span className="text-xs bg-white/60 px-2 py-1 rounded">
-                                Curated for wellness
-                              </span>
-                              {state.currentTrack && getCurrentCategoryTracks().some(t => t.id === state.currentTrack?.id) && (
-                                <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded animate-pulse">
-                                  ● Now Playing
-                                </span>
-                              )}
-                            </div>
+                            <button 
+                              className="px-6 py-2 rounded-full text-white font-medium transition-all duration-200 hover:shadow-lg"
+                              style={{ backgroundColor: 'hsl(var(--wellness-blue))' }}
+                            >
+                              ▶ Start Focus Session
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -531,11 +402,11 @@ export default function Entertainment() {
                     {/* Sound Collections Grid */}
                     <div>
                       <h3 className="text-xl font-medium mb-4" style={{ color: 'hsl(var(--wellness-text))' }}>
-                        {activeWellnessCategory} Collection
+                        Recommended for You
                       </h3>
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {getCurrentCategoryTracks().map((track) => (
-                          <div key={track.id} className="group cursor-pointer" onClick={() => handlePlayMusic(track)}>
+                        {music.slice(0, 8).map((track) => (
+                          <div key={track.id} className="group cursor-pointer">
                             <div 
                               className="p-4 rounded-xl transition-all duration-200 hover:shadow-lg"
                               style={{ backgroundColor: 'hsl(var(--wellness-card))' }}
@@ -546,14 +417,12 @@ export default function Entertainment() {
                                   alt={track.title}
                                   className="w-full aspect-square object-cover rounded-lg"
                                 />
-                                <div className="absolute inset-0 bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-all duration-200 rounded-lg flex items-center justify-center">
-                                  {state.currentTrack?.id === track.id && state.isPlaying ? (
-                                    <div 
-                                      className="w-10 h-10 rounded-full flex items-center justify-center"
-                                      style={{ backgroundColor: 'hsl(var(--wellness-blue))' }}
-                                    >
-                                      <Pause className="w-5 h-5" />
-                                    </div>
+                                <button
+                                  onClick={() => handlePlayVideo(track.id)}
+                                  className="absolute inset-0 bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-all duration-200 rounded-lg flex items-center justify-center"
+                                >
+                                  {playingVideo === track.id ? (
+                                    <Pause className="w-6 h-6" />
                                   ) : (
                                     <div 
                                       className="w-10 h-10 rounded-full flex items-center justify-center"
@@ -562,10 +431,7 @@ export default function Entertainment() {
                                       <Play className="w-5 h-5" />
                                     </div>
                                   )}
-                                </div>
-                                {state.currentTrack?.id === track.id && (
-                                  <div className="absolute top-2 right-2 w-3 h-3 bg-green-400 rounded-full animate-pulse" />
-                                )}
+                                </button>
                               </div>
                               <h4 className="font-medium text-sm mb-1 line-clamp-1" style={{ color: 'hsl(var(--wellness-text))' }}>
                                 {track.title}
@@ -573,6 +439,23 @@ export default function Entertainment() {
                               <p className="text-xs mb-2" style={{ color: 'hsl(var(--wellness-text-muted))' }}>
                                 {track.artist}
                               </p>
+                              
+                              {playingVideo === track.id && (
+                                <div className="mt-3">
+                                  <div className="aspect-video mb-3">
+                                    <iframe
+                                      width="100%"
+                                      height="100%"
+                                      src={`https://www.youtube.com/embed/${track.youtubeId}?autoplay=1`}
+                                      title={track.title}
+                                      frameBorder="0"
+                                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                      allowFullScreen
+                                      className="rounded-lg"
+                                    />
+                                  </div>
+                                </div>
+                              )}
                               
                               <div className="text-xs p-2 rounded" style={{ 
                                 backgroundColor: 'hsl(var(--wellness-bg-alt))',
@@ -584,239 +467,107 @@ export default function Entertainment() {
                           </div>
                         ))}
                       </div>
-                      
-                      {/* Show message if category has fewer tracks */}
-                      {getCurrentCategoryTracks().length < 4 && (
-                        <div className="mt-6 p-4 rounded-xl border-2 border-dashed border-gray-200">
-                          <p className="text-center text-gray-500 text-sm">
-                            Explore other categories for more {activeWellnessCategory.toLowerCase()} content
-                          </p>
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
 
-                {/* Bottom Player removed - using GlobalMusicPlayer instead */}
+                {/* Bottom Player (Fixed) */}
+                {playingVideo && (
+                  <div className="fixed bottom-0 left-0 right-0 p-4 border-t transition-all duration-300" style={{ 
+                    backgroundColor: 'hsl(var(--wellness-bg-alt))',
+                    borderColor: 'hsl(var(--wellness-border))'
+                  }}>
+                    <div className="max-w-7xl mx-auto flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <img 
+                          src={music.find(m => m.id === playingVideo)?.albumArt} 
+                          alt="" 
+                          className="w-12 h-12 rounded-lg object-cover" 
+                        />
+                        <div>
+                          <p className="font-medium text-sm" style={{ color: 'hsl(var(--wellness-text))' }}>
+                            {music.find(m => m.id === playingVideo)?.title}
+                          </p>
+                          <p className="text-xs" style={{ color: 'hsl(var(--wellness-text-muted))' }}>
+                            {music.find(m => m.id === playingVideo)?.artist}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-4">
+                        <button
+                          onClick={() => setPlayingVideo(null)}
+                          className="w-8 h-8 rounded-full flex items-center justify-center text-white transition-all duration-200"
+                          style={{ backgroundColor: 'hsl(var(--wellness-blue))' }}
+                        >
+                          <Pause className="w-4 h-4" />
+                        </button>
+                        <div className="w-48 h-1 rounded-full" style={{ backgroundColor: 'hsl(var(--wellness-border))' }}>
+                          <div className="w-1/3 h-full rounded-full" style={{ backgroundColor: 'hsl(var(--wellness-blue))' }}></div>
+                        </div>
+                        <span className="text-xs" style={{ color: 'hsl(var(--wellness-text-muted))' }}>2:34 / 8:42</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </TabsContent>
 
-            {/* Movies Section - Soft Calming Theme */}
-            <TabsContent value="movies" className="space-y-0">
-              <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6 rounded-2xl">
-                {/* Hero Section */}
-                <div className="relative h-80 sm:h-96 overflow-hidden rounded-2xl mb-8 shadow-lg">
-                  <img
-                    src={filteredMovies[0]?.poster || "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&h=400&fit=crop&crop=center"}
-                    alt="Featured Movie"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/60 via-purple-800/20 to-transparent" />
-                  <div className="absolute bottom-0 left-0 p-6 sm:p-8 text-white max-w-2xl">
-                    <h1 className="text-3xl sm:text-4xl font-bold mb-4">
-                      {filteredMovies[0]?.title || "Featured Mental Wellness Film"} 
-                      <span className="text-lg opacity-75 ml-2">({filteredMovies[0]?.year})</span>
-                    </h1>
-                    <p className="text-lg mb-4 leading-relaxed opacity-90">
-                      {filteredMovies[0]?.description || "Discover inspiring stories that promote emotional well-being and personal growth through powerful storytelling."}
-                    </p>
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full">
-                        <Star className="w-5 h-5 text-yellow-300 fill-yellow-300" />
-                        <span className="font-semibold">{filteredMovies[0]?.rating || "8.2"}</span>
-                      </div>
-                      <span className="px-3 py-1 bg-white/20 rounded-full text-sm font-medium">
-                        {filteredMovies[0]?.genre || "Drama"}
-                      </span>
+            {/* Movies Section */}
+            <TabsContent value="movies" className="space-y-6">
+              <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+                <h2 className="text-2xl font-semibold text-foreground">Uplifting Movies</h2>
+                <Select value={movieGenre} onValueChange={setMovieGenre}>
+                  <SelectTrigger className="w-full sm:w-48">
+                    <SelectValue placeholder="Filter by genre" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="All">All Genres</SelectItem>
+                    <SelectItem value="Drama">Drama</SelectItem>
+                    <SelectItem value="Animation">Animation</SelectItem>
+                    <SelectItem value="Documentary">Documentary</SelectItem>
+                    <SelectItem value="Comedy">Comedy</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredMovies.map((movie) => (
+                  <Card key={movie.id} className="hover-scale overflow-hidden">
+                    <div className="aspect-[2/3] relative">
+                      <img
+                        src={movie.poster}
+                        alt={movie.title}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
-                    <div className="flex gap-3">
-                      <Button 
-                        size="lg" 
-                        className="bg-white/90 text-indigo-800 hover:bg-white transition-all duration-300 shadow-lg"
-                        asChild
-                      >
-                        <a href={filteredMovies[0]?.imdbUrl} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="w-5 h-5 mr-2" />
-                          View Details
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg line-clamp-2">{movie.title}</CardTitle>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <span className="bg-primary/20 px-2 py-1 rounded text-xs font-medium">
+                          {movie.genre}
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                          <span>{movie.rating}</span>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <p className="text-sm text-muted-foreground line-clamp-3">{movie.description}</p>
+                      <div className="bg-primary/10 p-3 rounded-lg">
+                        <p className="text-sm font-medium text-primary mb-1">Why Watch:</p>
+                        <p className="text-sm text-muted-foreground">{movie.whyWatch}</p>
+                      </div>
+                      <Button variant="outline" size="sm" className="w-full" asChild>
+                        <a href={movie.imdbUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                          <ExternalLink className="w-3 h-3" />
+                          View on IMDB
                         </a>
                       </Button>
-                      <Button 
-                        size="lg" 
-                        variant="outline"
-                        className="border-white/50 text-white hover:bg-white/10 transition-all duration-300"
-                      >
-                        + Add to Watchlist
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Filter Section */}
-                <div className="flex items-center justify-between mb-8">
-                  <h2 className="text-3xl font-bold text-indigo-800">Mindful Cinema</h2>
-                  <Select value={movieGenre} onValueChange={setMovieGenre}>
-                    <SelectTrigger className="w-48 bg-white/70 border-indigo-200 text-indigo-800 shadow-sm">
-                      <SelectValue placeholder="Filter by genre" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border-indigo-200">
-                      <SelectItem value="All" className="text-indigo-800 hover:bg-indigo-50">All Genres</SelectItem>
-                      <SelectItem value="Drama" className="text-indigo-800 hover:bg-indigo-50">Drama</SelectItem>
-                      <SelectItem value="Animation" className="text-indigo-800 hover:bg-indigo-50">Animation</SelectItem>
-                      <SelectItem value="Documentary" className="text-indigo-800 hover:bg-indigo-50">Documentary</SelectItem>
-                      <SelectItem value="Comedy" className="text-indigo-800 hover:bg-indigo-50">Comedy</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Content Rows */}
-                <div className="space-y-8">
-                  {/* Featured Collection */}
-                  <div>
-                    <h3 className="text-2xl font-semibold text-indigo-700 mb-6">Healing Through Stories</h3>
-                    <div className="flex gap-6 overflow-x-auto pb-6 scrollbar-hide">
-                      {filteredMovies.map((movie) => (
-                        <div 
-                          key={movie.id} 
-                          className="flex-shrink-0 w-56 group cursor-pointer"
-                        >
-                          <div className="relative aspect-[2/3] rounded-2xl overflow-hidden mb-4 transform transition-all duration-500 hover:scale-105 hover:shadow-2xl">
-                            <img
-                              src={movie.poster}
-                              alt={movie.title}
-                              className="w-full h-full object-cover"
-                            />
-                            {/* Soft Hover Overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/80 via-purple-800/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-6">
-                              <div className="text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                                <div className="flex items-center gap-2 mb-3">
-                                  <Star className="w-4 h-4 text-yellow-300 fill-yellow-300" />
-                                  <span className="text-sm font-medium">{movie.rating}</span>
-                                  <span className="text-xs opacity-75">IMDb</span>
-                                </div>
-                                <p className="text-sm mb-4 line-clamp-3 leading-relaxed">{movie.whyWatch}</p>
-                                <div className="flex gap-2">
-                                  <Button 
-                                    size="sm" 
-                                    className="bg-white/90 text-indigo-800 hover:bg-white transition-colors text-xs px-4 py-2 shadow-lg"
-                                    asChild
-                                  >
-                                    <a href={movie.imdbUrl} target="_blank" rel="noopener noreferrer">
-                                      <ExternalLink className="w-3 h-3 mr-1" />
-                                      Details
-                                    </a>
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="text-center px-2">
-                            <h4 className="text-lg font-semibold text-indigo-800 line-clamp-2 mb-2">{movie.title}</h4>
-                            <div className="flex items-center justify-center gap-2 text-sm text-indigo-600">
-                              <span className="bg-indigo-100 px-2 py-1 rounded-full text-xs">{movie.genre}</span>
-                              <span className="text-xs opacity-75">({movie.year})</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Emotional Wellness */}
-                  <div>
-                    <h3 className="text-2xl font-semibold text-indigo-700 mb-6">Emotional Wellness</h3>
-                    <div className="flex gap-6 overflow-x-auto pb-6 scrollbar-hide">
-                      {filteredMovies.filter(movie => ["Inside Out", "Good Will Hunting", "Peaceful Warrior"].includes(movie.title)).map((movie) => (
-                        <div 
-                          key={`emotional-${movie.id}`} 
-                          className="flex-shrink-0 w-56 group cursor-pointer"
-                        >
-                          <div className="relative aspect-[2/3] rounded-2xl overflow-hidden mb-4 transform transition-all duration-500 hover:scale-105 hover:shadow-2xl">
-                            <img
-                              src={movie.poster}
-                              alt={movie.title}
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-pink-800/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-6">
-                              <div className="text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                                <div className="flex items-center gap-2 mb-3">
-                                  <Star className="w-4 h-4 text-yellow-300 fill-yellow-300" />
-                                  <span className="text-sm font-medium">{movie.rating}</span>
-                                </div>
-                                <p className="text-sm mb-4 line-clamp-3">{movie.whyWatch}</p>
-                                <Button 
-                                  size="sm" 
-                                  className="bg-white/90 text-purple-800 hover:bg-white transition-colors text-xs px-4 py-2"
-                                  asChild
-                                >
-                                  <a href={movie.imdbUrl} target="_blank" rel="noopener noreferrer">
-                                    <ExternalLink className="w-3 h-3 mr-1" />
-                                    Watch
-                                  </a>
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="text-center px-2">
-                            <h4 className="text-lg font-semibold text-indigo-800 line-clamp-2 mb-2">{movie.title}</h4>
-                            <div className="flex items-center justify-center gap-2 text-sm text-indigo-600">
-                              <span className="bg-purple-100 px-2 py-1 rounded-full text-xs">{movie.genre}</span>
-                              <span className="text-xs opacity-75">({movie.year})</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Inspirational Stories */}
-                  <div>
-                    <h3 className="text-2xl font-semibold text-indigo-700 mb-6">Inspirational Stories</h3>
-                    <div className="flex gap-6 overflow-x-auto pb-6 scrollbar-hide">
-                      {filteredMovies.map((movie) => (
-                        <div 
-                          key={`inspirational-${movie.id}`} 
-                          className="flex-shrink-0 w-56 group cursor-pointer"
-                        >
-                          <div className="relative aspect-[2/3] rounded-2xl overflow-hidden mb-4 transform transition-all duration-500 hover:scale-105 hover:shadow-2xl">
-                            <img
-                              src={movie.poster}
-                              alt={movie.title}
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/80 via-teal-800/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-6">
-                              <div className="text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                                <div className="flex items-center gap-2 mb-3">
-                                  <Star className="w-4 h-4 text-yellow-300 fill-yellow-300" />
-                                  <span className="text-sm font-medium">{movie.rating}</span>
-                                </div>
-                                <p className="text-sm mb-4 line-clamp-3">{movie.description}</p>
-                                <Button 
-                                  size="sm" 
-                                  className="bg-white/90 text-emerald-800 hover:bg-white transition-colors text-xs px-4 py-2"
-                                  asChild
-                                >
-                                  <a href={movie.imdbUrl} target="_blank" rel="noopener noreferrer">
-                                    <ExternalLink className="w-3 h-3 mr-1" />
-                                    Explore
-                                  </a>
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="text-center px-2">
-                            <h4 className="text-lg font-semibold text-indigo-800 line-clamp-2 mb-2">{movie.title}</h4>
-                            <div className="flex items-center justify-center gap-2 text-sm text-indigo-600">
-                              <span className="bg-emerald-100 px-2 py-1 rounded-full text-xs">{movie.genre}</span>
-                              <span className="text-xs opacity-75">({movie.year})</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pb-8"></div> {/* Bottom spacing */}
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             </TabsContent>
           </Tabs>

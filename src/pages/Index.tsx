@@ -12,14 +12,14 @@ const Index = () => {
       title: 'Daily Plans',
       description: 'Structured daily routines and wellness checklists designed to support your mental health journey with guided activities.',
       icon: Calendar,
-      link: '/daily-plan',
+      link: '/daily-plans',
       gradient: 'from-primary/20 to-primary-light/20'
     },
     {
       title: 'Guided Support',
       description: 'Step-by-step guidance, evidence-based exercises, and professional resources to help you build resilience.',
       icon: Users,
-      link: '/health-recommendations',
+      link: '/services',
       gradient: 'from-success/20 to-success/30'
     },
     {
@@ -77,13 +77,13 @@ const Index = () => {
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-4 mb-8 justify-center">
-                  <Link to="/daily-plan">
+                  <Link to="/daily-plans">
                     <Button size="lg" className="bg-primary text-primary-foreground hover-glow transition-smooth px-8 py-4 text-lg font-medium">
                       Get Started
                       <ArrowRight className="ml-2 w-5 h-5" />
                     </Button>
                   </Link>
-                  <Link to="/health-recommendations">
+                  <Link to="/services">
                     <Button size="lg" variant="outline" className="px-8 py-4 text-lg font-medium hover-glow transition-smooth">
                       Explore Services
                     </Button>
@@ -186,7 +186,7 @@ const Index = () => {
               Take the first step towards better mental health with our comprehensive, gentle approach to wellness.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/daily-plan">
+              <Link to="/daily-plans">
                 <Button size="lg" className="bg-primary text-primary-foreground hover-glow px-8 py-4 text-lg font-medium">
                   Start Your Daily Practice
                   <CheckCircle className="ml-2 w-5 h-5" />
