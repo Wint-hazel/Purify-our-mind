@@ -63,7 +63,7 @@ const Auth = () => {
         <img 
           src={logo} 
           alt="Purify Our Mind" 
-          className="w-96 h-96 object-contain"
+          className="w-96 h-96 object-cover rounded-full"
         />
       </div>
       
@@ -73,7 +73,7 @@ const Auth = () => {
             <img 
               src={logo} 
               alt="Purify Our Mind" 
-              className="w-16 h-16 object-contain"
+              className="w-16 h-16 object-cover rounded-full"
             />
           </div>
           <CardTitle className="text-2xl text-foreground">
