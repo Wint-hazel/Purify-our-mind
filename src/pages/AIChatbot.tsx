@@ -4,6 +4,7 @@ import Footer from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Heart, AlertTriangle } from 'lucide-react';
 import VoiceInterface from '@/components/VoiceInterface';
+import SimpleVoiceChat from '@/components/SimpleVoiceChat';
 
 declare global {
   interface Window {
@@ -77,6 +78,11 @@ const AIChatbot = () => {
                 </CardContent>
               </Card>
             )}
+          </div>
+
+          {/* Simple Voice Chat */}
+          <div className="max-w-4xl mx-auto mb-8">
+            <SimpleVoiceChat />
           </div>
 
           {/* Landbot Chat Interface */}
