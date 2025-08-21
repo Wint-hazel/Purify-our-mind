@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Calendar, BookOpen, ChevronLeft, ChevronRight, Plus, Edit2, Trash2 } from 'lucide-react';
+import MemoryMedia from '@/components/MemoryMedia';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -511,7 +512,7 @@ const DailyPlan = () => {
           </div>
 
           {/* Bottom Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mt-8">
             {/* Water Tracker */}
             <div>
               <h3 className="text-xl font-semibold text-stone-800 mb-4">Water</h3>
@@ -556,6 +557,11 @@ const DailyPlan = () => {
                   </Button>
                 </div>
               </div>
+            </div>
+
+            {/* Memory Media */}
+            <div className="md:col-span-2 xl:col-span-1">
+              <MemoryMedia selectedDate={selectedDate || undefined} />
             </div>
           </div>
         </div>
