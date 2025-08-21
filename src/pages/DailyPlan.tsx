@@ -2,7 +2,10 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Calendar, BookOpen, ChevronLeft, ChevronRight, Plus, Edit2, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -21,6 +24,17 @@ interface DiaryEntry {
   updated_at: string;
 }
 
+interface ScheduleEntry {
+  id: string;
+  user_id: string;
+  entry_date: string;
+  time_slot: string;
+  activity_title: string;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 const DailyPlan = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -30,11 +44,16 @@ const DailyPlan = () => {
   const today = new Date();
   const displayDate = selectedDate ? new Date(selectedDate) : today;
   const [entries, setEntries] = useState<DiaryEntry[]>([]);
+  const [scheduleEntries, setScheduleEntries] = useState<ScheduleEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [notes, setNotes] = useState('');
   const [goals, setGoals] = useState('');
   const [selectedMood, setSelectedMood] = useState<number | null>(null);
   const [waterCount, setWaterCount] = useState(0);
+  const [isScheduleDialogOpen, setIsScheduleDialogOpen] = useState(false);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('');
+  const [editingSchedule, setEditingSchedule] = useState<ScheduleEntry | null>(null);
+  const [scheduleForm, setScheduleForm] = useState({ activity_title: '', description: '' });
   const [todos, setTodos] = useState([
     { id: 1, text: 'Complete daily gratitude journal', completed: false },
     { id: 2, text: 'Take a 10-minute mindful walk', completed: false },
@@ -53,6 +72,7 @@ const DailyPlan = () => {
   useEffect(() => {
     if (user) {
       fetchEntries();
+      fetchScheduleEntries();
     }
   }, [user, selectedDate]);
 
@@ -81,6 +101,115 @@ const DailyPlan = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchScheduleEntries = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('schedule_entries')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('entry_date', selectedDate || today.toISOString().split('T')[0])
+        .order('time_slot', { ascending: true });
+
+      if (error) throw error;
+      setScheduleEntries(data || []);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load schedule entries",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const saveScheduleEntry = async () => {
+    if (!user || !scheduleForm.activity_title.trim()) return;
+
+    try {
+      const entryDate = selectedDate || today.toISOString().split('T')[0];
+      
+      if (editingSchedule) {
+        // Update existing entry
+        const { error } = await supabase
+          .from('schedule_entries')
+          .update({
+            activity_title: scheduleForm.activity_title,
+            description: scheduleForm.description
+          })
+          .eq('id', editingSchedule.id);
+        if (error) throw error;
+      } else {
+        // Create new entry
+        const { error } = await supabase
+          .from('schedule_entries')
+          .insert({
+            user_id: user.id,
+            entry_date: entryDate,
+            time_slot: selectedTimeSlot,
+            activity_title: scheduleForm.activity_title,
+            description: scheduleForm.description
+          });
+        if (error) throw error;
+      }
+
+      toast({
+        title: "Success",
+        description: editingSchedule ? "Schedule updated successfully" : "Schedule entry added successfully",
+      });
+      
+      fetchScheduleEntries();
+      setIsScheduleDialogOpen(false);
+      setScheduleForm({ activity_title: '', description: '' });
+      setEditingSchedule(null);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save schedule entry",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const deleteScheduleEntry = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('schedule_entries')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Success",
+        description: "Schedule entry deleted successfully",
+      });
+      
+      fetchScheduleEntries();
+    } catch (error) {
+      toast({
+        title: "Error", 
+        description: "Failed to delete schedule entry",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const openScheduleDialog = (timeSlot: string, existingEntry?: ScheduleEntry) => {
+    setSelectedTimeSlot(timeSlot);
+    if (existingEntry) {
+      setEditingSchedule(existingEntry);
+      setScheduleForm({
+        activity_title: existingEntry.activity_title,
+        description: existingEntry.description || ''
+      });
+    } else {
+      setEditingSchedule(null);
+      setScheduleForm({ activity_title: '', description: '' });
+    }
+    setIsScheduleDialogOpen(true);
   };
 
   const saveNotes = async () => {
@@ -306,18 +435,56 @@ const DailyPlan = () => {
               </h2>
               
               <div className="space-y-3 max-h-96 overflow-y-auto">
-                {timeSlots.map((time, index) => {
-                  const hour = parseInt(time.split(':')[0]);
-                  const hasActivity = hour === 8; // Morning meditation
+                {timeSlots.map((time) => {
+                  const scheduleEntry = scheduleEntries.find(entry => entry.time_slot === time + ':00');
                   
                   return (
-                    <div key={time} className="flex items-center space-x-4">
+                    <div key={time} className="flex items-center space-x-4 group">
                       <span className="text-stone-600 text-sm w-12">{time}</span>
-                      <div className={`w-6 h-6 rounded-full border-2 cursor-pointer transition-colors ${
-                        hasActivity ? 'bg-green-200 border-green-400' : 'border-stone-300 hover:border-stone-400'
-                      }`}></div>
-                      {hasActivity && (
-                        <span className="text-sm text-stone-700">Morning Meditation</span>
+                      <div 
+                        className={`w-6 h-6 rounded-full border-2 cursor-pointer transition-colors ${
+                          scheduleEntry ? 'bg-green-200 border-green-400' : 'border-stone-300 hover:border-stone-400'
+                        }`}
+                        onClick={() => openScheduleDialog(time + ':00', scheduleEntry)}
+                      ></div>
+                      
+                      {scheduleEntry ? (
+                        <div className="flex-1 flex items-center justify-between">
+                          <div className="flex-1">
+                            <span className="text-sm text-stone-700 font-medium">{scheduleEntry.activity_title}</span>
+                            {scheduleEntry.description && (
+                              <p className="text-xs text-stone-500 mt-1">{scheduleEntry.description}</p>
+                            )}
+                          </div>
+                          <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => openScheduleDialog(time + ':00', scheduleEntry)}
+                              className="h-6 w-6 p-0"
+                            >
+                              <Edit2 className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => deleteScheduleEntry(scheduleEntry.id)}
+                              className="h-6 w-6 p-0"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openScheduleDialog(time + ':00')}
+                          className="text-xs text-stone-500 hover:text-stone-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Plus className="h-3 w-3 mr-1" />
+                          Add activity
+                        </Button>
                       )}
                     </div>
                   );
@@ -454,6 +621,46 @@ const DailyPlan = () => {
             </div>
           </div>
         </div>
+
+        {/* Schedule Dialog */}
+        <Dialog open={isScheduleDialogOpen} onOpenChange={setIsScheduleDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>
+                {editingSchedule ? 'Edit' : 'Add'} Schedule Entry for {selectedTimeSlot}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="activity">Activity Title</Label>
+                <Input
+                  id="activity"
+                  placeholder="e.g., Morning Workout"
+                  value={scheduleForm.activity_title}
+                  onChange={(e) => setScheduleForm(prev => ({ ...prev, activity_title: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="description">Description (optional)</Label>
+                <Textarea
+                  id="description"
+                  placeholder="Add more details..."
+                  value={scheduleForm.description}
+                  onChange={(e) => setScheduleForm(prev => ({ ...prev, description: e.target.value }))}
+                  className="min-h-[80px]"
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setIsScheduleDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={saveScheduleEntry}>
+                  {editingSchedule ? 'Update' : 'Add'} Activity
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </main>
       
       <Footer />

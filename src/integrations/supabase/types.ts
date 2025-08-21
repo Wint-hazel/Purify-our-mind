@@ -155,6 +155,39 @@ export type Database = {
         }
         Relationships: []
       }
+      schedule_entries: {
+        Row: {
+          activity_title: string
+          created_at: string
+          description: string | null
+          entry_date: string
+          id: string
+          time_slot: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activity_title: string
+          created_at?: string
+          description?: string | null
+          entry_date?: string
+          id?: string
+          time_slot: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activity_title?: string
+          created_at?: string
+          description?: string | null
+          entry_date?: string
+          id?: string
+          time_slot?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
