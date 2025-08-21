@@ -39,7 +39,7 @@ const music = [
     id: 3,
     title: "Watermark",
     artist: "Enya",
-    albumArt: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=250&h=250&fit=crop&crop=center",
+    albumArt: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=250&h=250&fit=crop&crop=center",
     youtubeId: "LTrk4X9ACtw",
     whyListen: "Ethereal vocals and minimalist instrumentation create a meditative soundscape that helps quiet racing thoughts."
   },
@@ -71,7 +71,7 @@ const music = [
     id: 7,
     title: "Om Mani Padme Hum",
     artist: "Deva Premal",
-    albumArt: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=250&h=250&fit=crop&crop=center&seed=7",
+    albumArt: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=250&h=250&fit=crop&crop=center",
     youtubeId: "hz931_bx4QM",
     whyListen: "Sacred chanting that promotes deep meditation and inner peace, reducing stress through spiritual connection."
   },
